@@ -1,7 +1,7 @@
 #ifndef SIMULATION_MARS_TASK_HPP
 #define SIMULATION_MARS_TASK_HPP
 
-#include "mars/MarsBase.hpp"
+#include "mars/TaskBase.hpp"
 #include <vector>
 #include <mars/data_broker/ReceiverInterface.h>
 #include "Plugin.hpp"
@@ -27,85 +27,15 @@ namespace mars{
     };
 };
 
-class SimulationTime
-{
-    /** lock for mars time */
-    boost::mutex timeLock;
-    /** time offset to use for the mars time */
-    base::Time startTime;
-    /** mars time including offset */
-    base::Time marsTime;
-    /** time elapsed in ms since start of mars */ 
-    double msElapsed;
-    /** Check wether the time is initialized or not */
-    bool initialized;
-    /** Override calculation of time, using base::Time::now insted */
-    bool useNow;
-
-public:
-    SimulationTime()
-    {
-        initialized = false;
-        useNow = false;
-    }
-
-    void useNowInsteadOfSimTime(){
-        useNow = true;
-    }
-
-    /** @brief set the start time
-     */
-    void setStartTime( base::Time startTime )
-    {
-	this->startTime = startTime;
-	msElapsed = 0 ;
-        marsTime = startTime;
-        initialized = true;
-    }	
-
-    /** @return the mars time, which is offset by t
-     * the time the mars was started
-     */
-    base::Time get()
-    {
-	boost::mutex::scoped_lock lock( timeLock );
-	if(!initialized || useNow){
-            //This prevent some wiered states in the timestamp estimator if the mars is
-            //not completly setup so far.
-            return base::Time::now();
-        }
-        return marsTime;
-    }
-
-    /** set the time since the mars was started in ms
-     */
-    void setElapsedMs( double ms )
-    {
-        if(!initialized){
-	    setStartTime( base::Time::now() );
-        }
-	boost::mutex::scoped_lock lock( timeLock );
-	msElapsed = ms;
-	marsTime = startTime + base::Time::fromMilliseconds( msElapsed );
-    }
-
-    /** @return the time in milliseconds since the start of the mars
-     */
-    double getElapsedMs()
-    {
-	boost::mutex::scoped_lock lock( timeLock );
-	return msElapsed;
-    }
-};
 
 namespace mars {
 
-    class Mars;
+    class Task;
 
-    // Argument to pass to startMarsFunc 
-    struct MarsArguments
+    // Argument to pass to startTaskFunc 
+    struct TaskArguments
     {
-	    Mars* mars;
+	    Task* mars;
 	    bool enable_gui;
         int controller_port;
         std::vector<SimulationProperty> mars_property_list;
@@ -127,21 +57,21 @@ namespace mars {
     * use subclassing to derive robot specific modules, e.g.
     * 
     * task_context 'RobotSimulation' do
-    *         subclasses 'mars::Mars'
+    *         subclasses 'mars::Task'
     * ..
     * end
     *
     */
-    class Mars : public MarsBase, public mars::data_broker::ReceiverInterface
+    class Task : public TaskBase, public mars::data_broker::ReceiverInterface
 
     {
-	friend class MarsBase;
+	friend class TaskBase;
     protected:
         QApplication* app; 
     	static mars::app::GraphicsTimer *graphicsTimer;
 	static mars::interfaces::SimulatorInterface* simulatorInterface;
-	static mars::Mars* taskInterface;
-	static void* startMarsFunc(void *);
+	static mars::Task* taskInterface;
+	static void* startTaskFunc(void *);
         static std::string configDir;
 	static bool marsRunning;
 
@@ -181,18 +111,18 @@ namespace mars {
         virtual bool setSim_step_size(double value);
         virtual bool setGravity(::base::Vector3d const & value);
         virtual bool setGravity_internal(::base::Vector3d const & value);
+        virtual void setPosition(::mars::Positions const & positions);
 
     public:
 	/** get the singleton instance of the simulator interface
 	 */
 	static mars::interfaces::SimulatorInterface* getSimulatorInterface();
-	static mars::Mars* getTaskInterface();
-	static SimulationTime simTime;
+	static mars::Task* getTaskInterface();
 
-        Mars(std::string const& name = "mars::Mars");
-        Mars(std::string const& name, RTT::ExecutionEngine* engine);
+        Task(std::string const& name = "mars::Task");
+        Task(std::string const& name, RTT::ExecutionEngine* engine);
 
-	~Mars();
+	~Task();
 
         void registerPlugin(Plugin* plugin);
         void unregisterPlugin(Plugin* plugin);

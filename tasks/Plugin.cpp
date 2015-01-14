@@ -79,12 +79,11 @@ void Plugin::init()
 
 base::Time Plugin::getTime()
 {
-    return Mars::simTime.get();
-}
-
-double Plugin::getSimTime()
-{
-    return Mars::simTime.getElapsedMs();
+    if(!sim){
+        RTT::log(RTT::Error) << "Cannot request sim-time, no simulator running";
+        fatal();
+    }
+    return base::Time::fromMilliseconds(sim->getTime());
 }
 
 bool Plugin::connect()
@@ -94,7 +93,7 @@ bool Plugin::connect()
         disconnect();
     else
     {
-        sim = Mars::getSimulatorInterface();
+        sim = Task::getSimulatorInterface();
         if( !sim ){
             std::cerr << "Plugin: could not get singleton instance of simulator interface." << std::endl;
             RTT::log(RTT::Error) << "Plugin: could not get singleton instance of simulator interface." << std::endl;
@@ -111,7 +110,7 @@ bool Plugin::connect()
 
     // get controlcenter
     control = sim->getControlCenter();
-    Mars::getTaskInterface()->registerPlugin(this);
+    Task::getTaskInterface()->registerPlugin(this);
 
     return true;
 }
@@ -120,7 +119,7 @@ void Plugin::disconnect()
 {
     if( sim ){
         sim->removePlugin( this );
-        Mars::getTaskInterface()->unregisterPlugin(this);
+        Task::getTaskInterface()->unregisterPlugin(this);
     }
 }
 

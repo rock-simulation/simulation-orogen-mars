@@ -4,7 +4,7 @@
 #define SIMULATION_MARSPLUGIN_TASK_HPP
 
 #include "mars/PluginBase.hpp"
-#include "Mars.hpp"
+#include "Task.hpp"
 #include <mars/lib_manager/LibManager.h>
 #include <mars/interfaces/sim/SimulatorInterface.h>
 #include <mars/interfaces/sim/ControlCenter.h>
@@ -119,13 +119,6 @@ namespace mars {
 	 * @return the mars time to be used as timestamps
 	 */
         base::Time getTime();
-
-	/**
-	 * @brief return the mars time in ms since the start of the mars
-	 *
-	 * @note do not use this for generating timestamps
-	 */
-        double getSimTime();
 
         bool connect();
         void disconnect();
