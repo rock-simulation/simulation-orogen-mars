@@ -4,6 +4,7 @@
 #define SIMULATION_PATHDRAWER_TASK_HPP
 
 #include "mars/PathDrawerBase.hpp"
+#include <mars/interfaces/graphics/GraphicsManagerInterface.h>
 #include <osg_lines/LinesFactory.h>
 
 namespace mars {
@@ -22,18 +23,24 @@ namespace mars {
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument. 
      */
-    class PathDrawer : public PathDrawerBase
+    class PathDrawer : public PathDrawerBase, public mars::interfaces::GraphicsUpdateInterface
     {
 	friend class PathDrawerBase;
     protected:
 
     private:
-        osg_lines::Lines *l;
+        osg_lines::Lines *lines, *point;
+        std::vector<base::Trajectory> trajectories_3d;
 
         /**
          * This method gets the desired z-coordinate for a certain 2d position
          * */
         mars::interfaces::sReal getHeightFromScene(mars::interfaces::sReal x, mars::interfaces::sReal y);
+
+        /**
+         * This method needs to be reimplemented to be thread safe
+         * */
+        virtual void postGraphicsUpdate(void );
     public:
         /** TaskContext constructor for PathDrawer
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
