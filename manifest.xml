@@ -15,6 +15,7 @@ The mars-core module provides the base for other modules that require the simula
   <depend package="simulation/mars/graphics" />
   <depend package="simulation/mars/sim" />
   <depend package="simulation/mars/scene_loader" />
+  <depend package="simulation/mars/common/graphics/osg_lines" />
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />

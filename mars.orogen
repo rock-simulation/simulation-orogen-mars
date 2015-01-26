@@ -7,6 +7,7 @@ using_library "main_gui", :typekit => false
 using_library "mars_sim", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "mars_graphics", :typekit => false
+using_library "osg_lines", :typekit => false
 using_library "QtCore", :typekit => false
 using_library "QtGui", :typekit => false
 
@@ -433,4 +434,20 @@ task_context "AuvMotion" do
 
 end
 
+task_context "PathDrawer" do
+    subclasses "Plugin"
 
+    property('distance_to_ground', 'double', 0.0).
+        doc('Added offset to evaluated z-coordinate for each xy-coordinate')
+
+    input_port( "current_waypoint", "/base/Waypoint" ).
+        doc "current waypoint to draw"
+
+    input_port( "trajectories_2d", "/std/vector</base/Trajectory>" ).
+        doc "2d trajectories to draw"
+
+    output_port( "trajectories_3d", "/std/vector</base/Trajectory>" ).
+        doc "3d trajectories where the z-coordinate reflects the hightest point at each xy coordinate + distance_to_ground"
+
+    port_driven
+end
