@@ -1,7 +1,7 @@
 #ifndef SERVO_TYPES_HH
 #define SERVO_TYPES_HH
 
-namespace servo 
+namespace mars
 {
     enum MODE {
 	POSITION,
