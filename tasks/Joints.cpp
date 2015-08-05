@@ -63,14 +63,14 @@ void Joints::update(double delta_t)
             {
                 //set maximum speed that is allowed for turning
                 if(curCmd.hasSpeed())
-                    motor->setMaximumVelocity(curCmd.speed);
+                    curCmd.speed = motor->getMaxSpeed();
 
-                motor->setValue( conv.toMars( curCmd.position ) );
+                motor->setDesiredMotorAngle( conv.toMars( curCmd.position ) );
             }
             else
             {
                 if( curCmd.hasSpeed() )
-                    motor->setVelocity(curCmd.speed / conv.scaling);
+                    motor->setDesiredMotorVelocity(curCmd.speed / conv.scaling);
             }
 	    if( curCmd.hasEffort() )
 	    {
@@ -104,9 +104,9 @@ void Joints::update(double delta_t)
         mars::sim::SimMotor *motor = control->motors->getSimMotor( conv->mars_id );
 
 	base::JointState state;
-	state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getActualPosition() ));
-	state.speed = motor->getJoint()->getVelocity() * conv->scaling;
-	state.effort = conv->fromMars( motor->getTorque() );
+	state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getPosition() ));
+	state.speed = motor->getJoint()->getSpeed() * conv->scaling;
+	state.effort = conv->fromMars( motor->getEffort() );
 
 	currents[conv->externalName] = motor->getCurrent();
 
