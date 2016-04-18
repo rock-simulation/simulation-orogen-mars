@@ -4,9 +4,17 @@ include Orocos
 
 Orocos.initialize
 
-Orocos.run 'mars::Task' => 'mars', "valgrind" => false do
+Orocos.run 'simulation_asguard' do
+    
+    #TaskContext 'velodyne' do
+    #    subclasses  'mars::Task'
+    #end
 
     mars = TaskContext.get 'mars'
+    velodyne = TaskContext.get 'velodyne'
+    
+    #velodyne.subclasses('mars')
+
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
 
@@ -20,11 +28,18 @@ Orocos.run 'mars::Task' => 'mars', "valgrind" => false do
 #
 #    mars.raw_options = raw_options
 
+    mars.apply_conf_file("mars::Task.yml", ["default"])
     mars.configure
     mars.start
-   
-#    sleep 50
-#
+    
+    sleep 10
+    
+    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.configure
+    velodyne.start
+    
+
+    #
 #    STDOUT.puts "Restartign mars"
 #    mars.stop
 #    mars.cleanup

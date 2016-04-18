@@ -433,4 +433,15 @@ task_context "AuvMotion" do
 
 end
 
+# Deployment for testing
 
+deployment 'simulation_asguard' do
+    task( "mars", "mars::Task").
+        realtime.
+        priority(85)
+
+    task('velodyne', 'mars::RotatingLaserRangeFinder').periodic(1.0)
+
+    add_default_logger.
+        realtime
+end
