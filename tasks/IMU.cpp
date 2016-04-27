@@ -5,8 +5,11 @@
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 #include <mars/interfaces/sim/NodeManagerInterface.h>
 #include <mars/utils/mathUtils.h>
+#include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
 
 using namespace mars;
+using namespace envire::core;
 
 IMU::IMU(std::string const& name)
     : IMUBase(name)
@@ -38,16 +41,24 @@ bool IMU::startHook()
 {
     if (! IMUBase::startHook())
         return false;
-
-    node_id = control->nodes->getID( _name.value() );
-    if( !node_id ){
-        std::cerr << "There is no node by the name of " << _name .value() << " in the scene" << std::endl;
-        return false;
-    }
+    
+    using SimNodePtrItem = Item<std::shared_ptr<mars::sim::SimNode>>;
+    using SimNodePtrItemIter = EnvireGraph::ItemIterator<SimNodePtrItem>;
+    SimNodePtrItemIter imuNodePtrIter = control->graph->getItem<SimNodePtrItem>(_name.value(),0);
+    imuNodePtr = imuNodePtrIter -> getData();
+    // Throws an exception if the frame does not exists
+    
+    //node_id = control->nodes->getID( _name.value() );
+    //if( !node_id ){
+    //    std::cerr << "There is no node by the name of " << _name .value() << " in the scene" << std::endl;
+    //    return false;
+    //}
 
     rbs.initSane();
     rbs.position.setZero();
 
+    // Not implemented in the envire version
+    /*
     if (_rotate_node_relative.get().size() == 3){
 
 
@@ -65,6 +76,7 @@ bool IMU::startHook()
 		control->nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT);
 
     }
+    */
     
     translation_noise = boost::normal_distribution<double>(0.0, _position_sigma.get());
     rotation_noise = boost::normal_distribution<double>(0.0, _orientation_sigma.get());
@@ -97,7 +109,10 @@ void IMU::update( double time )
     rbs.time = getTime();
     rbs.sourceFrame = _imu_frame.value();
     rbs.targetFrame = _world_frame.value();
-    rbs.orientation = control->nodes->getRotation( node_id ).normalized();
+    // TODO The center of the simulation has to be standard
+    envire::core::Transform imuPos = control->graph->getTransform("center", _name.value());
+    rbs.orientation = imuPos.transform.orientation.normalized();
+    //rbs.orientation = control->nodes->getRotation( node_id ).normalized();
     rbs.cov_orientation = base::Matrix3d::Identity() * std::max(std::pow(rotation_noise.sigma(), 2), 1e-6);
     if( rotation_noise.sigma() > 0.0 )
     {
@@ -108,7 +123,9 @@ void IMU::update( double time )
 	rbs.orientation = orientation_error * rbs.orientation;
     }
 
-    rbs.velocity = control->nodes->getLinearVelocity( node_id );
+    // For this we need the simulation object
+    rbs.velocity = imuNodePtr -> getLinearVelocity();
+    //rbs.velocity = control->nodes->getLinearVelocity( node_id );
     rbs.cov_velocity = base::Matrix3d::Identity() * std::max(std::pow(velocity_noise.sigma(), 2), 1e-6);
     if( velocity_noise.sigma() > 0.0 )
     {
@@ -116,7 +133,8 @@ void IMU::update( double time )
 	rbs.velocity = rbs.velocity + base::Vector3d(velocity_noise(rnd_generator), velocity_noise(rnd_generator), velocity_noise(rnd_generator));
     }
     
-    rbs.angular_velocity =  rbs.orientation.inverse() * control->nodes->getAngularVelocity( node_id);
+    rbs.angular_velocity = rbs.orientation.inverse() * imuNodePtr->getAngularVelocity();
+    //rbs.angular_velocity =  rbs.orientation.inverse() * control->nodes->getAngularVelocity( node_id);
     rbs.cov_angular_velocity = base::Matrix3d::Identity() * std::max(std::pow(angular_velocity_noise.sigma(), 2), 1e-6);
     if( angular_velocity_noise.sigma() > 0.0 )
     {
@@ -126,7 +144,7 @@ void IMU::update( double time )
     
     _orientation_samples.write( rbs );
     
-    rbs.position = control->nodes->getPosition( node_id );
+    rbs.position = imuPos.transform.translation;
     rbs.cov_position = base::Matrix3d::Identity() * std::max(std::pow(translation_noise.sigma(), 2), 1e-6);
     if( translation_noise.sigma() > 0.0 )
     {
@@ -138,8 +156,10 @@ void IMU::update( double time )
     
     
     imusens.time = getTime();
-    imusens.acc = control->nodes->getLinearAcceleration( node_id );
-    imusens.gyro = control->nodes->getAngularVelocity( node_id);
+    imusens.acc = imuNodePtr->getLinearAcceleration();
+    imusens.gyro = imuNodePtr->getAngularVelocity();
+    //imusens.acc = control->nodes->getLinearAcceleration( node_id );
+    //imusens.gyro = control->nodes->getAngularVelocity( node_id);
     _calibrated_sensors.write( imusens );
 
 }

@@ -451,9 +451,10 @@ deployment 'simulation_asguard' do
         realtime.
         priority(71)
     
-    task('sysmon', 'mars::Joints').
-        realtime.
-        priority(71)
+    # This one seems to be just for the passive joint
+    #task('sysmon', 'mars::Joints'). 
+    #    realtime.
+    #    priority(71)
     
     task('body_state', 'asguard::BodyTask').
         realtime.

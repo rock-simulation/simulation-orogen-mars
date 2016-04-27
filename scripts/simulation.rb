@@ -5,20 +5,15 @@ include Orocos
 Orocos.initialize
 
 Orocos.run 'simulation_asguard' do
-    
-    #TaskContext 'velodyne' do
-    #    subclasses  'mars::Task'
-    #end
 
     mars = TaskContext.get 'mars'
     velodyne = TaskContext.get 'velodyne'
-    actuators = TaskContext.get 'mars_actuators'
-    dispatcher = TaskContext.get 'joint_dispatcher'
-    #sysmon = TaskContext.get 'sysmon'
+    mars_actuators = TaskContext.get 'mars_actuators'
+    joint_dispatcher = TaskContext.get 'joint_dispatcher'
+    xsens = TaskContext.get 'xsens'
+    # TODO Add the passive joint, otherwise body_state can not be computed
+    #body_state = TaskContext.get 'body_state'
     
-
-    #velodyne.subclasses('mars')
-
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
 
@@ -41,32 +36,34 @@ Orocos.run 'simulation_asguard' do
     
     # I am not sure about the configs, e.g. maybe the default have to be applied too
     
-    dispatcher.apply_conf_file("joint_dispatcher::Task.yml", ["default"])
-    dispatcher.configure
+    joint_dispatcher.apply_conf_file("joint_dispatcher::Task.yml", ["default"])
+    joint_dispatcher.configure
     
-    #sysmon.apply_conf_file("mars::Joints.yml", ["default"])
-    #sysmon.apply_conf_file("mars::Joints.yml", ["sysmon"])
-    #This one is for the passive joint, so it assumes there is a motor there, which we don't have anymore in the model. Do we still neeed this task?
-    #sysmon.configure
-    
-    actuators.apply_conf_file("mars::Joints.yml", ["base"]) 
-    actuators.configure
+    mars_actuators.apply_conf_file("mars::Joints.yml", ["base"]) 
+    mars_actuators.configure
     
     velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
     
+    xsens.apply_conf_file("mars::IMU.yml", ["default"])
+    xsens.configure
+    
+    #body_state.apply_conf_file("asguard::BodyTask.yml", ["default"])
+    #body_state.configure
+    
+    
     # Connections
-    dispatcher.command_out.connect_to(actuators.command)
-    actuators.status_samples.connect_to(dispatcher.status_samples_in, :type=>:buffer, :size=>100)
-    #sysmon.status_samples.connect_to(dispatcher.body_joint_in, :type=>:buffer, :size=>100)
+    joint_dispatcher.command_out.connect_to(mars_actuators.command)
+    mars_actuators.status_samples.connect_to(joint_dispatcher.status_samples_in, :type=>:buffer, :size=>100)
     
+    #joint_dispatcher.status_samples.connect_to(body_state.actuator_samples, :type => :buffer, :size => 100)
+    #body_state.contact_samples.connect_to(odometry.contact_samples, :type=>:buffer, :size=>100)
 
-    dispatcher.start
-    #sysmon.start
-    actuators.start
+    #body_state.start 
+    xsens.start
+    joint_dispatcher.start
+    mars_actuators.start
     velodyne.start
-    
-
     
     #
 #    STDOUT.puts "Restartign mars"

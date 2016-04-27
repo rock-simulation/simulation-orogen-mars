@@ -7,6 +7,8 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
+#include <mars/sim/SimNode.h>
+
 namespace mars {
 
     class IMUPlugin;
@@ -30,7 +32,11 @@ namespace mars {
 	friend class IMUBase;
 
     protected:
-        long node_id;
+        // Use the pointer to the nodeInterface insted of the node_id
+        //long node_id;
+        std::shared_ptr<mars::sim::SimNode> imuNodePtr;
+        
+        
         base::samples::RigidBodyState rbs;
         base::samples::IMUSensors imusens;
 	boost::mt19937 rnd_generator;
