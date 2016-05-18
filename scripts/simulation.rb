@@ -11,8 +11,8 @@ Orocos.run 'simulation_asguard' do
     mars_actuators = TaskContext.get 'mars_actuators'
     joint_dispatcher = TaskContext.get 'joint_dispatcher'
     xsens = TaskContext.get 'xsens'
-    # TODO Add the passive joint, otherwise body_state can not be computed
-    #body_state = TaskContext.get 'body_state'
+    controller = TaskContext.get 'simple_controller'
+    body_state = TaskContext.get 'body_state'
     
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
@@ -48,22 +48,28 @@ Orocos.run 'simulation_asguard' do
     xsens.apply_conf_file("mars::IMU.yml", ["default"])
     xsens.configure
     
-    #body_state.apply_conf_file("asguard::BodyTask.yml", ["default"])
-    #body_state.configure
-    
+    body_state.apply_conf_file("asguard::BodyTask.yml", ["default"])
+    body_state.configure
+
+    controller.apply_conf_file("skid4_control::SimpleController.yml", ["default"])
+    controller.configure
     
     # Connections
-    joint_dispatcher.command_out.connect_to(mars_actuators.command)
+    joint_dispatcher.command_out.connect_to(mars_actuators.command, :type=>:buffer, :size=>100)
     mars_actuators.status_samples.connect_to(joint_dispatcher.status_samples_in, :type=>:buffer, :size=>100)
     
-    #joint_dispatcher.status_samples.connect_to(body_state.actuator_samples, :type => :buffer, :size => 100)
+    joint_dispatcher.status_samples.connect_to(body_state.actuator_samples, :type => :buffer, :size => 100)
     #body_state.contact_samples.connect_to(odometry.contact_samples, :type=>:buffer, :size=>100)
 
-    #body_state.start 
+    controller.command.connect_to(joint_dispatcher.command, :type=>:buffer, :size=>100)
+    joint_dispatcher.status_samples.connect_to(controller.status_samples, :type=>:buffer, :size=>100)
+
+    body_state.start 
     xsens.start
     joint_dispatcher.start
     mars_actuators.start
     velodyne.start
+    controller.start
     
     #
 #    STDOUT.puts "Restartign mars"

@@ -1,0 +1,59 @@
+--- name:default
+# Dispatch configuration
+# 
+# The component will create the necessary ports at configure time based on
+# the port names that are listed in this dispatch configuration
+# 
+# The output port names listed here must have a corresponding
+# OutputConfiguration entry in the outputs property
+dispatches:
+  - input: status_samples_in
+    input_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    output: status_samples
+    output_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+  - input: body_joint_in
+    input_selection_by_name: [BODY_JOINT]
+    output: status_samples
+    output_selection_by_name: [BODY_JOINT]
+  - input: command
+    input_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    output: command_out
+    output_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+
+# Output configuration
+# 
+# The component will create the necessary ports at configure time based on
+# the port names that are listed in this output configuration
+outputs:
+  - name: status_samples
+    jointNames: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT, BODY_JOINT]
+  - name: command_out
+    jointNames: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    
+    
+--- name:osgviz
+# Dispatch configuration
+# 
+# The component will create the necessary ports at configure time based on
+# the port names that are listed in this dispatch configuration
+# 
+# The output port names listed here must have a corresponding
+# OutputConfiguration entry in the outputs property
+dispatches:
+  - input: status_samples_in
+    input_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT]
+    output: status_samples
+    output_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT]
+  - input: dynamixel_front
+    input_selection_by_name: [tilt_front]
+    output: status_samples
+    output_selection_by_name: [HEAD]
+
+# Output configuration
+# 
+# The component will create the necessary ports at configure time based on
+# the port names that are listed in this output configuration
+outputs:
+  - name: status_samples
+    jointNames: [FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT, HEAD]
+  
