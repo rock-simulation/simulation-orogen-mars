@@ -435,9 +435,19 @@ task_context "AuvMotion" do
 
 end
 
-# Deployment for testing
+deployment 'just_mars' do
 
-using_task_library "asguard"
+    task( "mars", "mars::Task").
+        realtime.
+        priority(85)
+
+    add_default_logger.
+        realtime
+
+end
+
+
+# Deployment for testing
 using_task_library "joint_dispatcher"
 using_task_library "skid4_control"
 using_task_library "odometry"
@@ -453,12 +463,8 @@ deployment 'simulation_asguard' do
         realtime.
         priority(71)
     
-    # This one seems to be just for the passive joint
-    #task('sysmon', 'mars::Joints'). 
-    #    realtime.
-    #    priority(71)
-    
-    task('body_state', 'asguard::BodyTask').
+    # This one is for the passive joint
+    task('sysmon', 'mars::Joints'). 
         realtime.
         priority(71)
     
@@ -476,29 +482,12 @@ deployment 'simulation_asguard' do
         realtime.
         priority(25)
     
-    task('odometry', 'odometry::ContactPointTask').
+    task('odometry', 'odometry::Skid').
         realtime.
         priority(70)
     
-    task('dynamixel_front', 'mars::Joints').
-        periodic(0.010).
-        realtime.
-        priority(61)
-    
-    task('tilt_front', 'tilt_scan::Task').
-        periodic(0.010).
-        realtime.
-        priority(60)
-    
-    #task('laser_front', 'mars::LaserRangeFinder').
-    #    realtime.
-    #    priority(25)
-    #
-    #task('laser_filter_front', 'laser_filter::Task').
-    #    realtime.
-    #    priority(26)
-
-    task('velodyne', 'mars::RotatingLaserRangeFinder').periodic(1.0)
+    task('velodyne', 'mars::RotatingLaserRangeFinder').
+         periodic(1.0)
 
     add_default_logger.
         realtime

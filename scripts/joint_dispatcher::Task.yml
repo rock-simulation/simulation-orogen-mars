@@ -8,17 +8,17 @@
 # OutputConfiguration entry in the outputs property
 dispatches:
   - input: status_samples_in
-    input_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    input_selection_by_name: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor]
     output: status_samples
-    output_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    output_selection_by_name: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor]
   - input: body_joint_in
-    input_selection_by_name: [BODY_JOINT]
+    input_selection_by_name: [rear_bar_passive]
     output: status_samples
-    output_selection_by_name: [BODY_JOINT]
+    output_selection_by_name: [rear_bar_passive]
   - input: command
-    input_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    input_selection_by_name: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor]
     output: command_out
-    output_selection_by_name: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    output_selection_by_name: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor]
 
 # Output configuration
 # 
@@ -26,9 +26,9 @@ dispatches:
 # the port names that are listed in this output configuration
 outputs:
   - name: status_samples
-    jointNames: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT, BODY_JOINT]
+    jointNames: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor, rear_bar_passive]
   - name: command_out
-    jointNames: [FRONT_LEFT, FRONT_RIGHT, 'REAR_LEFT', REAR_RIGHT]
+    jointNames: [wheel_rear_right_motor, wheel_rear_left_motor, 'wheel_front_right_motor', wheel_front_left_motor]
     
     
 --- name:osgviz

@@ -22,24 +22,24 @@ names:
     #- "joint_wheel_axis_rl_wheel_rl"
     #- "joint_wheel_axis_rr_wheel_rr"
     #- "joint_wheel_axis_fr_wheel_fr"
-    - "front_left"
-    - "rear_left"
-    - "rear_right"
-    - "front_right"
-name_remap: 
-    - "FRONT_LEFT"
-    - "REAR_LEFT"
-    - "REAR_RIGHT"
-    - "FRONT_RIGHT"
+    - "wheel_rear_right_motor"
+    - "wheel_rear_left_motor"
+    - "wheel_front_right_motor"
+    - "wheel_front_left_motor"
+#name_remap: 
+    #- "FRONT_LEFT"
+    #- "REAR_LEFT"
+    #- "REAR_RIGHT"
+    #- "FRONT_RIGHT"
 scaling: [1, 1, 1, 1]
 offset: [0, 0, 0, 0]
 
 --- name:sysmon
 names:
+    - "rear_bar_passive"
     #- "joint_mainbody_bodyconnector"
-    - "passive"
-name_remap: 
-    - "BODY_JOINT"
+#name_remap: 
+    #- "BODY_JOINT"
 scaling: [1]
 offset: [0]
 
