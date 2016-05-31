@@ -110,6 +110,9 @@ void IMU::update( double time )
     rbs.sourceFrame = _imu_frame.value();
     rbs.targetFrame = _world_frame.value();
     // TODO The center of the simulation has to be standard
+    if (not(control->graph->containsFrame("center"))){
+        LOG_ERROR("IMU Task: The center frame was not found");
+    }
     envire::core::Transform imuPos = control->graph->getTransform("center", _name.value());
     rbs.orientation = imuPos.transform.orientation.normalized();
     //rbs.orientation = control->nodes->getRotation( node_id ).normalized();

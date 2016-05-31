@@ -5,6 +5,7 @@
 
 #include "mars/JointsBase.hpp"
 #include <base/commands/Joints.hpp>
+#include <mars/sim/SimJoint.h>
 
 namespace mars {
 
@@ -26,10 +27,11 @@ namespace mars {
     {
 	friend class JointsBase;
     protected:
+        bool getSimJoint(const std::string &jointName, std::shared_ptr<mars::sim::SimJoint> &simJointPtr);
 	struct JointConversion
 	{
 	    JointConversion()
-		: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0), lastPosition(0), gotPosition(false) {}
+		: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0), lastPosition(0), gotPosition(false), simJoint(NULL) {}
 
 	    double fromMars( double v )
 	    {
@@ -70,6 +72,8 @@ namespace mars {
             {
                 return absolutePosition;
             }
+
+
 	    
 	    int mars_id;
             std::string marsName;
@@ -80,6 +84,7 @@ namespace mars {
             double absolutePosition;
             double lastPosition;
             bool gotPosition;
+            std::shared_ptr<mars::sim::SimJoint> simJoint;
 	};
 	std::vector<JointConversion> mars_ids;
 	enum JointTypes{MOTOR,PASSIVE};
