@@ -4,7 +4,6 @@
 #include <boost/foreach.hpp>
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
-#include <mars/interfaces/sim/JointManagerInterface.h>
 #include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
 
@@ -72,6 +71,7 @@ void Joints::init()
         if( marsMotorId ){
             mars_ids[i].mars_id = marsMotorId;
             joint_types.push_back(MOTOR);
+            bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
         }else{
             // NOTE this is the case of a passive joint
             bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
@@ -113,10 +113,8 @@ void Joints::update(double delta_t)
             {
                 //set maximum speed that is allowed for turning
                 if(curCmd.hasSpeed())
-                    //motor->setMaximumVelocity(curCmd.speed);
                     motor->setMaxSpeed(curCmd.speed);
 
-                //motor->setValue( conv.toMars( curCmd.position ) );
                 motor->setControlValue( conv.toMars( curCmd.position ) );
             }
             else
@@ -139,7 +137,6 @@ void Joints::update(double delta_t)
     for( size_t i=0; i<mars_ids.size(); ++i )
     {
         JointConversion *conv = NULL;
-
         if (parallel_kinematics.empty()){
             conv = &(mars_ids[i]);
         }else{
@@ -151,22 +148,16 @@ void Joints::update(double delta_t)
                     break;
                 }
             }
-
         }
-
         base::JointState state;
-
+        // NOTE this update is no longer done by the jointManager
+        conv->simJoint->update(0.0); 
         if (joint_types[i] == MOTOR){
             mars::sim::SimMotor *motor = control->motors->getSimMotor( conv->mars_id );
-
-            //state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getActualPosition() ));
             state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getPosition() ));
             state.speed = motor->getJoint()->getVelocity() * conv->scaling;
-            //state.effort = conv->fromMars( motor->getTorque() );
             state.effort = conv->fromMars( motor->getEffort() );
-
             currents[conv->externalName] = motor->getCurrent();
-
             status[conv->externalName] = state;
         }
         else{
@@ -175,10 +166,8 @@ void Joints::update(double delta_t)
             state.position = conv->fromMars(conv->updateAbsolutePosition( joint->getPosition() ));
             state.speed = joint->getVelocity() * conv->scaling;
             state.effort = 0;
-
             currents[conv->externalName] = 0;
             status[conv->externalName] = state;
-
         }
     }
 
