@@ -68,13 +68,12 @@ void Joints::init()
     {
         std::string &name( mars_ids[i].marsName );
         int marsMotorId = control->motors->getID( name );
+        bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
         if( marsMotorId ){
             mars_ids[i].mars_id = marsMotorId;
             joint_types.push_back(MOTOR);
-            bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
         }else{
             // NOTE this is the case of a passive joint
-            bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
             joint_types.push_back(PASSIVE);
             if (not jointExists){
                 throw std::runtime_error("there is no motor or joint by the name of " + name);
