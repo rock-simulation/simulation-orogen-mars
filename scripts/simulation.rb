@@ -13,8 +13,7 @@ Orocos.run 'simulation_asguard' do
     simple_controller = TaskContext.get 'simple_controller'
     xsens = TaskContext.get 'xsens'
     odometry = TaskContext.get 'odometry'
-    #velodyne = TaskContext.get 'velodyne'
-    
+    velodyne = TaskContext.get 'velodyne'
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
 
@@ -27,7 +26,6 @@ Orocos.run 'simulation_asguard' do
 #    raw_options << option
 #
 #    mars.raw_options = raw_options
-    
     # I am not sure about the configs, e.g. maybe the default have to be applied too
     mars.apply_conf_file("mars::Task.yml", ["default"])
     mars.configure
@@ -45,8 +43,8 @@ Orocos.run 'simulation_asguard' do
     xsens.configure
     odometry.apply_conf_file("odometry::Skid.yml", ["asguard"])
     odometry.configure
-    #velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
-    #velodyne.configure
+    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.configure
     # Connections
     joint_dispatcher.command_out.connect_to(mars_actuators.command, :type=>:buffer, :size=>100)
     mars_actuators.status_samples.connect_to(joint_dispatcher.status_samples_in, :type=>:buffer, :size=>100)
@@ -61,7 +59,7 @@ Orocos.run 'simulation_asguard' do
     simple_controller.start
     xsens.start
     odometry.start
-    #velodyne.start
+    velodyne.start
     #
 #    STDOUT.puts "Restartign mars"
 #    mars.stop
