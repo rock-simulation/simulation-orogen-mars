@@ -148,6 +148,7 @@ void Joints::update(double delta_t)
                     break;
                 }
             }
+
         }
         base::JointState state;
         // NOTE this update is no longer done by the jointManager
