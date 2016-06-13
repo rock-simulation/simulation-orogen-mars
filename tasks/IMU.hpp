@@ -35,7 +35,10 @@ namespace mars {
         // Use the pointer to the nodeInterface insted of the node_id
         //long node_id;
         std::shared_ptr<mars::sim::SimNode> imuNodePtr;
-        
+
+    /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
+     */
+    virtual bool estimate_bias(boost::uint16_t duration){};        
         
         base::samples::RigidBodyState rbs;
         base::samples::IMUSensors imusens;
