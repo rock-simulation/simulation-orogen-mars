@@ -12,7 +12,6 @@ Orocos.run 'simulation_asguard' do
     joint_dispatcher = TaskContext.get 'joint_dispatcher'
     simple_controller = TaskContext.get 'simple_controller'
     xsens = TaskContext.get 'xsens'
-    odometry = TaskContext.get 'odometry'
     velodyne = TaskContext.get 'velodyne'
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
@@ -41,8 +40,6 @@ Orocos.run 'simulation_asguard' do
     simple_controller.configure
     xsens.apply_conf_file("mars::IMU.yml", ["default"])
     xsens.configure
-    odometry.apply_conf_file("odometry::Skid.yml", ["asguard"])
-    odometry.configure
     velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
     # Connections
@@ -51,14 +48,11 @@ Orocos.run 'simulation_asguard' do
     sysmon.status_samples.connect_to(joint_dispatcher.body_joint_in, :type=>:buffer, :size=>100)
     simple_controller.command.connect_to(joint_dispatcher.command, :type=>:buffer, :size=>100)
     joint_dispatcher.status_samples.connect_to(simple_controller.status_samples, :type=>:buffer, :size=>100)
-    joint_dispatcher.status_samples.connect_to(odometry.actuator_samples, :type=>:buffer, :size=>100)
-    xsens.orientation_samples.connect_to(odometry.dynamic_transformations, :type=>:buffer, :size=>100)
     mars_actuators.start
     sysmon.start
     joint_dispatcher.start
     simple_controller.start
     xsens.start
-    odometry.start
     velodyne.start
     #
 #    STDOUT.puts "Restartign mars"
