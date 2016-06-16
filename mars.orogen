@@ -465,9 +465,6 @@ end
 # Deployment for testing
 using_task_library "joint_dispatcher"
 using_task_library "skid4_control"
-using_task_library "odometry"
-using_task_library "laser_filter"
-using_task_library "tilt_scan"
 
 deployment 'simulation_asguard' do
     task( "mars", "mars::Task").
@@ -496,10 +493,6 @@ deployment 'simulation_asguard' do
     task('xsens', 'mars::IMU').
         realtime.
         priority(25)
-    
-    task('odometry', 'odometry::Skid').
-        realtime.
-        priority(70)
     
     task('velodyne', 'mars::RotatingLaserRangeFinder').
          periodic(1.0)
