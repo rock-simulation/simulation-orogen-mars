@@ -38,7 +38,7 @@ namespace mars {
 
     /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
      */
-    virtual bool estimate_bias(boost::uint16_t duration){};        
+	virtual bool estimate_bias(boost::uint16_t duration){ return 0;};        
         
         base::samples::RigidBodyState rbs;
         base::samples::IMUSensors imusens;
