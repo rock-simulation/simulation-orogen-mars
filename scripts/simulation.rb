@@ -26,7 +26,7 @@ Orocos.run 'simulation_asguard' do
 #
 #    mars.raw_options = raw_options
     # I am not sure about the configs, e.g. maybe the default have to be applied too
-    mars.apply_conf_file("mars::Task.yml", ["default"])
+    mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
     mars.configure
     mars.start
     #sleep 10
