@@ -4,7 +4,7 @@
 #include <boost/foreach.hpp>
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
 
 #include <envire_core/items/Item.hpp>
