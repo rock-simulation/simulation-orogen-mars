@@ -13,23 +13,9 @@ Orocos.run 'simulation_asguard' do
     simple_controller = TaskContext.get 'simple_controller'
     xsens = TaskContext.get 'xsens'
     velodyne = TaskContext.get 'velodyne'
-#    mars.controller_port = 1600
-#    mars.enable_gui = 1
-
-#    option_t = Orocos.registry.get 'simulation/Option'
-#    option = option_t.new
-#    option.name = "-c"
-#    option.parameter = "1601"
-#
-#    raw_options = mars.raw_options
-#    raw_options << option
-#
-#    mars.raw_options = raw_options
-    # I am not sure about the configs, e.g. maybe the default have to be applied too
     mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
     mars.configure
     mars.start
-    #sleep 10
     mars_actuators.apply_conf_file("mars::Joints.yml", ["base"]) 
     mars_actuators.configure
     sysmon.apply_conf_file("mars::Joints.yml", ["sysmon"])
@@ -54,12 +40,14 @@ Orocos.run 'simulation_asguard' do
     simple_controller.start
     xsens.start
     velodyne.start
-    #
-#    STDOUT.puts "Restartign mars"
-#    mars.stop
-#    mars.cleanup
-#    mars.configure
-#    mars.start
+  
+    # To test just give a translation command
+    mc_writer = simple_controller.motion_command.writer()
+    mc_cmd = mc_writer.new_sample()
+    mc_cmd.translation = 0.05;
+    mc_cmd.rotation = 0.0;
+    mc_writer.write(mc_cmd)
+
     Readline::readline("Press ENTER to quit") do
     end
 
