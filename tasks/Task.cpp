@@ -305,7 +305,7 @@ char** Task::setOptions(const std::vector<Option>& options)
 
     // Set executable name to mars_core
     count = 0;
-    argv[count++] = "mars_core";
+    argv[count++] = const_cast<char *>("mars_core");
 
     std::vector<Option>::const_iterator it;
     for(it = options.begin(); it != options.end(); it++)
