@@ -436,7 +436,7 @@ bool Task::configureHook()
                 int marsMotorId = control->motors->getID( pos->name );
                 mars::sim::SimMotor *motor = control->motors->getSimMotor( marsMotorId );
                 if (motor){
-                    motor->setValue( pos->pos );
+                    motor->setControlValue( pos->pos );
                 }else{
                     LOG_ERROR("no motor %s",pos->name.c_str());
                 }
