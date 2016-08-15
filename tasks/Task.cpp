@@ -30,7 +30,12 @@
 
 #include <boost/filesystem.hpp>
 
-#include <base/logging.h>
+#undef LOG_DEBUG
+#undef LOG_INFO
+#undef LOG_WARN
+#undef LOG_ERROR
+#undef LOG_FATAL
+#include <base/Logging.hpp>
 
 using namespace mars;
 using namespace mars;

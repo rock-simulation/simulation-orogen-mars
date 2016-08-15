@@ -4,6 +4,11 @@
 #include <boost/foreach.hpp>
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
+#undef LOG_DEBUG
+#undef LOG_INFO
+#undef LOG_WARN
+#undef LOG_ERROR
+#undef LOG_FATAL
 #include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
 
