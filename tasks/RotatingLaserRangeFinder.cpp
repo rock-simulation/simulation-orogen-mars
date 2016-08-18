@@ -66,18 +66,25 @@ void RotatingLaserRangeFinder::updateHook()
     pointcloud.time = getTime();
     
     std::vector<mars::utils::Vector> data;
-    if(mSensor->getPointcloud(data)) {
-        // TODO Min/max is actually already part of the sensor
-        std::vector<mars::utils::Vector>::iterator it = data.begin();
-        for(; it != data.end(); it++) {
-            int len_ray = it->norm();
-            if(len_ray >= _min_range.get() && len_ray <= _max_range.get()) {
-                base::Vector3d vec((*it)[0], (*it)[1], (*it)[2]);
-                pointcloud.points.push_back(vec);
-            }
-        }
-        _pointcloud.write(pointcloud);
+    // TODO Select pointcloud or depthmap via config
+    //if(mSensor->getPointcloud(data)) {
+    //    // TODO Min/max is actually already part of the sensor
+    //    std::vector<mars::utils::Vector>::iterator it = data.begin();
+    //    for(; it != data.end(); it++) {
+    //        int len_ray = it->norm();
+    //        if(len_ray >= _min_range.get() && len_ray <= _max_range.get()) {
+    //            base::Vector3d vec((*it)[0], (*it)[1], (*it)[2]);
+    //            pointcloud.points.push_back(vec);
+    //        }
+    //    }
+    //    _pointcloud.write(pointcloud);
+    //}
+
+    base::samples::DepthMap depthMap;
+    if(mSensor->getDepthMap(depthMap)) {
+        _laser_scans.write(depthMap);
     }
+
 }
 
 void RotatingLaserRangeFinder::errorHook()
