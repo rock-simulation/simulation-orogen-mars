@@ -281,6 +281,9 @@ task_context "RotatingLaserRangeFinder" do
 
     output_port('pointcloud', '/base/samples/Pointcloud').
         doc 'Received distances converted to a pointcloud'
+
+    output_port("laser_scans", "base::samples::DepthMap").
+        doc 'Received distances converted to DepthMap'
 end
 
 task_context "IMU" do
