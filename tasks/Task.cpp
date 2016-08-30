@@ -18,6 +18,7 @@
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 
+#include <mars/plugins/SMURFToSimulation/SMURFToSimulation.h>
 //#include <mars/multisim-plugin/MultiSimPlugin.h>
 
 #include <lib_manager/LibManager.hpp>
@@ -446,6 +447,20 @@ bool Task::configureHook()
         }
     }
 
+    std::string robot_model = _robot_model.get();
+
+    lib_manager::LibInterface* lib = libManager->getLibrary(std::string("SMURFToSimulation"));
+    if(lib)
+    {
+        plugins::SMURFToSimulation::SMURFToSimulation* SMFToSim = dynamic_cast<plugins::SMURFToSimulation::SMURFToSimulation*>(lib);
+
+        envire::core::GraphTraits::vertex_descriptor center = SMFToSim -> addCenter();
+        SMFToSim -> addRobot(center);
+    }
+    else
+    {
+        LOG_DEBUG_S << "Not found the running library for SMURFToSimulation! The robot model can not be loaded ";
+    }
 
     {//Setting the Step-with for the mars
     cfg_manager::cfgPropertyStruct c = simulatorInterface->getControlCenter()->cfg->getOrCreateProperty("Simulator", "calc_ms", _sim_step_size.get()*1000.0);
