@@ -336,7 +336,7 @@ bool Task::configureHook()
 
 
     //check if the environemnt was sourced more than once and the path has more than one entry
-    int pos = _config_dir.get().rfind(":/");
+    unsigned int pos = _config_dir.get().rfind(":/");
     if(pos != _config_dir.get().size()-1)
         _config_dir.set(_config_dir.get().substr(pos+1));
 
