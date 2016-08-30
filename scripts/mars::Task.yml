@@ -54,6 +54,8 @@ initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/s
 initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf",
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/objects/ohb_lander/smurf/ohb_lander.smurf",
+robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"
+
 #positions:                                                                      
 #    - nodename: 'link_Mesh.003_Kugel30'
 #      posx: 3.0                                                                     

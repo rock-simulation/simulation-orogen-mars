@@ -455,7 +455,7 @@ bool Task::configureHook()
         plugins::SMURFToSimulation::SMURFToSimulation* SMFToSim = dynamic_cast<plugins::SMURFToSimulation::SMURFToSimulation*>(lib);
 
         envire::core::GraphTraits::vertex_descriptor center = SMFToSim -> addCenter();
-        SMFToSim -> addRobot(center);
+        SMFToSim -> addRobot(center, robot_model);
     }
     else
     {
