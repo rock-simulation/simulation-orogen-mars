@@ -590,6 +590,7 @@ void Task::cleanupHook()
 //    libManager->releaseLibrary("mars_gui");
 //    libManager->releaseLibrary("mars_graphics");
 //    libManager->releaseLibrary("gui_core");
+    libManager->releaseLibrary("SMURFToSimulation");
 
 
  //   if(multisimPlugin) delete multisimPlugin;
