@@ -51,6 +51,7 @@ initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/s
 				"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/bundles/entern/scenes/empty_plane.scn"]				
 
 --- name:asguard_in_dlr_scene
+robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"
 initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf",
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/objects/ohb_lander/smurf/ohb_lander.smurf",
@@ -64,6 +65,11 @@ robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf
 #      rotx: 0.0                                                                     
 #      roty: 0.0                                                                     
 #      rotz: 0.0  
+
+--- name:crex_in_dlr_scene
+robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"
+initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
+
 
 --- name:emptyScene
 add_floor: 1

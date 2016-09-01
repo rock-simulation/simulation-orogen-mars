@@ -506,3 +506,19 @@ deployment 'simulation_asguard' do
     add_default_logger.
         realtime
 end
+
+deployment 'crex_simulation' do
+    task( "mars", "mars::Task").
+        realtime.
+        priority(85)
+
+    task('xsens', 'mars::IMU').
+        realtime.
+        priority(25)
+    
+    task('velodyne', 'mars::RotatingLaserRangeFinder').
+         periodic(1.0)
+
+    add_default_logger.
+        realtime
+end
