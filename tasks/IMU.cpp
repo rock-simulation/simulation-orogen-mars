@@ -7,6 +7,7 @@
 #include <mars/utils/mathUtils.h>
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>
+#include <mars/interfaces/sim/ControlCenter.h>
 
 using namespace mars;
 using namespace envire::core;

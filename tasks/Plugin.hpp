@@ -5,9 +5,7 @@
 
 #include "mars/PluginBase.hpp"
 #include "Task.hpp"
-#include <lib_manager/LibManager.hpp>
 #include <mars/interfaces/sim/SimulatorInterface.h>
-#include <mars/interfaces/sim/ControlCenter.h>
 #include <mars/data_broker/ReceiverInterface.h>
 
 namespace mars {
