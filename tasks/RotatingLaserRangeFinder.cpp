@@ -49,6 +49,9 @@ bool RotatingLaserRangeFinder::startHook()
                 " is not of the correct type (RotatingRaySensor)" << std::endl;
         return false;
     }
+
+    mSensor->config.minDistance = _min_range.value();
+    mSensor->config.maxDistance = _max_range.value();
     
     return true;
 }
