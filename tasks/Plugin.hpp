@@ -3,7 +3,7 @@
 #ifndef SIMULATION_MARSPLUGIN_TASK_HPP
 #define SIMULATION_MARSPLUGIN_TASK_HPP
 
-#include "mars/PluginBase.hpp"
+#include <mars/PluginBase.hpp>
 #include "Task.hpp"
 #include <mars/interfaces/sim/SimulatorInterface.h>
 #include <mars/data_broker/ReceiverInterface.h>
