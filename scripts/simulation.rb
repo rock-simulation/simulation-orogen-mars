@@ -4,15 +4,17 @@ include Orocos
 
 Orocos.initialize
 
-Orocos.run 'simulation_asguard' do
-
+Orocos.run 'asguard_tests', 
+    "skid4_control::SimpleController" => "simple_controller",  
+    "joint_dispatcher::Task" => "joint_dispatcher" do
+    
     mars = TaskContext.get 'mars'
     mars_actuators = TaskContext.get 'mars_actuators'
     sysmon = TaskContext.get 'sysmon'
     joint_dispatcher = TaskContext.get 'joint_dispatcher'
-    simple_controller = TaskContext.get 'simple_controller'
     xsens = TaskContext.get 'xsens'
     velodyne = TaskContext.get 'velodyne'
+    simple_controller = Orocos.name_service.get 'simple_controller'
     mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
     mars.configure
     mars.start

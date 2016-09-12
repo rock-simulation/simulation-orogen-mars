@@ -8,7 +8,7 @@ Orocos.run 'just_mars' do
 
     mars = TaskContext.get 'mars'
 
-    mars.apply_conf_file("mars::Task.yml", ["default"])
+    mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
     mars.configure
     mars.start
 
