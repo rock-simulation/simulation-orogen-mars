@@ -7,7 +7,6 @@ using_library "mars_sim", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 using_library "envire_core", :typekit => false
-using_library "SMURFToSimulation", :typekit => false
 
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"

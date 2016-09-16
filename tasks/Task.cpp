@@ -18,7 +18,6 @@
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 
-#include <mars/plugins/SMURFToSimulation/SMURFToSimulation.h>
 //#include <mars/multisim-plugin/MultiSimPlugin.h>
 
 #include <lib_manager/LibManager.hpp>
