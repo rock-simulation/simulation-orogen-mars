@@ -51,11 +51,10 @@ initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/s
 				"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/bundles/entern/scenes/empty_plane.scn"]				
 
 --- name:asguard_in_dlr_scene
-robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"
-initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
+initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn",
+                "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"]
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf",
                  #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/objects/ohb_lander/smurf/ohb_lander.smurf",
-robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"
 
 #positions:                                                                      
 #    - nodename: 'link_Mesh.003_Kugel30'
@@ -67,8 +66,8 @@ robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf
 #      rotz: 0.0  
 
 --- name:crex_in_dlr_scene
-robot_model: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"
-initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
+initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn",
+"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
 
 
 --- name:emptyScene

@@ -97,9 +97,6 @@ task_context "Task" do
 	property('start_sim', 'bool', false).
 	    doc('starts the simulation after loading the initial scene(s)')
 
-	property('robot_model', '/std/string').
-	    doc('Path in the rock installation to the robot model that will be loaded')
-
         # Add a task context
         # operation('addPlugin').
         #       returns('int').
