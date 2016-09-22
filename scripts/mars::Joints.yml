@@ -36,10 +36,10 @@ offset: [0, 0, 0, 0]
 
 --- name:sysmon
 names:
-    - "rear_bar_passive"
     #- "joint_mainbody_bodyconnector"
+    - "rear_bar_passive"
 #name_remap: 
-    #- "BODY_JOINT"
+#    - "BODY_JOINT"
 scaling: [1]
 offset: [0]
 
@@ -85,3 +85,124 @@ offset: [0]
 
 # Optional array of scale values that are applied to the mars joint values. Needs to be empty or the same size as names.
 scaling: [1]
+
+--- name:front_left
+names:
+- leg0/joint0
+- leg0/joint1
+- leg0/joint2
+- leg0/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:front_right
+names:
+- leg1/joint0
+- leg1/joint1
+- leg1/joint2
+- leg1/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:middle_left
+names:
+- leg2/joint0
+- leg2/joint1
+- leg2/joint2
+- leg2/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:middle_right
+names:
+- leg3/joint0
+- leg3/joint1
+- leg3/joint2
+- leg3/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:rear_left
+names:
+- leg4/joint0
+- leg4/joint1
+- leg4/joint2
+- leg4/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:rear_right
+names:
+- leg5/joint0
+- leg5/joint1
+- leg5/joint2
+- leg5/joint3
+
+name_remap:  
+- joint_0
+- joint_1
+- joint_2
+- joint_3
+
+--- name:front_left_contact
+names:
+- leg0/joint4
+
+name_remap:  
+- spring
+
+--- name:front_right_contact
+names:
+- leg1/joint4
+
+name_remap:  
+- spring
+
+--- name:middle_left_contact
+names:
+- leg2/joint4
+
+name_remap:  
+- spring
+
+--- name:middle_right_contact
+names:
+- leg3/joint4
+
+name_remap:  
+- spring
+
+--- name:rear_left_contact
+names:
+- leg4/joint4
+
+name_remap:  
+- spring
+
+--- name:rear_right_contact
+names:
+- leg5/joint4
+
+name_remap:  
+- spring
+
