@@ -7,7 +7,6 @@ using_library "mars_sim", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 using_library "envire_core", :typekit => false
-using_library "SMURFToSimulation", :typekit => false
 
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"
@@ -96,9 +95,6 @@ task_context "Task" do
 
 	property('start_sim', 'bool', false).
 	    doc('starts the simulation after loading the initial scene(s)')
-
-	property('robot_model', '/std/string').
-	    doc('Path in the rock installation to the robot model that will be loaded')
 
         # Add a task context
         # operation('addPlugin').
