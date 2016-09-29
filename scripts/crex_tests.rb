@@ -4,7 +4,11 @@ include Orocos
 
 Orocos.initialize
 
-Orocos.run 'crex_simulation', :output=>nil  do
+Orocos.run 'crex_tests',
+    'trajectory_generation::Task' => "crexLegInterpolator",
+    'behavior_graph::MotionControlTask' => "motion_control",
+    'joint_dispatcher::Task' => "joint_dispatcher", 
+    :output=>nil  do
 
     mars = TaskContext.get 'mars'
     xsens = TaskContext.get 'xsens'
@@ -23,4 +27,4 @@ Orocos.run 'crex_simulation', :output=>nil  do
     Readline::readline("Press ENTER to quit") do
     end
 
-end 
+end      
