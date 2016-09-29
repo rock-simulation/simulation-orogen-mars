@@ -141,9 +141,9 @@ void* Task::startTaskFunc(void* argument)
     if(!Task::getTaskInterface()->app){
         //Initialize Qapplication only once! and keep the instance
         Task::getTaskInterface()->app = new QApplication(argc, argv, enable_gui);
-#if QT_VERSION >= 0x050000
         if (enable_gui)
-        {
+        {        
+#if QT_VERSION >= 0x050000
             QStyle* style = QStyleFactory::create("plastique");
             if(style)
             {
