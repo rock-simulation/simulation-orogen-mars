@@ -116,10 +116,12 @@ void* Task::startTaskFunc(void* argument)
         Option confDirOption("-C", marsArguments->config_dir);
         rawOptions.push_back(confDirOption);
     }
+    bool enable_gui = true;
     if(!marsArguments->enable_gui)
     {
       Option noGUIOption("--no-gui", "");
       rawOptions.push_back(noGUIOption);
+      enable_gui = false;  
     }
     char** argv = mars->setOptions(rawOptions);
     int argc = mars->getOptionCount(rawOptions);
@@ -138,18 +140,21 @@ void* Task::startTaskFunc(void* argument)
     // for core mars and gui
     if(!Task::getTaskInterface()->app){
         //Initialize Qapplication only once! and keep the instance
-        Task::getTaskInterface()->app = new QApplication(argc, argv);
+        Task::getTaskInterface()->app = new QApplication(argc, argv, enable_gui);
+        if (enable_gui)
+        {        
 #if QT_VERSION >= 0x050000
-        QStyle* style = QStyleFactory::create("plastique");
-        if(style)
-        {
-            Task::getTaskInterface()->app->setStyle(style);
-        } else {
-            LOG_WARN_S << "QStyle 'plastique' is not available";
-        }
+            QStyle* style = QStyleFactory::create("plastique");
+            if(style)
+            {
+                Task::getTaskInterface()->app->setStyle(style);
+            } else {
+                LOG_WARN_S << "QStyle 'plastique' is not available";
+            }
 #else
-        Task::getTaskInterface()->app->setStyle(new QPlastiqueStyle);
+            Task::getTaskInterface()->app->setStyle(new QPlastiqueStyle);
 #endif
+        }
     }
 
     setlocale(LC_ALL,"C");
@@ -224,7 +229,10 @@ void* Task::startTaskFunc(void* argument)
         mars->simulatorInterface->getControlCenter()->cfg->setPropertyValue("Simulator", "realtime calc", "value", marsArguments->realtime_calc);
     }
 
-    mars->marsGraphics = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+    if (enable_gui)
+    {
+        mars->marsGraphics = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+    }
 
     // Synchronize with configureHook
     marsArguments->initialized = true;
@@ -233,7 +241,10 @@ void* Task::startTaskFunc(void* argument)
 
     libManager->releaseLibrary("mars_sim");
     libManager->releaseLibrary("cfg_manager");
-    libManager->releaseLibrary("mars_graphics");
+    if (enable_gui)
+    {
+       libManager->releaseLibrary("mars_graphics");
+    }
 
     delete simulation;
     //Do not delete the QApplication it does not like it to be restarted
@@ -263,18 +274,15 @@ int Task::getOptionCount(const std::vector<Option>& options)
 
 bool Task::setShow_coordinate_system(bool value)
 {
-    //TODO Add your code here
-    if(!marsGraphics){
-        LOG_ERROR("Could not change view of coordinate systems without an Graphics interface\n");
-        return false;
-    }
-
-    //Call the base function, DO-NOT Remove
     if(value)
-        marsGraphics->hideCoords();
-    else
+    {
+        //TODO Add your code here
+        if(!marsGraphics){
+            LOG_ERROR("Could not change view of coordinate systems without an Graphics interface\n");
+            return false;
+        }
         marsGraphics->showCoords();
-
+    }
     return(mars::TaskBase::setShow_coordinate_system(value));
 }
 

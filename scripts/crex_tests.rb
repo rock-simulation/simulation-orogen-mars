@@ -13,12 +13,12 @@ Orocos.run 'crex_tests',
     mars = TaskContext.get 'mars'
     xsens = TaskContext.get 'xsens'
     velodyne = TaskContext.get 'velodyne'
-    mars.apply_conf_file("mars::Task.yml", ["default", "crex_in_dlr_scene"])
+    mars.apply_conf_file("config/mars::Task.yml", ["default", "crex_in_dlr_scene"])
     mars.configure
     mars.start
-    xsens.apply_conf_file("mars::IMU.yml", ["default"])
+    xsens.apply_conf_file("config/mars::IMU.yml", ["default"])
     xsens.configure
-    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
     # Connections
     xsens.start
