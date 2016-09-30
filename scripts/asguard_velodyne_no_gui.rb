@@ -11,15 +11,14 @@ Orocos.run 'asguard_tests' do
     mars = TaskContext.get 'mars'
     velodyne = TaskContext.get 'velodyne'
 
-    #mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
-    mars.apply_conf_file("mars::Task.yml", ["default", "no_gui", "asguard_in_dlr_scene"])
-    #mars.apply_conf_file("mars::Task.yml", ["default", "no_gui", "asguard_in_smurfs_scene"])
+    mars.apply_conf_file("config/mars::Task.yml", ["default", "no_gui", "asguard_in_dlr_scene"])
     mars.configure
     mars.start
-    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
     velodyne.start
 
     Readline::readline("Press ENTER to quit") do
     end
 end
+
