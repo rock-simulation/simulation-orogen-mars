@@ -77,7 +77,7 @@ task_context "Task" do
         property('distributed_simulation', 'bool').
 	    doc('switch to active the distributed simulation if needed')
 
-        property('enable_gui', 'bool').
+        property('enable_gui', 'bool', true).
 	    doc('start the simulation graphical interface with this module')
 
         property('controller_port', 'int').
@@ -490,3 +490,72 @@ deployment 'asguard_tests' do
     add_default_logger
 
 end
+
+deployment 'crex_tests' do
+    task( "mars", "mars::Task").
+        realtime.
+        priority(85)
+
+    task("front_left_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("front_right_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("middle_left_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("middle_right_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("rear_left_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("rear_right_leg", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("front_left_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("front_right_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("middle_left_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("middle_right_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("rear_left_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("rear_right_leg_contact", "mars::Joints").
+        realtime.
+        priority(71)
+
+    task("ft_sensors", "mars::ForceTorque6DOF").
+        realtime.
+        priority(71)
+
+    task('xsens', 'mars::IMU').
+        realtime.
+        priority(25)
+
+    task('velodyne', 'mars::RotatingLaserRangeFinder').
+        periodic(1.0)
+
+    add_default_logger.
+        realtime
+end
+

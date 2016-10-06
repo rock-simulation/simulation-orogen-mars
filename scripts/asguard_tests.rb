@@ -15,20 +15,20 @@ Orocos.run 'asguard_tests',
     xsens = TaskContext.get 'xsens'
     velodyne = TaskContext.get 'velodyne'
     simple_controller = Orocos.name_service.get 'simple_controller'
-    mars.apply_conf_file("mars::Task.yml", ["default", "asguard_in_dlr_scene"])
+    mars.apply_conf_file("config/mars::Task.yml", ["default", "asguard_in_dlr_scene"])
     mars.configure
     mars.start
-    mars_actuators.apply_conf_file("mars::Joints.yml", ["base"]) 
+    mars_actuators.apply_conf_file("config/mars::Joints.yml", ["base"]) 
     mars_actuators.configure
-    sysmon.apply_conf_file("mars::Joints.yml", ["sysmon"])
+    sysmon.apply_conf_file("config/mars::Joints.yml", ["sysmon"])
     sysmon.configure
-    joint_dispatcher.apply_conf_file("joint_dispatcher::Task.yml", ["default"])
+    joint_dispatcher.apply_conf_file("config/joint_dispatcher::Task.yml", ["default"])
     joint_dispatcher.configure
-    simple_controller.apply_conf_file("skid4_control::SimpleController.yml", ["default"])
+    simple_controller.apply_conf_file("config/skid4_control::SimpleController.yml", ["default"])
     simple_controller.configure
-    xsens.apply_conf_file("mars::IMU.yml", ["default"])
+    xsens.apply_conf_file("config/mars::IMU.yml", ["default"])
     xsens.configure
-    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
     # Connections
     joint_dispatcher.command_out.connect_to(mars_actuators.command, :type=>:buffer, :size=>100)

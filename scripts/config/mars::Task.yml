@@ -13,13 +13,12 @@
 #config_dir: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/install/configuration/mars_default/"
 
 # some boolean settings
-enable_gui: 1
-#add_floor: 1
 distributed_simulation: 0
 realtime_calc: 1
 start_sim: 1
 gravity:
   data: [0.0, 0.0, -9.81]
+show_coordinate_system: 0
 
 # step size in s
 # sim_step_size: 0.01  geht noch nicht
@@ -29,6 +28,12 @@ raw_options: []
 
 # set the controller port, e.g. 1600 for communication with monster
 controller_port: 1600
+
+--- name:no_gui
+enable_gui: 0
+
+--- name:yes_gui
+enable_gui: 1
 
 --- name:spaceclimber_in_empty_scene
 add_floor: 1
