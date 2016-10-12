@@ -5,7 +5,14 @@
 #include <mars/sim/RotatingRaySensor.h>
 #include <mars/interfaces/sim/SensorManagerInterface.h>
 
+#undef LOG_DEBUG
+#undef LOG_INFO
+#undef LOG_WARN
+#undef LOG_ERROR
+#undef LOG_FATAL
+#include <base-logging/Logging.hpp>
 using namespace mars;
+
 
 RotatingLaserRangeFinder::RotatingLaserRangeFinder(std::string const& name)
     : RotatingLaserRangeFinderBase(name), mSensorID(0), mSensor(NULL)
@@ -29,6 +36,7 @@ bool RotatingLaserRangeFinder::configureHook()
 {
     if (! RotatingLaserRangeFinderBase::configureHook())
         return false;
+    output_t = hashType(_output_type.get());
     return true;
 }
 bool RotatingLaserRangeFinder::startHook()
@@ -84,8 +92,12 @@ void RotatingLaserRangeFinder::updateHook()
     //}
 
     base::samples::DepthMap depthMap;
-    if(mSensor->getDepthMap(depthMap)) {
-        _laser_scans.write(depthMap);
+    switch(output_t){
+        case (eDepthmap or eBoth): 
+            if(mSensor->getDepthMap(depthMap)) 
+            {
+                _laser_scans.write(depthMap);
+            }
     }
 
 }
@@ -105,4 +117,14 @@ void RotatingLaserRangeFinder::cleanupHook()
 
 void RotatingLaserRangeFinder::update(double delta_t) {
 
+}
+
+output_type RotatingLaserRangeFinder::hashType (std::string const& inString) {
+    LOG_INFO_S << "READ OUTPUT TYPE " << inString;
+    if (inString == "depthmap") return eDepthmap;
+    if (inString == "pointcloud") return ePointcloud;
+    if (inString == "both") return eBoth; 
+    std::cerr  << "The given output type" <<  inString <<  
+        " is not known." << std::endl;
+    return eError;
 }

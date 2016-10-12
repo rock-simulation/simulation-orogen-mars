@@ -280,6 +280,9 @@ task_context "RotatingLaserRangeFinder" do
     property('max_range', 'double', 20.0).
         doc("Maximum valid range of the laser range finder")
 
+    property('output_type', '/std/string', "depthmap").
+        doc("Output format. Select: 'depthmap', 'pointcloud' or 'both'")
+
     output_port('pointcloud', '/base/samples/Pointcloud').
         doc 'Received distances converted to a pointcloud'
 
