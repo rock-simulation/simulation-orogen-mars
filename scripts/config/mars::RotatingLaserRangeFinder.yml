@@ -4,4 +4,4 @@ name: "velodyne"
 min_range: 2.0
 max_range: 20.0
 # Name of the RotatingRaySensor in the scene file
-output_type: "depthmap" # Select "depthmap", "pointcloud" or "both"
+output_type: "depthmap" #Select "depthmap" or "pointcloud" or "both"

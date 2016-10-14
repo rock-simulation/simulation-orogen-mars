@@ -60,6 +60,24 @@ bool RotatingLaserRangeFinder::startHook()
 
     mSensor->config.minDistance = _min_range.value();
     mSensor->config.maxDistance = _max_range.value();
+
+    switch(output_t){
+        case eBoth:
+            mSensor->config.provide_depthmap = true;
+            mSensor->config.provide_pointcloud = true;
+            break;
+        case eDepthmap: 
+            mSensor->config.provide_depthmap = true;
+            mSensor->config.provide_pointcloud = false;
+            break;
+        case ePointcloud:
+            mSensor->config.provide_depthmap = false;
+            mSensor->config.provide_pointcloud = true;
+            break;
+        case eError:
+            std::cerr  << "The output type in the config wrong." << std::endl;
+            break;
+    }
     
     return true;
 }
@@ -73,31 +91,20 @@ void RotatingLaserRangeFinder::updateHook()
         return; 
     }
 
-    base::samples::Pointcloud pointcloud;
-    pointcloud.time = getTime();
-    
-    std::vector<mars::utils::Vector> data;
-    // TODO Select pointcloud or depthmap via config
-    //if(mSensor->getPointcloud(data)) {
-    //    // TODO Min/max is actually already part of the sensor
-    //    std::vector<mars::utils::Vector>::iterator it = data.begin();
-    //    for(; it != data.end(); it++) {
-    //        int len_ray = it->norm();
-    //        if(len_ray >= _min_range.get() && len_ray <= _max_range.get()) {
-    //            base::Vector3d vec((*it)[0], (*it)[1], (*it)[2]);
-    //            pointcloud.points.push_back(vec);
-    //        }
-    //    }
-    //    _pointcloud.write(pointcloud);
-    //}
-
-    base::samples::DepthMap depthMap;
     switch(output_t){
-        case (eDepthmap or eBoth): 
-            if(mSensor->getDepthMap(depthMap)) 
-            {
-                _laser_scans.write(depthMap);
-            }
+        case eBoth:
+            writeDepthmap();
+            writePointcloud();
+            break;
+        case eDepthmap: 
+            writeDepthmap();
+            break;
+        case ePointcloud:
+            writePointcloud();
+            break;
+        case eError:
+            std::cerr  << "[RotatingLaserRangeFinder] The output type in the config is wrong. A typo or whitespace produce this." << std::endl;
+            break;
     }
 
 }
@@ -128,3 +135,32 @@ output_type RotatingLaserRangeFinder::hashType (std::string const& inString) {
         " is not known." << std::endl;
     return eError;
 }
+
+void RotatingLaserRangeFinder::writeDepthmap()
+{
+    base::samples::DepthMap depthMap;
+    if(mSensor->getDepthMap(depthMap)) 
+    {
+        _laser_scans.write(depthMap);
+    }
+}
+
+void RotatingLaserRangeFinder::writePointcloud()
+{
+    base::samples::Pointcloud pointcloud;
+    pointcloud.time = getTime();
+    std::vector<mars::utils::Vector> data;
+    if(mSensor->getPointcloud(data)) {
+        // TODO Min/max is actually already part of the sensor
+        std::vector<mars::utils::Vector>::iterator it = data.begin();
+        for(; it != data.end(); it++) {
+            int len_ray = it->norm();
+            if(len_ray >= _min_range.get() && len_ray <= _max_range.get()) {
+                base::Vector3d vec((*it)[0], (*it)[1], (*it)[2]);
+                pointcloud.points.push_back(vec);
+            }
+        }
+        _pointcloud.write(pointcloud);
+    }
+}
+

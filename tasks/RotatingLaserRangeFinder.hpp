@@ -115,6 +115,9 @@ namespace mars {
 
         output_type hashType(std::string const& inString);
         output_type output_t;
+        void writeDepthmap();
+        void writePointcloud();
+        
     };
 }
 
