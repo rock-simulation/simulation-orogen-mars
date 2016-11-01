@@ -115,18 +115,21 @@ void Joints::update(double delta_t)
 	    mars::sim::SimMotor *motor = control->motors->getSimMotor( conv.mars_id );
 
 	    if( curCmd.hasPosition() )
-            {
-                //set maximum speed that is allowed for turning
-                if(curCmd.hasSpeed())
+        {
+            //set maximum speed that is allowed for turning
+            if(curCmd.hasSpeed())
+                if (_cmd_max_speed.get() == true)
                     motor->setMaxSpeed(curCmd.speed);
+                else
+                    motor->setMinSpeed(curCmd.speed);
 
-                motor->setControlValue( conv.toMars( curCmd.position ) );
-            }
-            else
-            {
-                if( curCmd.hasSpeed() )
-                    motor->setVelocity(curCmd.speed / conv.scaling);
-            }
+            motor->setControlValue( conv.toMars( curCmd.position ) );
+        }
+        else
+        {
+            if( curCmd.hasSpeed() )
+                motor->setVelocity(curCmd.speed / conv.scaling);
+        }
 	    if( curCmd.hasEffort() )
 	    {
 		LOG_WARN_S << "Effort command ignored";

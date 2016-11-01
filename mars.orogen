@@ -182,6 +182,9 @@ end
 task_context "Joints" do
     subclasses "Plugin"
 
+    property("cmd_max_speed", 'bool', true).
+        doc('True: For position the speed will be interpretated as max speed of the joint, otherwise the speed is set as target speed of joint.')
+
     property('names', 'std/vector</std/string>').
         doc('Array of names of the motor in the scene file. The names get mapped to motor ids starting from zero')
     property('name_remap', 'std/vector</std/string>').
