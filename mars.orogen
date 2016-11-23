@@ -199,7 +199,7 @@ task_context "Joints" do
     # this module will generate on the 
     property "joint_transform", "base/JointTransformVector"
 
-    output_port( "status_samples", "base/samples/Joints" ).
+    output_port( "joints_status", "base/samples/Joints" ).
 	doc "status values for the joints"
     input_port( "command", "base/commands/Joints" ).
 	doc "command values for the joints"

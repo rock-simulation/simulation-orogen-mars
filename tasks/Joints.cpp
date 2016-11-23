@@ -182,7 +182,7 @@ void Joints::update(double delta_t)
 
     // and write it to the output port
     status.time = getTime();
-    _status_samples.write( status );
+    _joints_status.write( status );
 
     currents.time = status.time;
     _current_values.write(currents);
