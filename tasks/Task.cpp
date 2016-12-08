@@ -424,16 +424,39 @@ bool Task::configureHook()
     if(!sceneNames.empty()){
         for (std::vector< std::string >::iterator scene = sceneNames.begin(); scene != sceneNames.end();scene++){
             simulatorInterface->loadScene(*scene, *scene,true,true);
-        }
-    }
 
+        }
+    } 
 
     std::vector<Positions> positions = _positions.get();
     if(!positions.empty()){
         for (std::vector< Positions >::iterator offset = positions.begin(); offset != positions.end();offset++){
             move_node(*offset);
         }
-    }
+    }    
+
+    std::vector<mars::SceneConfig> scene_configs = _scenes.get();
+    if(!scene_configs.empty()){
+        std::cout << "NOT EMPTY" << std::endl;
+        for (std::vector<mars::SceneConfig>::iterator scene = scene_configs.begin(); scene != scene_configs.end(); scene++){
+            utils::Vector pos;
+            pos.x() = scene->posx;
+            pos.y() = scene->posy;
+            pos.z() = scene->posz;
+            
+            utils::Vector rot;
+            rot.x() = scene->rotx;
+            rot.y() = scene->roty;
+            rot.z() = scene->rotz;
+
+            std::cout << "LOAD: " << scene->path << " " << scene->name << std::endl;
+
+            simulatorInterface->loadScene(scene->path, scene->name, pos, rot, true, true);
+        }
+    }    
+
+
+
 
 
     mars::Pose initial_pose = _initial_pose.get();

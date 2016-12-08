@@ -75,8 +75,18 @@ initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spaceb
 #      rotz: 0.0  
 
 --- name:crex_in_dlr_scene
-initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn",
-"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
+
+scenes:
+    - name: "crex"
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"
+      posx: 3.0                                                                     
+      posy: -7.3                                                                     
+      posz: 2.0                                                                     
+      rotx: -0.23                                                                     
+      roty: 1.03                                                                    
+      rotz: 0.7  
+    - name: "dlr_scene"
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"
 
 --- name:spaceclimber_astra15
 add_floor: 0

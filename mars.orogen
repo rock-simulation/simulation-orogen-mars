@@ -11,6 +11,7 @@ using_library "envire_core", :typekit => false
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
+import_types_from "sceneType.hpp"
 import_types_from "base"
 
 
@@ -55,6 +56,8 @@ task_context "Task" do
 
 	property('initial_scenes', '/std/vector</std/string>').
 	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
+
+    property("scenes", "std::vector</mars/SceneConfig>")
 
         property('positions', 'std/vector<mars/Positions>' ).
 	    doc('override positions in the scene (scn) file, e.g. move the terrain to create different experiment setups without changing the scene file itself')
