@@ -16,4 +16,4 @@ name: "imu"
 imu_frame: "imu"
 
 # name of the world frame
-world_frame: "imu_nwu"
+world_frame: "imu_enu"

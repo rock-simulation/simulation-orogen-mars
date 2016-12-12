@@ -1,4 +1,169 @@
 --- name:default
+
+--- name:crex
+dispatches:
+  - input: front_left_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg0/joint4"]
+
+  - input: front_right_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg1/joint4"]
+
+  - input: middle_left_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg2/joint4"]
+
+  - input: middle_right_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg3/joint4"]
+
+  - input: rear_left_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg4/joint4"]
+
+  - input: rear_right_contact
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["spring"]
+    output_selection_by_name: ["leg5/joint4"]
+
+  - input: front_left_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg0/joint0", "leg0/joint1", "leg0/joint2", "leg0/joint3"]
+
+  - input: front_right_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg1/joint0", "leg1/joint1", "leg1/joint2", "leg1/joint3"]
+
+  - input: middle_left_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg2/joint0", "leg2/joint1", "leg2/joint2", "leg2/joint3"]
+
+  - input: middle_right_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg3/joint0", "leg3/joint1", "leg3/joint2", "leg3/joint3"]
+
+  - input: rear_left_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg4/joint0", "leg4/joint1", "leg4/joint2", "leg4/joint3"]
+
+  - input: rear_right_joint_states
+    output: all_joint_states_with_contact
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg5/joint0", "leg5/joint1", "leg5/joint2", "leg5/joint3"]
+
+
+  - input: front_left_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg0/joint0", "leg0/joint1", "leg0/joint2", "leg0/joint3"]
+
+  - input: front_right_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg1/joint0", "leg1/joint1", "leg1/joint2", "leg1/joint3"]
+
+  - input: middle_left_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg2/joint0", "leg2/joint1", "leg2/joint2", "leg2/joint3"]
+
+  - input: middle_right_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg3/joint0", "leg3/joint1", "leg3/joint2", "leg3/joint3"]
+
+  - input: rear_left_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg4/joint0", "leg4/joint1", "leg4/joint2", "leg4/joint3"]
+
+  - input: rear_right_joint_states
+    output: all_joint_states
+    input_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+    output_selection_by_name: ["leg5/joint0", "leg5/joint1", "leg5/joint2", "leg5/joint3"]
+
+  - input: all_commands
+    output: front_left_commands
+    input_selection_by_name: ["leg0/joint0", "leg0/joint1", "leg0/joint2", "leg0/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - input: all_commands
+    output: front_right_commands
+    input_selection_by_name: ["leg1/joint0", "leg1/joint1", "leg1/joint2", "leg1/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - input: all_commands
+    output: middle_left_commands
+    input_selection_by_name: ["leg2/joint0", "leg2/joint1", "leg2/joint2", "leg2/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - input: all_commands
+    output: middle_right_commands
+    input_selection_by_name: ["leg3/joint0", "leg3/joint1", "leg3/joint2", "leg3/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - input: all_commands
+    output: rear_left_commands
+    input_selection_by_name: ["leg4/joint0", "leg4/joint1", "leg4/joint2", "leg4/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - input: all_commands
+    output: rear_right_commands
+    input_selection_by_name: ["leg5/joint0", "leg5/joint1", "leg5/joint2", "leg5/joint3"]
+    output_selection_by_name: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+outputs:
+  - name: all_joint_states
+    jointNames: [
+        "leg0/joint0", "leg0/joint1", "leg0/joint2", "leg0/joint3",
+        "leg1/joint0", "leg1/joint1", "leg1/joint2", "leg1/joint3",
+        "leg2/joint0", "leg2/joint1", "leg2/joint2", "leg2/joint3",
+        "leg3/joint0", "leg3/joint1", "leg3/joint2", "leg3/joint3",
+        "leg4/joint0", "leg4/joint1", "leg4/joint2", "leg4/joint3",
+        "leg5/joint0", "leg5/joint1", "leg5/joint2", "leg5/joint3",
+    ]
+
+  - name: all_joint_states_with_contact
+    jointNames: [
+        "leg0/joint0", "leg0/joint1", "leg0/joint2", "leg0/joint3",  "leg0/joint4",
+        "leg1/joint0", "leg1/joint1", "leg1/joint2", "leg1/joint3",  "leg1/joint4",
+        "leg2/joint0", "leg2/joint1", "leg2/joint2", "leg2/joint3",  "leg2/joint4",
+        "leg3/joint0", "leg3/joint1", "leg3/joint2", "leg3/joint3",  "leg3/joint4",
+        "leg4/joint0", "leg4/joint1", "leg4/joint2", "leg4/joint3",  "leg4/joint4",
+        "leg5/joint0", "leg5/joint1", "leg5/joint2", "leg5/joint3",  "leg5/joint4",
+    ]
+
+  - name: front_left_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - name: front_right_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - name: middle_left_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - name: middle_right_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - name: rear_left_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+  - name: rear_right_commands
+    jointNames: ["joint_0", "joint_1", "joint_2", "joint_3"]
+
+
+--- name:asguard
 # Dispatch configuration
 # 
 # The component will create the necessary ports at configure time based on

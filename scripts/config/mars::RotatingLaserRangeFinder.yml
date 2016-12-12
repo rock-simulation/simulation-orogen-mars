@@ -1,7 +1,8 @@
 --- name:default
 # Minimum valid range of the laser range finder
 name: "sensor_velodyne"
-min_range: 2.0
-max_range: 20.0
+min_range: 1.0
+max_range: 30.0
 # Name of the RotatingRaySensor in the scene file
-output_type: "depthmap" #Select "depthmap" or "pointcloud" or "both"
+output_type: "pointcloud" #Select "depthmap" or "pointcloud" or "both"
+--- name:crex

@@ -15,6 +15,7 @@ offset: []
 parallel_kinematics: []
 # Optional array of scale values that are applied to the mars joint values. Needs to be empty or the same size as names.
 scaling: []
+cmd_max_speed: false
 --- name:base
 names:
     # These ones do not match with the ones in the motors.yml document
