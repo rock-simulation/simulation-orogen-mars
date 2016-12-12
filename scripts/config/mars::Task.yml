@@ -20,7 +20,6 @@ realtime_calc: 1
 start_sim: 1
 gravity:
   data: [0.0, 0.0, -9.81]
-show_coordinate_system: 0
 
 # step size in s
 # sim_step_size: 0.01  geht noch nicht
@@ -30,16 +29,6 @@ raw_options: []
 
 # set the controller port, e.g. 1600 for communication with monster
 controller_port: 1600
-
---- name:no_gui
-enable_gui: 0
-
---- name:yes_gui
-enable_gui: 1
-
---- name:emptyScene
-add_floor: 1
-initial_scenes: [ "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/bundles/entern/scenes/empty_plane.scn"]
 
 --- name:spaceclimber_in_empty_scene
 add_floor: 1
@@ -75,28 +64,20 @@ positions:
       rotz: 0.0  
 
 --- name:crex_in_dlr_scene
-#initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn", 
-#    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
-#positions:
-#    - nodename: 'map_stl.003'
-#      posx: 2.6
-#      posy: 1.0
-#      posz: -0.4
-#      rotx: 0.0
-#      roty: 0.0
-#      rotz: 90
+initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn", 
+    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
+positions:
+    - nodename: 'map_stl.003'
+      posx: 2.6
+      posy: 1.0
+      posz: -0.4
+      rotx: 0.0
+      roty: 0.0
+      rotz: 90
 
-scenes:
-    - name: "crex"
-      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"
-      posx: 3.0                                                                     
-      posy: -7.3                                                                     
-      posz: 2.0                                                                     
-      rotx: -0.23                                                                     
-      roty: 1.03                                                                    
-      rotz: 0.7  
-    - name: "dlr_scene"
-      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"
+--- name:emptyScene
+add_floor: 1
+initial_scenes: [ "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/bundles/entern/scenes/empty_plane.scn"]
 
 --- name:spaceclimber_astra15
 add_floor: 0
