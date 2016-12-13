@@ -64,16 +64,28 @@ positions:
       rotz: 0.0  
 
 --- name:crex_in_dlr_scene
-initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn", 
-    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
-positions:
-    - nodename: 'map_stl.003'
-      posx: 2.6
-      posy: 1.0
-      posz: -0.4
+initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"]
+#    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"]
+#positions:
+#    - nodename: 'map_stl.003'
+#      posx: 2.6
+#      posy: 1.0
+#      posz: -0.4
+#      rotx: 0.0
+#      roty: 0.0
+#      rotz: 90
+
+scenes:
+    - name: crex
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/crex/smurf/crex.smurf"
+      posx: 0.0
+      posy: 0.0
+      posz: 0.2
       rotx: 0.0
       roty: 0.0
-      rotz: 90
+      rotz: 0.0
+    - name: dlr
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"
 
 --- name:emptyScene
 add_floor: 1
