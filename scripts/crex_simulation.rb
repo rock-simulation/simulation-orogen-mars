@@ -29,47 +29,47 @@ Orocos.run 'crex_simulation', :output=>nil  do
     rear_left_leg_contact = TaskContext.get 'rear_left_leg_contact'
     rear_right_leg_contact = TaskContext.get 'rear_right_leg_contact'    
 
-    mars.apply_conf_file("mars::Task.yml", ["default", "crex_in_dlr_scene"])
+    mars.apply_conf_file("config/mars::Task.yml", ["default", "crex_in_dlr_scene"])
     mars.configure
 
 
-    xsens.apply_conf_file("mars::IMU.yml", ["default"])
+    xsens.apply_conf_file("config/mars::IMU.yml", ["default"])
     xsens.configure
 
-    velodyne.apply_conf_file("mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
     velodyne.configure
 
-    ft_sensors.apply_conf_file("mars::ForceTorque6DOF.yml", ["default"])
+    ft_sensors.apply_conf_file("config/mars::ForceTorque6DOF.yml", ["default"])
     ft_sensors.configure
 
-    front_left_leg.apply_conf_file("mars::Joints.yml", ["default","front_left"])
+    front_left_leg.apply_conf_file("config/mars::Joints.yml", ["default","front_left"])
     front_left_leg.configure
-    front_right_leg.apply_conf_file("mars::Joints.yml", ["default","front_right"])
+    front_right_leg.apply_conf_file("config/mars::Joints.yml", ["default","front_right"])
     front_right_leg.configure
 
-    middle_left_leg.apply_conf_file("mars::Joints.yml", ["default","middle_left"])
+    middle_left_leg.apply_conf_file("config/mars::Joints.yml", ["default","middle_left"])
     middle_left_leg.configure
-    middle_right_leg.apply_conf_file("mars::Joints.yml", ["default","middle_right"])
+    middle_right_leg.apply_conf_file("config/mars::Joints.yml", ["default","middle_right"])
     middle_right_leg.configure
 
-    rear_left_leg.apply_conf_file("mars::Joints.yml", ["default","rear_left"])
+    rear_left_leg.apply_conf_file("config/mars::Joints.yml", ["default","rear_left"])
     rear_left_leg.configure
-    rear_right_leg.apply_conf_file("mars::Joints.yml", ["default","rear_right"])
+    rear_right_leg.apply_conf_file("config/mars::Joints.yml", ["default","rear_right"])
     rear_right_leg.configure        
 
-    front_left_leg_contact.apply_conf_file("mars::Joints.yml", ["default","front_left_contact"])
+    front_left_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","front_left_contact"])
     front_left_leg_contact.configure
-    front_right_leg_contact.apply_conf_file("mars::Joints.yml", ["default","front_right_contact"])
+    front_right_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","front_right_contact"])
     front_right_leg_contact.configure
 
-    middle_left_leg_contact.apply_conf_file("mars::Joints.yml", ["default","middle_left_contact"])
+    middle_left_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","middle_left_contact"])
     middle_left_leg_contact.configure
-    middle_right_leg_contact.apply_conf_file("mars::Joints.yml", ["default","middle_right_contact"])
+    middle_right_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","middle_right_contact"])
     middle_right_leg_contact.configure
 
-    rear_left_leg_contact.apply_conf_file("mars::Joints.yml", ["default","rear_left_contact"])
+    rear_left_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","rear_left_contact"])
     rear_left_leg_contact.configure
-    rear_right_leg_contact.apply_conf_file("mars::Joints.yml", ["default","rear_right_contact"])
+    rear_right_leg_contact.apply_conf_file("config/mars::Joints.yml", ["default","rear_right_contact"])
     rear_right_leg_contact.configure      
 
     # Connections
