@@ -22,7 +22,7 @@ Orocos.run 'asguard_tests',
     mars_actuators.configure
     sysmon.apply_conf_file("config/mars::Joints.yml", ["sysmon"])
     sysmon.configure
-    joint_dispatcher.apply_conf_file("config/joint_dispatcher::Task.yml", ["default"])
+    joint_dispatcher.apply_conf_file("config/joint_dispatcher::Task.yml", ["asguard"])
     joint_dispatcher.configure
     simple_controller.apply_conf_file("config/skid4_control::SimpleController.yml", ["default"])
     simple_controller.configure

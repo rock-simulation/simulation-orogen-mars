@@ -435,7 +435,7 @@ bool Task::configureHook()
         }
     }    
 
-    std::vector<mars::SceneConfig> scene_configs = _scenes.get();
+    std::vector<mars::SceneConfig> scene_configs = _scene_setup.get();
     if(!scene_configs.empty()){
         std::cout << "NOT EMPTY" << std::endl;
         for (std::vector<mars::SceneConfig>::iterator scene = scene_configs.begin(); scene != scene_configs.end(); scene++){

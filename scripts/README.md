@@ -15,13 +15,14 @@ Config files for the different scripts.
 
 ## crex_simulation.rb
 ### Behavior description
-Crex legs are connected, velodyne started and xsens also runnning.
+Crex legs are connected, velodyne started and xsens also runnning. Feet sensor values are also available.
 ### Deployments
 Runs the deployment 'crex_simulation' (entern.orogen).
 
 ## crex_tests.rb
 ### Behavior description
 Crex moves forward and produces Lidar sensor data.
+#TODO Crex does not move; "crexLegInterpolator", "motion_control", and "joint_dispatcher" are not connnected, configured or started
 ### Deployments
 Runs the deployment 'crex_tests' (mars.orogen) along with the tasks 'trajectory_generation::Task', 'behavior_graph::MotionControlTask' and 'joint_dispatcher::Task'.
 
