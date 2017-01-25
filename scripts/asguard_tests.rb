@@ -28,7 +28,7 @@ Orocos.run 'asguard_tests',
     simple_controller.configure
     xsens.apply_conf_file("config/mars::IMU.yml", ["default"])
     xsens.configure
-    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default", "asguard"])
     velodyne.configure
     # Connections
     joint_dispatcher.command_out.connect_to(mars_actuators.command, :type=>:buffer, :size=>100)

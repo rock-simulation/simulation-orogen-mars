@@ -18,7 +18,7 @@ Orocos.run 'crex_tests',
     mars.start
     xsens.apply_conf_file("config/mars::IMU.yml", ["default"])
     xsens.configure
-    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default"])
+    velodyne.apply_conf_file("config/mars::RotatingLaserRangeFinder.yml", ["default", "crex"])
     velodyne.configure
     # Connections
     xsens.start
