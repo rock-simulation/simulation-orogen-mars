@@ -51,17 +51,29 @@ initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/bundles/entern/scenes/empt
     "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"]
 
 --- name:asguard_in_dlr_scene
-initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn", 
-    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"]
-                 #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/objects/ohb_lander/smurf/ohb_lander.smurf"
-positions:                                                                      
-    - nodename: 'body'
+    #initial_scenes: ["<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn", 
+    #    "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"]
+    #                 #"<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/objects/ohb_lander/smurf/ohb_lander.smurf"
+    #positions:                                                                      
+    #    - nodename: 'body'
+    #      posx: 0.0                                                                     
+    #      posy: 0.0                                                                     
+    #      posz: 0.2                                                                     
+    #      rotx: 0.0                                                                     
+    #      roty: 0.0                                                                     
+    #      rotz: 0.0  
+scene_setup: 
+    - name: dlr 
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/environments/spacebot_cup/mars_scene/dlr.scn"
+    - name: asguard
+      path: "<%= ENV['AUTOPROJ_CURRENT_ROOT'] %>/models/robots/asguard_v4/smurf/asguard_v4.smurf"
       posx: 0.0                                                                     
       posy: 0.0                                                                     
       posz: 0.2                                                                     
       rotx: 0.0                                                                     
       roty: 0.0                                                                     
       rotz: 0.0  
+
 
 --- name:crex_in_dlr_scene
 scene_setup:

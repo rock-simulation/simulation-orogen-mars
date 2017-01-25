@@ -699,6 +699,6 @@ void Task::move_node(::mars::Positions const & arg)
         nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_POS | mars::interfaces::EDIT_NODE_MOVE_ALL);
         nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT | mars::interfaces::EDIT_NODE_MOVE_ALL);
     }else{
-        LOG_ERROR("node '%s' unknown\n", arg.nodename.c_str());
+        LOG_ERROR("[MarsTask::move_node]node '%s' unknown\n", arg.nodename.c_str());
     }
 }
