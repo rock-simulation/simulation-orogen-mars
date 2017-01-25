@@ -32,8 +32,8 @@ Orocos.run 'asguard_tests',
     velodyne.configure
     # Connections
     joint_dispatcher.command_out.connect_to(mars_actuators.command, :type=>:buffer, :size=>100)
-    mars_actuators.status_samples.connect_to(joint_dispatcher.status_samples_in, :type=>:buffer, :size=>100)
-    sysmon.status_samples.connect_to(joint_dispatcher.body_joint_in, :type=>:buffer, :size=>100)
+    mars_actuators.joints_status.connect_to(joint_dispatcher.status_samples_in, :type=>:buffer, :size=>100)
+    sysmon.joints_status.connect_to(joint_dispatcher.body_joint_in, :type=>:buffer, :size=>100)
     simple_controller.command.connect_to(joint_dispatcher.command, :type=>:buffer, :size=>100)
     joint_dispatcher.status_samples.connect_to(simple_controller.status_samples, :type=>:buffer, :size=>100)
     mars_actuators.start
