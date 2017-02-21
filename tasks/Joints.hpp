@@ -95,7 +95,7 @@ namespace mars {
 	base::commands::Joints cmd;
 
 	std::vector< mars::ParallelKinematic > parallel_kinematics;
-
+	mars::JointPositionAndSpeedControlMode controlMode;
 
     public:
         virtual void init();
