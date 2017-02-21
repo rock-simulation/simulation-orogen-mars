@@ -119,9 +119,10 @@ void IMU::update( double time )
         LOG_ERROR("IMU Task: The center frame was not found");
     }
     envire::core::Transform imuPos = control->graph->getTransform("center", _name.value());
+    imuPos.transform.orientation.normalize();
     if(_provide_orientation.get())
     {
-        rbs.orientation = imuPos.transform.orientation.normalized();
+        rbs.orientation = imuPos.transform.orientation;
         rbs.cov_orientation = base::Matrix3d::Identity() * std::max(std::pow(rotation_noise.sigma(), 2), 1e-6);
         if( rotation_noise.sigma() > 0.0 )
         {
@@ -133,7 +134,7 @@ void IMU::update( double time )
         }
         if(_provide_velocity.get())
         {
-            rbs.angular_velocity = rbs.orientation.inverse() * imuNodePtr->getAngularVelocity();
+            rbs.angular_velocity = rbs.orientation.conjugate() * imuNodePtr->getAngularVelocity();
             //rbs.angular_velocity =  rbs.orientation.inverse() * control->nodes->getAngularVelocity( node_id);
             rbs.cov_angular_velocity = base::Matrix3d::Identity() * std::max(std::pow(angular_velocity_noise.sigma(), 2), 1e-6);
             if( angular_velocity_noise.sigma() > 0.0 )
@@ -169,8 +170,10 @@ void IMU::update( double time )
     _orientation_samples.write( rbs );
     
     imusens.time = getTime();
-    imusens.acc = imuNodePtr->getLinearAcceleration();
-    imusens.gyro = imuNodePtr->getAngularVelocity();
+    // transform acceleration and rotation to IMU frame:
+    imusens.acc  = imuPos.transform.orientation.conjugate() * (imuNodePtr->getLinearAcceleration() - control->sim->getGravity());
+    imusens.gyro = imuPos.transform.orientation.conjugate() * imuNodePtr->getAngularVelocity();
+    // TODO add noise?
     _calibrated_sensors.write( imusens );
 
 }
