@@ -27,11 +27,10 @@ namespace mars {
     {
 	friend class JointsBase;
     protected:
-        bool getSimJoint(const std::string &jointName, std::shared_ptr<mars::sim::SimJoint> &simJointPtr);
 	struct JointConversion
 	{
 	    JointConversion()
-		: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0), lastPosition(0), gotPosition(false), simJoint(NULL) {}
+		: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0), lastPosition(0), gotPosition(false) {}
 
 	    double fromMars( double v )
 	    {
@@ -84,7 +83,6 @@ namespace mars {
             double absolutePosition;
             double lastPosition;
             bool gotPosition;
-            std::shared_ptr<mars::sim::SimJoint> simJoint;
 	};
 	std::vector<JointConversion> mars_ids;
 	enum JointTypes{MOTOR,PASSIVE};

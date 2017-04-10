@@ -4,6 +4,7 @@
 #include <boost/foreach.hpp>
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
+#include <mars/interfaces/sim/JointManagerInterface.h>
 #include <mars/interfaces/sim/ControlCenter.h>
 #undef LOG_DEBUG
 #undef LOG_INFO
@@ -33,41 +34,6 @@ Joints::~Joints()
 {
 }
 
-/*
- * Returns the simulated joint given its nam Returns the simulated joint given its name
- */
-bool Joints::getSimJoint(const std::string &jointName, std::shared_ptr<mars::sim::SimJoint> &simJointPtr)
-{
-  using VertexIterator = envire::core::EnvireGraph::vertex_iterator;
-  using JointRecordItem = envire::core::Item<mars::sim::JointRecord>;
-  using JointRecordItemIterator = envire::core::EnvireGraph::ItemIterator<JointRecordItem>;
-  VertexIterator vi_begin, vi_end;
-  boost::tie(vi_begin, vi_end) = control->graph->getVertices();
-  bool jointFound = false;
-  while ((vi_begin!=vi_end) && (!jointFound))
-  {
-    if (control->graph->containsItems<JointRecordItem>(*vi_begin))
-    {
-      envire::core::FrameId frameName = control->graph->getFrameId(*vi_begin);
-      JointRecordItemIterator jri_begin, jri_end;
-      boost::tie(jri_begin, jri_end) = control->graph->getItems<JointRecordItem>(frameName); 
-      while ((jri_begin!=jri_end) && (!jointFound))
-      {
-        mars::sim::JointRecord jointRecord = jri_begin->getData();
-        if (jointRecord.name == jointName)
-        {
-          jointFound = true;
-          simJointPtr = jointRecord.sim;
-        }
-        jri_begin ++;
-      }
-    }
-    vi_begin++;
-  }
-  return jointFound;
-}
-
-
 void Joints::init()
 {
     // for each of the names, get the mars motor id
@@ -75,14 +41,15 @@ void Joints::init()
     {
         std::string &name( mars_ids[i].marsName );
         int marsMotorId = control->motors->getID( name );
-        bool jointExists = getSimJoint(name, mars_ids[i].simJoint);
         if( marsMotorId ){
             mars_ids[i].mars_id = marsMotorId;
             joint_types.push_back(MOTOR);
         }else{
-            // NOTE this is the case of a passive joint
-            joint_types.push_back(PASSIVE);
-            if (not jointExists){
+            int marsJointId = control->joints->getID(name);
+            if (marsJointId){
+                mars_ids[i].mars_id = marsJointId;
+                joint_types.push_back(PASSIVE);
+            } else {
                 throw std::runtime_error("there is no motor or joint by the name of " + name);
             }
         }
@@ -162,8 +129,6 @@ void Joints::update(double delta_t)
 
         }
         base::JointState state;
-        // NOTE this update is no longer done by the jointManager
-        conv->simJoint->update(0.0); 
         if (joint_types[i] == MOTOR){
             mars::sim::SimMotor *motor = control->motors->getSimMotor( conv->mars_id );
             state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getPosition() ));
@@ -174,7 +139,7 @@ void Joints::update(double delta_t)
         }
         else{
             // NOTE The joint is passive
-            std::shared_ptr<mars::sim::SimJoint> joint = conv->simJoint;
+            std::shared_ptr<mars::sim::SimJoint> joint = control->joints->getSimJoint( conv->mars_id );
             state.position = conv->fromMars(conv->updateAbsolutePosition( joint->getPosition() ));
             state.speed = joint->getVelocity() * conv->scaling;
             state.effort = joint->getForceVector(1).z();
