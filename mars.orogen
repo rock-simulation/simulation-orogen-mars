@@ -115,9 +115,23 @@ task_context "Task" do
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
 
+        output_port('serialized_scene', '/mars/SerializedScene')
+        
+        operation('serializePositions').
+            returns('/mars/SerializedScene').
+            doc("serializes the frames and writes them to the serialized_scene output port")
+        operation('loadSerializedPositions').
+            returns('bool').
+            argument("serializedScene", "/mars/SerializedScene", "scene containing the frames to be updated in the simulation").
+            doc("expects previously loaded objects, just updates the positions")
+
+        input_port("updatePositions","/mars/SerializedScene")
+
         port_driven 'control_action'
 
         exception_states :PHYSICS_ERROR
+        
+        
 end
 
 task_context "Plugin" do

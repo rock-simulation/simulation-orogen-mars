@@ -3,9 +3,17 @@
 
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 namespace mars 
 {
+
+struct SerializedScene{
+    bool has_objects;
+    unsigned int id;
+    std::vector <uint8_t> binary_scene;
+
+};
 
 struct SceneConfig {
 		std::string name;

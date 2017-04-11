@@ -38,7 +38,6 @@
 #include <base/Logging.hpp>
 
 using namespace mars;
-using namespace mars;
 
 mars::interfaces::SimulatorInterface *Task::simulatorInterface = 0;
 mars::Task *Task::taskInterface = 0;
@@ -54,6 +53,8 @@ Task::Task(std::string const& name)
     setenv("LANG","C",true);
     app = 0;
     _gravity.set(Eigen::Vector3d(0,0,-9.81));
+    serialization_id = 0;
+    last_serialization_id = 0;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -79,6 +80,55 @@ void Task::loadScene(::std::string const & path)
     }else{
         LOG_ERROR_S << "Simulator not yet started cout not load scenefile";
     }
+}
+
+bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedScene)
+{
+
+    //pause sim
+    bool was_running=false;
+    if(simulatorInterface->isSimRunning()){
+        simulatorInterface->StopSimulation();
+        was_running = true;
+    }
+
+    if (!serializedScene.has_objects){
+        simulatorInterface->updateScenePositions(serializedScene.binary_scene);
+    }else{
+        printf("loading objects unsupported\n");
+    }
+
+    //restart sim
+    if(was_running){
+        simulatorInterface->StartSimulation();
+    }
+
+    return true;
+}
+
+::mars::SerializedScene Task::serializePositions()
+{
+    ++serialization_id;
+
+    //pause sim
+    bool was_running=false;
+    if(simulatorInterface->isSimRunning()){
+        simulatorInterface->StopSimulation();
+    }
+
+    //serialize
+
+    serialized_scene.id = serialization_id;
+    serialized_scene.has_objects = false;
+    serialized_scene.binary_scene = simulatorInterface->serializeScene(false);
+
+
+    //restart sim
+    if(was_running){
+        simulatorInterface->StartSimulation();
+    }
+
+    return serialized_scene;
 }
 
 mars::interfaces::SimulatorInterface* Task::getSimulatorInterface()
@@ -552,6 +602,17 @@ void Task::updateHook()
         exception(PHYSICS_ERROR);
  //       QCoreApplication::quit(); //Quitting QApplication too
     }
+
+    if (serialization_id != last_serialization_id){
+        _serialized_scene.write(serialized_scene);
+        last_serialization_id = serialization_id;
+    }
+
+    if (_updatePositions.read(serialized_scene_in) == RTT::NewData){
+        printf("%s update pos\n",__PRETTY_FUNCTION__);
+        loadSerializedPositions(serialized_scene_in);
+    }
+
 }
 
 void Task::errorHook()

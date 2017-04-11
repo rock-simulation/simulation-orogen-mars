@@ -6,6 +6,7 @@
 #include <mars/data_broker/ReceiverInterface.h>
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
+#include "mars/sceneType.hpp"
 
 class QApplication;
 
@@ -74,6 +75,10 @@ namespace mars {
 	static void* startTaskFunc(void *);
         static std::string configDir;
 	static bool marsRunning;
+	int serialization_id, last_serialization_id;
+	mars::SerializedScene serialized_scene;
+	mars::SerializedScene serialized_scene_in;
+
 
 	pthread_t thread_info; 
 	static lib_manager::LibManager* libManager;
@@ -91,6 +96,14 @@ namespace mars {
         /* Handler for the loadScene operation
          */
         virtual void loadScene(::std::string const & path);
+
+        /* expects previously loaded objects, just updates the positions
+         */
+        virtual bool loadSerializedPositions(::mars::SerializedScene const & serializedScene);
+
+        /* serializes the frames and writes them to the serialized_scene output port
+         */
+        virtual ::mars::SerializedScene serializePositions();
 
         std::vector<Plugin*> plugins;
         
