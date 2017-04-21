@@ -114,6 +114,7 @@ bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedSce
     bool was_running=false;
     if(simulatorInterface->isSimRunning()){
         simulatorInterface->StopSimulation();
+        was_running = true;
     }
 
     //serialize
