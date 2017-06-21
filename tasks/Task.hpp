@@ -79,6 +79,8 @@ namespace mars {
 	mars::SerializedScene serialized_scene;
 	mars::SerializedScene serialized_scene_in;
 
+	std::map<int , std::shared_ptr<mars::SerializedScene> > savedStates;
+
 
 	pthread_t thread_info; 
 	static lib_manager::LibManager* libManager;
@@ -100,6 +102,18 @@ namespace mars {
         /* expects previously loaded objects, just updates the positions
          */
         virtual bool loadSerializedPositions(::mars::SerializedScene const & serializedScene);
+
+        /* load simulation state by identifier and return whether it was found
+         */
+        virtual bool loadState(boost::int32_t Id);
+
+        /* store current simulation state and returns an identifier
+         */
+        virtual boost::int32_t saveState();
+
+        /* delete simulation state by identifier and return whether it was found
+         */
+        virtual bool deleteState(boost::int32_t Id);
 
         /* serializes the frames and writes them to the serialized_scene output port
          */

@@ -125,6 +125,12 @@ task_context "Task" do
             argument("serializedScene", "/mars/SerializedScene", "scene containing the frames to be updated in the simulation").
             doc("expects previously loaded objects, just updates the positions")
 
+        operation('saveState').returns('int').doc('store current simulation state and returns an identifier')
+        
+        operation('loadState').returns('bool').argument('Id','int','the id of a saved state').doc('load simulation state by identifier and return whether it was found')
+        
+        operation('deleteState').returns('bool').argument('Id','int','the id of a saved state').doc('delete simulation state by identifier and return whether it was found')
+
         input_port("updatePositions","/mars/SerializedScene")
 
         port_driven 'control_action'

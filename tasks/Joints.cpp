@@ -16,7 +16,7 @@
 
 #include <envire_core/items/Item.hpp>
 #include <envire_core/graph/EnvireGraph.hpp>
-#include <mars/sim/JointRecord.h>
+//#include <mars/sim/JointRecord.h>
 using namespace mars;
 
 Joints::Joints(std::string const& name)

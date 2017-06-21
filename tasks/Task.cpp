@@ -65,6 +65,8 @@ Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     app = 0;
     setlocale(LC_ALL,"C"); //Make sure english Encodings are used
     setenv("LANG","C",true);
+    serialization_id = 0;
+    last_serialization_id = 0;
 }
 
 Task::~Task()
@@ -130,6 +132,28 @@ bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedSce
     }
 
     return serialized_scene;
+}
+
+
+bool Task::loadState(boost::int32_t Id){
+    if (savedStates[Id]){
+        loadSerializedPositions(*(savedStates[Id]));
+        return true;
+    }
+    return false;
+}
+
+boost::int32_t Task::saveState(){
+    std::shared_ptr<mars::SerializedScene> scene = std::shared_ptr<mars::SerializedScene>(new mars::SerializedScene(serializePositions()));
+    savedStates[scene->id] = scene;
+    return scene->id;
+}
+
+bool Task::deleteState(boost::int32_t Id){
+    if (savedStates.erase(Id)){
+        return true;
+    }
+    return false;
 }
 
 mars::interfaces::SimulatorInterface* Task::getSimulatorInterface()
