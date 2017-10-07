@@ -13,6 +13,7 @@ import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "sceneType.hpp"
 import_types_from "base"
+import_types_from "envire_maps"
 
 
 #Disable default deployments, most of the time stand_alone deployments are useless
@@ -38,6 +39,10 @@ task_context "Task" do
         operation("setPosition").
             argument("positions", "mars/Positions")
 
+        operation("setupMLSSimulation").
+            argument("pose","mars/Pose").
+            argument("mls", spatio_temporal('/maps/grid/MLSMapKalman')
+        
         property('add_floor',"/bool",false)
 
         property('gravity',"/base/Vector3d").dynamic

@@ -745,6 +745,10 @@ void Task::setPosition(::mars::Positions const & positions)
     return;
 }
 
+void Task::setupMLSSimulation(::mars::Pose const & pose, maps::grid::MLSMapKalman const & mls)
+{
+    return; 
+}
 bool Task::setSim_step_size(double value)
 {
     //convert to ms
