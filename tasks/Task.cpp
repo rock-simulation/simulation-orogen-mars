@@ -744,11 +744,16 @@ void Task::setPosition(::mars::Positions const & positions)
     }
     return;
 }
-
-void Task::setupMLSSimulation(::mars::Pose const & pose, maps::grid::MLSMapKalman const & mls)
+void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman >& mls)
 {
-    return; 
+    LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
+    return;
 }
+//
+//void Task::setupMLSSimulation(base::Pose const & robotPose, maps::grid::MLSMapKalman const & mls)
+//{
+//    return; 
+//}
 bool Task::setSim_step_size(double value)
 {
     //convert to ms

@@ -7,7 +7,8 @@
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
 #include "mars/sceneType.hpp"
-#include <maps/grid/MLSMap.hpp>
+#include <maps/grid/MLSMap.hpp> 
+#include <base/Pose.hpp>
 
 class QApplication;
 
@@ -140,7 +141,10 @@ namespace mars {
         virtual bool setGravity(::base::Vector3d const & value);
         virtual bool setGravity_internal(::base::Vector3d const & value);
         virtual void setPosition(::mars::Positions const & positions);
-        virtual void setupMLSSimulation(::mars::Pose const &pose, maps::grid::MLSMapKalman const & mls); 
+        virtual void setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman >& mls);
+
+
+        //virtual void setupMLSSimulation(base::Pose const &robotPose, maps::grid::MLSMapKalman const & mls); 
 
     public:
 	/** get the singleton instance of the simulator interface
