@@ -28,6 +28,12 @@
 #include <QPlastiqueStyle>
 #endif
 
+#include <envire_core/items/Transform.hpp>
+#include <envire_core/items/Item.hpp>
+#include <envire_core/items/SpatioTemporal.hpp>
+#include <maps/grid/MLSMap.hpp>
+
+
 #include <boost/filesystem.hpp>
 
 #undef LOG_DEBUG
@@ -37,7 +43,15 @@
 #undef LOG_FATAL
 #include <base/Logging.hpp>
 
+#define SIM_CENTER_FRAME_NAME std::string("center")
+#define MLS_FRAME_NAME std::string("mls_01")
+#define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
+#define ROBOT_NAME std::string("Asguard_v4")
+#define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
+
 using namespace mars;
+using mlsPrec = maps::grid::MLSMapPrecalculated;
+using mlsKal = maps::grid::MLSMapKalman;
 
 mars::interfaces::SimulatorInterface *Task::simulatorInterface = 0;
 mars::Task *Task::taskInterface = 0;
@@ -744,9 +758,35 @@ void Task::setPosition(::mars::Positions const & positions)
     }
     return;
 }
-void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman >& mls)
+void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
 {
     LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
+
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
+        // Load the mls in the graph
+        envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
+        envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
+        control->graph->addFrame(mlsFrameId);
+        envire::core::Transform mlsTf(base::Time::now());
+        control->graph->addTransform(MLS_FRAME_NAME, SIM_CENTER_FRAME_NAME, mlsTf);
+        envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
+        mlsKal mlsKAux = mlsKalST.getData();
+        mlsPrec mlsP = mlsKAux;
+        envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
+        control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+        // Load the robot in the graph
+        envire::core::Transform robotTf(base::Time::now());
+        base::Vector6d pose6d = robotPose.toVector6d();
+        mars::utils::Vector robotPos(pose6d[0], pose6d[1], pose6d[2]);
+        mars::utils::Vector robotRot(pose6d[3], pose6d[4], pose6d[5]);
+        control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);
+    }
+    else{
+        LOG_ERROR("[Task::setupMLSSimulation] No contol center");
+    }
+
     return;
 }
 //
