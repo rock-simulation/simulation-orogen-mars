@@ -767,21 +767,27 @@ void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::S
         LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
-        envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
-        control->graph->addFrame(mlsFrameId);
-        envire::core::Transform mlsTf(base::Time::now());
-        control->graph->addTransform(MLS_FRAME_NAME, SIM_CENTER_FRAME_NAME, mlsTf);
+        if (not(control->graph->containsFrame(mlsFrameId))){
+            envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
+            control->graph->addFrame(mlsFrameId);
+            envire::core::Transform mlsTf(base::Time::now());
+            control->graph->addTransform(MLS_FRAME_NAME, SIM_CENTER_FRAME_NAME, mlsTf);
+        }
         envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
         mlsKal mlsKAux = mlsKalST.getData();
         mlsPrec mlsP = mlsKAux;
         envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
         control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
-        // Load the robot in the graph
+        LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
+        // Take the robot and move it to the target Pose
+        ::mars::Positions targetPosition;
+        //target
         envire::core::Transform robotTf(base::Time::now());
         base::Vector6d pose6d = robotPose.toVector6d();
         mars::utils::Vector robotPos(pose6d[0], pose6d[1], pose6d[2]);
         mars::utils::Vector robotRot(pose6d[3], pose6d[4], pose6d[5]);
-        control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);
+        //control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);
+        LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
     }
     else{
         LOG_ERROR("[Task::setupMLSSimulation] No contol center");
