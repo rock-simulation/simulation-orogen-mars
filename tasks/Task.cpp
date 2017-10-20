@@ -47,6 +47,7 @@
 #define MLS_FRAME_NAME std::string("mls_01")
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
 #define ROBOT_NAME std::string("Asguard_v4")
+#define ROBOT_ROOT_LINK_NAME std::string("body")
 #define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
 
 using namespace mars;
@@ -779,14 +780,10 @@ void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::S
         envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
         control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
         LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
-        // Take the robot and move it to the target Pose
-        ::mars::Positions targetPosition;
-        //target
-        envire::core::Transform robotTf(base::Time::now());
-        base::Vector6d pose6d = robotPose.toVector6d();
-        mars::utils::Vector robotPos(pose6d[0], pose6d[1], pose6d[2]);
-        mars::utils::Vector robotRot(pose6d[3], pose6d[4], pose6d[5]);
-        //control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);
+        // Take the robot root link frame and move it to the target Pose
+        envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
+        envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
+        control->nodes->setTfToCenter(robotRootFrame, robotTf);
         LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
     }
     else{
