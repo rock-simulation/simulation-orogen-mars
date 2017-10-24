@@ -36,6 +36,9 @@ Joints::~Joints()
 
 void Joints::init()
 {
+    
+    cmdTimeout = base::Timeout(base::Time::fromMilliseconds(500));
+    
     // for each of the names, get the mars motor id
     for( size_t i=0; i<mars_ids.size(); ++i )
     {
@@ -62,6 +65,10 @@ void Joints::update(double delta_t)
     // if there was a command, write it to the mars
     while( _command.read( cmd ) == RTT::NewData )
     {
+        std::cout << "got data" << std::endl;
+        cmdTimeout.restart();
+        
+        
 	for( size_t i=0; i<mars_ids.size(); ++i )
 	{
         //passive joints can't take commands
@@ -98,7 +105,9 @@ void Joints::update(double delta_t)
             else
             {
                 if( curCmd.hasSpeed() )
+                {
                     motor->setVelocity(curCmd.speed / conv.scaling);
+                }
             }
 	    if( curCmd.hasEffort() )
 	    {
@@ -110,6 +119,21 @@ void Joints::update(double delta_t)
 	    }
 	}
     }
+    
+    //stop the motors if we did not receive a new command recently
+    if(cmdTimeout.elapsed())
+    {
+        for( size_t i=0; i<mars_ids.size(); ++i )
+        {
+            if (joint_types [i] == PASSIVE){
+                continue;
+            }
+            JointConversion conv = mars_ids[i];
+            mars::sim::SimMotor *motor = control->motors->getSimMotor( conv.mars_id );
+            motor->setVelocity(0);
+        }
+    }
+    
 
     // in any case read out the status
     for( size_t i=0; i<mars_ids.size(); ++i )
