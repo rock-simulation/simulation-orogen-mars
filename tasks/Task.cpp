@@ -768,11 +768,22 @@ void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::S
         LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
+        envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
+        envire::core::Transform mlsTf(base::Time::now());
         if (not(control->graph->containsFrame(mlsFrameId))){
-            envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
             control->graph->addFrame(mlsFrameId);
-            envire::core::Transform mlsTf(base::Time::now());
-            control->graph->addTransform(MLS_FRAME_NAME, SIM_CENTER_FRAME_NAME, mlsTf);
+            control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::setupMLSSimulation] Added MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+        }
+        else {
+            if (not(control->graph->containsEdge(mlsFrameId, centerFrameId))){
+                control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+                LOG_DEBUG("[Task::setupMLSSimulation] The frame exists, but not the tf");
+            }
+            else{
+                control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
+                LOG_DEBUG("[Task::setupMLSSimulation] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+            }
         }
         envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
         mlsKal mlsKAux = mlsKalST.getData();
