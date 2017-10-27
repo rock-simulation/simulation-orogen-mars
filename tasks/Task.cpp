@@ -758,7 +758,7 @@ void Task::setPosition(::mars::Positions const & positions)
     }
     return;
 }
-void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
+void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
 {
     LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
 
@@ -783,7 +783,8 @@ void Task::setupMLSSimulation(const base::Pose& robotPose, const envire::core::S
         ::mars::Positions targetPosition;
         //target
         envire::core::Transform robotTf(base::Time::now());
-        base::Vector6d pose6d = robotPose.toVector6d();
+
+        base::Vector6d pose6d = robotPose.getPose().toVector6d();
         mars::utils::Vector robotPos(pose6d[0], pose6d[1], pose6d[2]);
         mars::utils::Vector robotRot(pose6d[3], pose6d[4], pose6d[5]);
         //control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);

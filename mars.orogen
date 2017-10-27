@@ -43,7 +43,7 @@ task_context "Task" do
             argument("positions", "mars/Positions")
 
         operation("setupMLSSimulation").
-            argument("robotPose","base/Pose").
+            argument("robotPose","/base/samples/RigidBodyState").
             argument("mls", spatio_temporal('/maps/grid/MLSMapKalman'))
         
         property('add_floor',"/bool",false)

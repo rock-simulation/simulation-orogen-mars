@@ -141,7 +141,7 @@ namespace mars {
         virtual bool setGravity(::base::Vector3d const & value);
         virtual bool setGravity_internal(::base::Vector3d const & value);
         virtual void setPosition(::mars::Positions const & positions);
-        virtual void setupMLSSimulation(const base::Pose& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls);
+        virtual void setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls);
 
 
         //virtual void setupMLSSimulation(base::Pose const &robotPose, maps::grid::MLSMapKalman const & mls); 
