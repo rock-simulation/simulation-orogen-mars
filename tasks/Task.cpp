@@ -47,6 +47,7 @@
 #define MLS_FRAME_NAME std::string("mls_01")
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
 #define ROBOT_NAME std::string("Asguard_v4")
+#define ROBOT_ROOT_LINK_NAME std::string("body")
 #define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
 
 using namespace mars;
@@ -767,11 +768,22 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
+        envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
+        envire::core::Transform mlsTf(base::Time::now());
         if (not(control->graph->containsFrame(mlsFrameId))){
-            envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
             control->graph->addFrame(mlsFrameId);
-            envire::core::Transform mlsTf(base::Time::now());
-            control->graph->addTransform(MLS_FRAME_NAME, SIM_CENTER_FRAME_NAME, mlsTf);
+            control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::setupMLSSimulation] Added MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+        }
+        else {
+            if (not(control->graph->containsEdge(mlsFrameId, centerFrameId))){
+                control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+                LOG_DEBUG("[Task::setupMLSSimulation] The frame exists, but not the tf");
+            }
+            else{
+                control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
+                LOG_DEBUG("[Task::setupMLSSimulation] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+            }
         }
         envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
         mlsKal mlsKAux = mlsKalST.getData();
@@ -779,15 +791,10 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
         control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
         LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
-        // Take the robot and move it to the target Pose
-        ::mars::Positions targetPosition;
-        //target
-        envire::core::Transform robotTf(base::Time::now());
-
-        base::Vector6d pose6d = robotPose.getPose().toVector6d();
-        mars::utils::Vector robotPos(pose6d[0], pose6d[1], pose6d[2]);
-        mars::utils::Vector robotRot(pose6d[3], pose6d[4], pose6d[5]);
-        //control->sim->loadScene(std::getenv(ENV_AUTOPROJ_ROOT) + ASGUARD_PATH, ROBOT_NAME, robotPos, robotRot);
+        // Take the robot root link frame and move it to the target Pose
+        envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
+        envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
+        control->nodes->setTfToCenter(robotRootFrame, robotTf);
         LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
     }
     else{
