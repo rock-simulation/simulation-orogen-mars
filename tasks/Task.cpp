@@ -769,7 +769,9 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
         envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
-        envire::core::Transform mlsTf(base::Time::now());
+        envire::core::Transform mlsTf;
+        mlsTf.setIdentity();
+        //mlsTf.transform.translation << 3.0, 5.0, 7.0; Different positions of the mls don't affect where it is visualized
         if (not(control->graph->containsFrame(mlsFrameId))){
             control->graph->addFrame(mlsFrameId);
             control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
@@ -793,6 +795,7 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
         // Take the robot root link frame and move it to the target Pose
         envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
+        LOG_DEBUG("[Task::setupMLSSimulation] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
         envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
         control->nodes->setTfToCenter(robotRootFrame, robotTf);
         LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
