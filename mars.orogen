@@ -174,7 +174,8 @@ task_context "DepthCamera" do
     subclasses "CameraPlugin"
     needs_configuration
     
-    output_port 'distance_image', ro_ptr('base::samples::DistanceImage')
+    # Note: This used to be a ro_ptr('base::samples::DistanceImage'), but for compatibility with the hardware driver was changed
+    output_port 'distance_image', 'base::samples::DistanceImage'
 end
 
 task_context "HighResRangeFinder" do

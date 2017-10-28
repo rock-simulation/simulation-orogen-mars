@@ -17,10 +17,7 @@ namespace mars {
     {
 	friend class DepthCameraBase;
     protected:
-        base::samples::DistanceImage *image;
-        RTT::extras::ReadOnlyPointer<base::samples::DistanceImage> ro_ptr;
-
-
+        base::samples::DistanceImage image;
 
     public:
         /** TaskContext constructor for DepthCamera
