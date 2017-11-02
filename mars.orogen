@@ -101,11 +101,11 @@ task_context "Task" do
         property('raw_options', '/std/vector<mars::Option>').
             doc('forward the original mars arguments, such as -c 1600 for setting the ode port - option consists of name, here: -c and parameter: here 1600')
 
-	property('realtime_calc', 'bool', false).
-	    doc('if true, simulation runs in real time or slower, but not faster')
+    	property('realtime_calc', 'bool', false).
+    	    doc('if true, simulation runs in real time or slower, but not faster')
 
-	property('start_sim', 'bool', false).
-	    doc('starts the simulation after loading the initial scene(s)')
+    	property('start_sim', 'bool', false).
+    	    doc('starts the simulation after loading the initial scene(s)')
 
         # Add a task context
         # operation('addPlugin').
@@ -138,6 +138,10 @@ task_context "Task" do
         operation('loadState').returns('bool').argument('Id','int','the id of a saved state').doc('load simulation state by identifier and return whether it was found')
         
         operation('deleteState').returns('bool').argument('Id','int','the id of a saved state').doc('delete simulation state by identifier and return whether it was found')
+
+        operation('startSimulation')
+
+        operation('stopSimulation')
 
         input_port("updatePositions","/mars/SerializedScene")
 

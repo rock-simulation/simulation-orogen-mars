@@ -117,6 +117,9 @@ namespace mars {
          */
         virtual bool deleteState(boost::int32_t Id);
 
+        virtual void startSimulation();
+        virtual void stopSimulation();
+
         /* serializes the frames and writes them to the serialized_scene output port
          */
         virtual ::mars::SerializedScene serializePositions();

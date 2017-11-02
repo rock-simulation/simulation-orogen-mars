@@ -89,6 +89,14 @@ Task::~Task()
     delete app;
 }
 
+void Task::startSimulation() {
+    simulatorInterface->StartSimulation();
+}
+
+void Task::stopSimulation() {
+    simulatorInterface->StopSimulation();
+}
+
 
 void Task::loadScene(::std::string const & path)
 {
@@ -766,6 +774,7 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){
         LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
+        // TODO: take it out into the load mls plugin
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
         envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
@@ -798,6 +807,7 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         LOG_DEBUG("[Task::setupMLSSimulation] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
         envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
         control->nodes->setTfToCenter(robotRootFrame, robotTf);
+
         LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
     }
     else{
