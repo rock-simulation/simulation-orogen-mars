@@ -124,6 +124,11 @@ task_context "Task" do
         output_port('simulated_time', '/base/Time')
 
         output_port('serialized_scene', '/mars/SerializedScene')
+
+        output_port('mls_map', spatio_temporal('/maps/grid/MLSMapKalman'))
+        output_port('frame_pose', '/base/samples/RigidBodyState')
+
+      
         
         operation('serializePositions').
             returns('/mars/SerializedScene').
