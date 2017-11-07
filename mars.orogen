@@ -125,10 +125,13 @@ task_context "Task" do
 
         output_port('serialized_scene', '/mars/SerializedScene')
 
-        output_port('mls_map', spatio_temporal('/maps/grid/MLSMapKalman'))
-        output_port('frame_pose', '/base/samples/RigidBodyState')
+        # TODO: probably move it to other task
+        property("frame_name", '/std/string', '').
+         doc('from center to frame name')
+        output_port('frame_pose', "base/samples/RigidBodyState")
 
-      
+        operation('getMLSMap')
+        output_port("mls_map", spatio_temporal('/maps/grid/MLSMapKalman'))
         
         operation('serializePositions').
             returns('/mars/SerializedScene').

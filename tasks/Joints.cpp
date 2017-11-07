@@ -65,7 +65,6 @@ void Joints::update(double delta_t)
     // if there was a command, write it to the mars
     while( _command.read( cmd ) == RTT::NewData )
     {
-        std::cout << "got data" << std::endl;
         cmdTimeout.restart();
         
         
