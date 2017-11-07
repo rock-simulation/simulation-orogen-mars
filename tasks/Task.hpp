@@ -83,6 +83,8 @@ namespace mars {
 
 	std::map<int , std::shared_ptr<mars::SerializedScene> > savedStates;
 
+    maps::grid::MLSMapKalman mls_dummy_fix;
+
 
 	pthread_t thread_info; 
 	static lib_manager::LibManager* libManager;
@@ -145,6 +147,7 @@ namespace mars {
         virtual bool setGravity_internal(::base::Vector3d const & value);
         virtual void setPosition(::mars::Positions const & positions);
         virtual void setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls);
+        virtual void getMLSMap();
 
 
         //virtual void setupMLSSimulation(base::Pose const &robotPose, maps::grid::MLSMapKalman const & mls); 

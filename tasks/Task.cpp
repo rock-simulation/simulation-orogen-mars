@@ -43,11 +43,16 @@
 #undef LOG_FATAL
 #include <base/Logging.hpp>
 
+// TODO: should be ask from node manager
 #define SIM_CENTER_FRAME_NAME std::string("center")
+// TODO: should be set over config
 #define MLS_FRAME_NAME std::string("mls_01")
 #define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
+// TODO: should be set over config
 #define ROBOT_NAME std::string("Asguard_v4")
+// TODO: should be set over config
 #define ROBOT_ROOT_LINK_NAME std::string("body")
+// TODO: do we need this?
 #define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
 
 using namespace mars;
@@ -660,7 +665,6 @@ void Task::updateHook()
         printf("%s update pos\n",__PRETTY_FUNCTION__);
         loadSerializedPositions(serialized_scene_in);
     }
-
 }
 
 void Task::errorHook()
@@ -739,6 +743,27 @@ void Task::receiveData(
         int id)
 {
     _simulated_time.write(base::Time::fromMilliseconds(simulatorInterface->getTime()));
+
+    if (_frame_name.get() != "") {
+        mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+        if (control && simulatorInterface->isSimRunning()){        
+            if (control->graph != NULL) {
+                if (control->graph->containsFrame(_frame_name.get()) == true) {
+                    std::cout << "GET Transform" << std::endl;
+                    envire::core::Transform frame_trasf = control->graph->getTransform(SIM_CENTER_FRAME_NAME, _frame_name.get());
+
+                    base::samples::RigidBodyState frame_rbg;
+                    frame_rbg.time = base::Time::now();
+                    frame_rbg.sourceFrame = SIM_CENTER_FRAME_NAME;
+                    frame_rbg.targetFrame = _frame_name.get();
+                    frame_rbg.position = frame_trasf.transform.translation;
+                    frame_rbg.orientation = frame_trasf.transform.orientation;
+
+                    _frame_pose.write(frame_rbg);
+                }
+            }
+        }
+    }    
 }
 
 bool Task::setGravity_internal(::base::Vector3d const & value){
@@ -767,9 +792,44 @@ void Task::setPosition(::mars::Positions const & positions)
     }
     return;
 }
+
+void Task::getMLSMap() {
+    std::cout << "Task::getMLSMap()" << std::endl;
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){    
+        envire::core::GraphTraits::vertex_descriptor mls_vertex = control->graph->getVertex(MLS_FRAME_NAME);
+        if (control->graph->containsItems<envire::core::Item<mlsPrec>>(mls_vertex)){
+            std::cout << "Task::getMLSMap() CONTAINT" << std::endl;
+
+            using IteratorMLS = envire::core::EnvireGraph::ItemIterator<envire::core::Item<mlsPrec>>;
+            IteratorMLS begin_sim, end_sim;
+            boost::tie(begin_sim, end_sim) = control->graph->getItems<envire::core::Item<mlsPrec>>(mls_vertex);
+            for (;begin_sim!=end_sim; begin_sim++)
+            {
+                std::cout << "Task::getMLSMap() MLS" << std::endl;
+
+                envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalman;
+                mlsKalman.time = base::Time::now();
+                mlsKalman.frame_id = MLS_FRAME_NAME;
+
+                //mlsPrec mlsP = begin_sim->getData();
+                //mlsKal mlsKAux = mlsP;
+                //mlsKalman.data = mlsKAux;
+
+                mlsKalman.data = mls_dummy_fix;
+
+                // TODO: this is quick fix
+                _mls_map.write(mlsKalman);
+            }        
+        }
+    }
+}
+
 void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
 {
     LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
+
+
 
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){
@@ -797,8 +857,13 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
             }
         }
         envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
+        
+        // TODO: this is quick fix
+        mls_dummy_fix = mlsKalST.getData();
+
         mlsKal mlsKAux = mlsKalST.getData();
         mlsPrec mlsP = mlsKAux;
+
         envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
         control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
         LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
