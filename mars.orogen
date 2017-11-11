@@ -45,6 +45,10 @@ task_context "Task" do
         operation("setupMLSSimulation").
             argument("robotPose","/base/samples/RigidBodyState").
             argument("mls", spatio_temporal('/maps/grid/MLSMapKalman'))
+
+        operation("setupMLSPrecSimulation").
+            argument("robotPose","/base/samples/RigidBodyState").
+            argument("mls", spatio_temporal('/maps/grid/MLSMapPrecalculated'))
         
         property('add_floor',"/bool",false)
 

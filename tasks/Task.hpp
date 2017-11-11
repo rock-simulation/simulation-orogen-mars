@@ -9,6 +9,7 @@
 #include "mars/sceneType.hpp"
 #include <maps/grid/MLSMap.hpp> 
 #include <base/Pose.hpp>
+#include <envire_core/items/Frame.hpp>
 
 class QApplication;
 
@@ -69,6 +70,11 @@ namespace mars {
 
     {
 	friend class TaskBase;
+
+    private:
+        void loadRobot(const base::samples::RigidBodyState& robotPose);
+        bool prepareGraphForMLS();
+
     protected:
         QApplication* app; 
     	static mars::app::GraphicsTimer *graphicsTimer;
@@ -84,6 +90,8 @@ namespace mars {
 	std::map<int , std::shared_ptr<mars::SerializedScene> > savedStates;
 
     maps::grid::MLSMapKalman mls_dummy_fix;
+
+        envire::core::FrameId mlsFrameId;
 
 
 	pthread_t thread_info; 
@@ -147,6 +155,7 @@ namespace mars {
         virtual bool setGravity_internal(::base::Vector3d const & value);
         virtual void setPosition(::mars::Positions const & positions);
         virtual void setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls);
+        virtual void setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > & mls);
         virtual void getMLSMap();
 
 
