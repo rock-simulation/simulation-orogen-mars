@@ -1,6 +1,7 @@
 #include "Task.hpp"
 #include <mars/app/MARS.h>
 #include <mars/sim/Simulator.h>
+#include <mars/sim/defines.hpp>
 #include <mars/utils/Thread.h>
 #include <mars/utils/mathUtils.h>
 #include <mars/interfaces/sim/SimulatorInterface.h>
@@ -33,7 +34,6 @@
 #include <envire_core/items/SpatioTemporal.hpp>
 #include <maps/grid/MLSMap.hpp>
 
-
 #include <boost/filesystem.hpp>
 
 #undef LOG_DEBUG
@@ -42,18 +42,6 @@
 #undef LOG_ERROR
 #undef LOG_FATAL
 #include <base/Logging.hpp>
-
-// TODO: should be ask from node manager
-#define SIM_CENTER_FRAME_NAME std::string("center")
-// TODO: should be set over config
-#define MLS_FRAME_NAME std::string("mls_01")
-#define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
-// TODO: should be set over config
-#define ROBOT_NAME std::string("Asguard_v4")
-// TODO: should be set over config
-#define ROBOT_ROOT_LINK_NAME std::string("body")
-// TODO: do we need this?
-#define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
 
 using namespace mars;
 using mlsPrec = maps::grid::MLSMapPrecalculated;
