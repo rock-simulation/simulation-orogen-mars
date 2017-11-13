@@ -818,6 +818,7 @@ void Task::getMLSMap() {
 bool Task::prepareGraphForMLS()
 {
     bool ok;
+    ok = true;
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){
         LOG_DEBUG("[Task::prepareGraphForMLS] Mars control center available");
