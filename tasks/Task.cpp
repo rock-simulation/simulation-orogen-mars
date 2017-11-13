@@ -878,11 +878,11 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
             mls_dummy_fix = mlsKalST.getData();
             mlsKal mlsKAux = mlsKalST.getData();
             mlsPrec mlsP = mlsKAux;
-            envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
+            //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
 
-            control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+            //control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
             LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
-            loadRobot(robotPose);
+            //loadRobot(robotPose);
         }
         else
         {
