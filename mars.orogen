@@ -259,6 +259,9 @@ task_context "Joints" do
     # are served by this module in order to not miss any transforms
     output_port "transforms", "base/samples/RigidBodyState"
 
+
+    operation("setJoints").
+        argument("joints_status", "/base/samples/Joints", 'Status of joints')
 end
 
 task_context "ForceTorque6DOF" do

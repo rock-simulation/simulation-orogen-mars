@@ -59,6 +59,58 @@ void Joints::init()
     }
 }
 
+void Joints::setJoints(base::samples::Joints const & joints_status) {
+for( size_t i=0; i<mars_ids.size(); ++i )
+    {
+        //passive joints can't take commands
+        if (joint_types [i] == PASSIVE){
+            continue;
+        }
+
+        // for each command input look up the name in the mars_ids structure
+        JointConversion conv = mars_ids[i];
+
+            //ignore the case that the input data stream has not commands for our other joints
+            std::vector<std::string>::const_iterator it = std::find(joints_status.names.begin(), joints_status.names.end(), conv.externalName);
+            if (it == joints_status.names.end()){
+                continue;
+            }
+            
+            base::JointState const &curCmd(joints_status[*it]);
+
+        mars::sim::SimMotor *motor = control->motors->getSimMotor( conv.mars_id );
+
+        if( curCmd.hasPosition() )
+            {
+                //set maximum speed that is allowed for turning
+
+                if(curCmd.hasSpeed()){
+                    switch (controlMode){
+                    case IGNORE:break;
+                    case MAX_SPEED:motor->setMaximumVelocity(curCmd.speed);break;
+                    //case SPEED_AT_POS: RTT::log(RTT::Error) << "SPEED_AT_POS" << RTT::endlog();break
+                    }
+                }
+                motor->setValue( conv.toMars( curCmd.position ) );
+            }
+            else
+            {
+                if( curCmd.hasSpeed() )
+                {
+                    motor->setVelocity(curCmd.speed / conv.scaling);
+                }
+            }
+        if( curCmd.hasEffort() )
+        {
+        LOG_WARN_S << "Effort command ignored";
+        }
+        if( curCmd.hasRaw() )
+        {
+        LOG_WARN_S << "Raw command ignored";
+        }
+    }    
+}
+
 void Joints::update(double delta_t)
 {
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning

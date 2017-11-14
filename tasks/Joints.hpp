@@ -102,6 +102,9 @@ namespace mars {
         virtual void init();
         virtual void update(double delta_t);
 
+
+        void setJoints(base::samples::Joints const & joints_status);
+
         /** TaskContext constructor for Joints
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
