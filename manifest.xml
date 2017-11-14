@@ -17,9 +17,6 @@ The mars-core module provides the base for other modules that require the simula
   <depend package="simulation/mars/sim" />
   <depend package="simulation/mars/scene_loader" />
   <!-- The following dependencies are only for testing during Entern project -->
-  <depend package="control/orogen/skid4_control" />
-  <depend package="control/orogen/joint_dispatcher" />
-  <depend package="control/orogen/trajectory_generation" />
   <depend package="models/robots/asguard_v4" />
   <depend package="models/robots/crex" />
   <depend package="envire/orogen/envire_maps" />  

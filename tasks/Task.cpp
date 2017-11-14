@@ -1,6 +1,7 @@
 #include "Task.hpp"
 #include <mars/app/MARS.h>
 #include <mars/sim/Simulator.h>
+#include <mars/sim/defines.hpp>
 #include <mars/utils/Thread.h>
 #include <mars/utils/mathUtils.h>
 #include <mars/interfaces/sim/SimulatorInterface.h>
@@ -33,7 +34,6 @@
 #include <envire_core/items/SpatioTemporal.hpp>
 #include <maps/grid/MLSMap.hpp>
 
-
 #include <boost/filesystem.hpp>
 
 #undef LOG_DEBUG
@@ -42,18 +42,6 @@
 #undef LOG_ERROR
 #undef LOG_FATAL
 #include <base/Logging.hpp>
-
-// TODO: should be ask from node manager
-#define SIM_CENTER_FRAME_NAME std::string("center")
-// TODO: should be set over config
-#define MLS_FRAME_NAME std::string("mls_01")
-#define ENV_AUTOPROJ_ROOT "AUTOPROJ_CURRENT_ROOT"
-// TODO: should be set over config
-#define ROBOT_NAME std::string("Asguard_v4")
-// TODO: should be set over config
-#define ROBOT_ROOT_LINK_NAME std::string("body")
-// TODO: do we need this?
-#define ASGUARD_PATH std::string("/models/robots/asguard_v4/smurf/asguard_v4.smurf")
 
 using namespace mars;
 using mlsPrec = maps::grid::MLSMapPrecalculated;
@@ -601,6 +589,8 @@ bool Task::configureHook()
 
     setGravity_internal(_gravity.get());
 
+    mlsFrameId = MLS_FRAME_NAME; 
+
     return updateDynamicProperties();
 }
 
@@ -825,15 +815,13 @@ void Task::getMLSMap() {
     }
 }
 
-void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
+bool Task::prepareGraphForMLS()
 {
-    LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
-
-
-
+    bool ok;
+    ok = true;
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){
-        LOG_DEBUG("[Task::setupMLSSimulation] Mars control center available");
+        LOG_DEBUG("[Task::prepareGraphForMLS] Mars control center available");
         // TODO: take it out into the load mls plugin
         // Load the mls in the graph
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
@@ -844,48 +832,92 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         if (not(control->graph->containsFrame(mlsFrameId))){
             control->graph->addFrame(mlsFrameId);
             control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
-            LOG_DEBUG("[Task::setupMLSSimulation] Added MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+            LOG_DEBUG("[Task::prepareGraphForMLS] Added MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
         }
-        else {
-            if (not(control->graph->containsEdge(mlsFrameId, centerFrameId))){
-                control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
-                LOG_DEBUG("[Task::setupMLSSimulation] The frame exists, but not the tf");
-            }
-            else{
-                control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
-                LOG_DEBUG("[Task::setupMLSSimulation] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
-            }
+        if (not(control->graph->containsEdge(mlsFrameId, centerFrameId))){
+            control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::prepareGraphForMLS] The frame exists, but not the tf");
         }
-        envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
-        
-        // TODO: this is quick fix
-        mls_dummy_fix = mlsKalST.getData();
+        else{
+            control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::prepareGraphForMLS] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+        }
+    }
+    else{
+        LOG_ERROR("[Task::prepareGraphForMLS] No contol center");
+        ok = false;
+    }
+    return ok;
+}
 
-        mlsKal mlsKAux = mlsKalST.getData();
-        mlsPrec mlsP = mlsKAux;
-
-        envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
-        control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
-        LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
+void Task::loadRobot(const base::samples::RigidBodyState& robotPose)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
         // Take the robot root link frame and move it to the target Pose
         envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
-        LOG_DEBUG("[Task::setupMLSSimulation] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
+        LOG_DEBUG("[Task::loadRobot] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
         envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
         control->nodes->setTfToCenter(robotRootFrame, robotTf);
+        LOG_DEBUG("[Task::loadRobot] Robot moved");
+    }
+    else{
+        LOG_ERROR("[Task::loadRobot] No contol center");
+    }
+}
 
-        LOG_DEBUG("[Task::setupMLSSimulation] Robot moved");
+void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
+        if(prepareGraphForMLS())
+        {
+            envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
+            // TODO: this is quick fix
+            mls_dummy_fix = mlsKalST.getData();
+            mlsKal mlsKAux = mlsKalST.getData();
+            mlsPrec mlsP = mlsKAux;
+            //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
+
+            //control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+            LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
+            //loadRobot(robotPose);
+        }
+        else
+        {
+            LOG_ERROR("[Task::setupMLSSimulation] MLS Could not be loaded");
+        }
     }
     else{
         LOG_ERROR("[Task::setupMLSSimulation] No contol center");
     }
-
     return;
 }
-//
-//void Task::setupMLSSimulation(base::Pose const & robotPose, maps::grid::MLSMapKalman const & mls)
-//{
-//    return; 
-//}
+
+void Task::setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > & mls)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        if (prepareGraphForMLS()){
+            //envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > spatioTemporal;
+            envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mls.data));
+            //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(&mls);
+            control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+            LOG_DEBUG("[Task::setupMLSPrecSimulation] MLS added");
+            loadRobot(robotPose);
+        }
+        else
+        {
+            LOG_ERROR("[Task::setupMLSPrecSimulation] MLS Could not be loaded");
+        }
+    }
+    else{
+        LOG_ERROR("[Task::setupMLSSimulation] No contol center");
+    }
+    return;
+}
+
 bool Task::setSim_step_size(double value)
 {
     //convert to ms
