@@ -70,7 +70,7 @@ void Joints::update(double delta_t)
             if (it == cmd.names.end()){
                 continue;
             }
-            
+
             base::JointState &curCmd(cmd[*it]);
 
 	    mars::sim::SimMotor *motor = control->motors->getSimMotor( conv.mars_id );
@@ -130,7 +130,12 @@ void Joints::update(double delta_t)
 
             state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getActualPosition() ));
             state.speed = motor->getJoint()->getVelocity() * conv->scaling;
-            state.effort = conv->fromMars( motor->getTorque() );
+
+            if (_use_currents_as_effort.get()) {
+              state.effort = conv->fromMars(  motor->getCurrent() );
+            } else {
+              state.effort = conv->fromMars( motor->getTorque() );
+            }
 
             currents[conv->externalName] = motor->getCurrent();
 
@@ -155,7 +160,7 @@ void Joints::update(double delta_t)
     currents.time = status.time;
     _current_values.write(currents);
 
-    // see if we have configuration for the joint_transforms 
+    // see if we have configuration for the joint_transforms
     // and the output port for it is connected
     std::vector<base::samples::RigidBodyState> rbs;
     if( !_joint_transform.value().empty() && _transforms.connected() )
@@ -190,7 +195,7 @@ bool Joints::configureHook()
 
 
     mars_ids.clear();
-    // fill the joint structure 
+    // fill the joint structure
     mars_ids.resize( num_joints );
     cmd.resize( num_joints);
     status.resize( num_joints - parallel_kinematics.size() );
@@ -239,7 +244,7 @@ bool Joints::configureHook()
     }
 
 
-    std::vector<std::string> rename = _name_remap.get(); 
+    std::vector<std::string> rename = _name_remap.get();
     for( size_t i=0; i<mars_ids.size(); i++ )
     {
 		if( !_scaling.value().empty() ){
