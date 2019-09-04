@@ -12,6 +12,7 @@ import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
+import_types_from "poseUpdateType.hpp"
 import_types_from "base"
 
 
@@ -406,6 +407,20 @@ task_context "RepositionTask" do
 
 end
 
+task_context "PoseUpdateTask" do
+    # Repositions the named entities of the given scene in the current mars scene
+      subclasses "Plugin"
+  
+      input_port('single_pose_update', '/mars/PoseUpdate')
+      input_port('multi_pose_updates', '/mars/PoseUpdates')
+
+      #input_port('single_relative_pose_update', '/mars/PoseUpdate')
+      #input_port('multi_relative_pose_updates', '/mars/PoseUpdates')
+      port_driven
+  
+      needs_configuration
+  
+  end
 
 task_context "ObjectHighlighter" do
     subclasses "Plugin"
