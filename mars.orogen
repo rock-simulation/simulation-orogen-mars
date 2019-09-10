@@ -351,7 +351,7 @@ task_context "EntityFakeDetection" do
     property("minVisibleVertices", "/uint16_t", 5).
         doc("Number of vertices that have to be in the viewing frustum to be counted as seen. Center is counted as vertex.")
     property("use_camera", "/bool", false).
-		   doc("Whether the camera should be used.")
+        doc("Whether the camera should be used.")
 
     output_port('detectionArray', '/mars/Detection3DArray').
         doc 'Puts out the entities in a ROS similar detection format.'
@@ -387,6 +387,16 @@ task_context "RobotTeleportation" do
     needs_configuration
 
 end
+
+task_context "AstronautLokalizerTask" do
+    subclasses "Plugin"
+
+    property("entity_name", "/std/string", "astronaut").
+        doc("Name of mars entity which represents astronaut")
+
+    output_port("astronaut_pose", "/base/samples/RigidBodyState")
+end
+    
 
 task_context "RepositionTask" do
   # Repositions the named entities of the given scene in the current mars scene
