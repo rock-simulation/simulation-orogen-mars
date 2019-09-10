@@ -388,7 +388,7 @@ task_context "RobotTeleportation" do
 
 end
 
-task_context "AstronautLokalizerTask" do
+task_context "AstronautLocalizerTask" do
     subclasses "Plugin"
 
     property("entity_name", "/std/string", "astronaut").
