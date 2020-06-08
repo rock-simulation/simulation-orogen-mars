@@ -467,14 +467,22 @@ void Task::configureUI()
       LOG_INFO_S << "MultiSimPlugin loaded";
       }
     */
+    bool startStop = false;
+    if(simulatorInterface->isSimRunning()) {
+      simulatorInterface->StopSimulation();
+      startStop = true;
+    }
     if(!_initial_scene.get().empty()){
-        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
+      simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),false,true);
     }
     std::vector<std::string> sceneNames = _initial_scenes.get();
     if(!sceneNames.empty()){
         for (std::vector< std::string >::iterator scene = sceneNames.begin(); scene != sceneNames.end();scene++){
-            simulatorInterface->loadScene(*scene, *scene,true,true);
+            simulatorInterface->loadScene(*scene, *scene,false,true);
         }
+    }
+    if(startStop) {
+      simulatorInterface->StartSimulation();
     }
 
 
@@ -534,13 +542,29 @@ void Task::configureUI()
 
 bool Task::startHook()
 {
+    if(qApp) {
+        if (!mExecutor) {
+            mExecutor = new MethodExecutionObject();
+            mExecutor->moveToThread(QApplication::instance()->thread());
+        }
+
+        processInQtThread(bind(&Task::startUI, this));
+    }
+    else {
+        startUI();
+    }
+    return true;
+}
+
+void Task::startUI()
+{
     // Simulation should be either started manually,
     // or by using the control_action input_port
     //
     if (_start_sim.get()){
+        LOG_WARN_S << "trying to start MARS.";
         simulatorInterface->StartSimulation();
     }
-    return true;
 }
 
 void Task::updateHook()

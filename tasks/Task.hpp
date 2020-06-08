@@ -162,7 +162,11 @@ namespace mars {
          * stay in Stopped. Otherwise, it goes into Running and updateHook()
          * will be called.
          */
+
         bool startHook();
+        /** Method called during startHook, but within the Qt thread
+         */
+        virtual void startUI();
 
 
         /** This hook is called by Orocos when the component is in the Running
