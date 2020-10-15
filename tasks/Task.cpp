@@ -410,9 +410,7 @@ bool Task::configureHook()
         LOG_INFO_S << "MultiSimPlugin loaded";
     }
     */
-    if(!_initial_scene.get().empty()){
-        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
-    }
+    // Load scenes before robot to avoid complex robots blocking correct loading of the scene
     std::vector<std::string> sceneNames = _initial_scenes.get();
     if(!sceneNames.empty()){
         for (std::vector< std::string >::iterator scene = sceneNames.begin(); scene != sceneNames.end();scene++){
@@ -420,6 +418,9 @@ bool Task::configureHook()
         }
     }
 
+    if(!_initial_scene.get().empty()){
+        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
+    }
 
     std::vector<Positions> positions = _positions.get();
     if(!positions.empty()){
