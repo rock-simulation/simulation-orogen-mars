@@ -1,20 +1,18 @@
 /* Generated from orogen/lib/orogen/templates/tasks/IMU.hpp */
 
-#ifndef SIMULATION_ENTITYFAKEDETECTION_TASK_HPP
-#define SIMULATION_ENTITYFAKEDETECTION_TASK_HPP
+#ifndef SIMULATION_RepositionTask_TASK_HPP
+#define SIMULATION_RepositionTask_TASK_HPP
 
-#include "mars/EntityFakeDetectionBase.hpp"
+#include "mars/RepositionTaskBase.hpp"
 #include <mars/sim/SimEntity.h>
-#include <base/Pose.hpp>
-#include <base/Time.hpp>
-#include "objectDetectionTypes.hpp"
-
-
+#include <mars/utils/mathUtils.h>
+#include <configmaps/ConfigData.h>
 namespace mars {
+  using namespace interfaces;
 
-  class EntityFakeDetectionPlugin;
+  class RepositionTaskPlugin;
 
-  /*! \class EntityFakeDetection
+  /*! \class RepositionTask
    * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
    * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
    * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
@@ -23,47 +21,45 @@ namespace mars {
    * The name of a TaskContext is primarily defined via:
    \verbatim
    deployment 'deployment_name'
-       task('custom_task_name','mars::EntityFakeDetection')
+       task('custom_task_name','mars::RepositionTask')
    end
    \endverbatim
    *  It can be dynamically adapted when the deployment is called with a prefix argument.
    */
-  class EntityFakeDetection : public EntityFakeDetectionBase
+  class RepositionTask : public RepositionTaskBase
   {
-    friend class EntityFakeDetectionBase;
+    friend class RepositionTaskBase;
 
     protected:
-      enum FrameId {
-        GLOBAL,
-        CAMERA
-      };
-
-      std::map<unsigned long, sim::SimEntity*> visible_entities;
-      unsigned long seq = 0;
-      Detection3DArray* detectionArray;
-      FrameId frame_id;
-      unsigned int minVisibleVertices;
-      bool camera_available, use_camera;
+      std::string scene_path;
+      std::vector<std::string> entity_names;
+      std::map<std::string, unsigned long> link_ids;
+      /// contains the parent node id of the given link id
+      std::map<unsigned long, unsigned long> parent_ids;
+      std::map<unsigned long, std::vector<unsigned long>> children_ids;
+      configmaps::ConfigVector scene;
 
     public:
       virtual void init();
       virtual void update(double delta_t);
-      /** TaskContext constructor for EntityFakeDetection
+      /** TaskContext constructor for RepositionTask
        * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
        * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
        */
-      EntityFakeDetection(std::string const& name = "mars::EntityFakeDetection");
+      RepositionTask(std::string const& name = "mars::RepositionTask");
 
-      /** TaskContext constructor for EntityFakeDetection
+      /** TaskContext constructor for RepositionTask
        * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
        * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
        *
        */
-      EntityFakeDetection(std::string const& name, RTT::ExecutionEngine* engine);
+      RepositionTask(std::string const& name, RTT::ExecutionEngine* engine);
 
-      /** Default deconstructor of EntityFakeDetection
+      /** Default deconstructor of RepositionTask
        */
-      ~EntityFakeDetection();
+      ~RepositionTask();
+
+      void applyPose(std::string, base::Pose pose);
 
       /** This hook is called by Orocos when the state machine transitions
        * from PreOperational to Stopped. If it returns false, then the
@@ -122,8 +118,8 @@ namespace mars {
        * before calling start() again.
        */
       // void cleanupHook();
-      void getData();
     };
 }
 
 #endif
+
