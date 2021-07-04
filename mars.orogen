@@ -12,6 +12,7 @@ import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
+import_types_from "poseUpdateType.hpp"
 import_types_from "base"
 
 
@@ -350,7 +351,7 @@ task_context "EntityFakeDetection" do
     property("minVisibleVertices", "/uint16_t", 5).
         doc("Number of vertices that have to be in the viewing frustum to be counted as seen. Center is counted as vertex.")
     property("use_camera", "/bool", false).
-		   doc("Whether the camera should be used.")
+        doc("Whether the camera should be used.")
 
     output_port('detectionArray', '/mars/Detection3DArray').
         doc 'Puts out the entities in a ROS similar detection format.'
@@ -364,6 +365,8 @@ task_context "RobotTeleportation" do
 
     property("robot_name", "/std/string").
         doc("Name of the robot.")
+    property("scene_path", "/std/string").
+        doc("Path to smurfs")
     property("reset_node_name", "/std/string").
         doc("Name of the node that has to be resetted additionally.")
     property("position_mode", "/uint16_t", 1).
@@ -385,6 +388,49 @@ task_context "RobotTeleportation" do
 
 end
 
+task_context "AstronautLocalizerTask" do
+    subclasses "Plugin"
+
+    property("entity_name", "/std/string", "astronaut").
+        doc("Name of mars entity which represents astronaut")
+
+    output_port("astronaut_pose", "/base/samples/RigidBodyState")
+end
+    
+
+task_context "RepositionTask" do
+  # Repositions the named entities of the given scene in the current mars scene
+    subclasses "Plugin"
+
+    property("entity_names", "/std/vector<std/string>").
+        doc("Name of parts to move.")
+    property("scene_path", "/std/string").
+        doc("Path to smurf(a/s)")
+    property("ignore_position", "bool", false).
+        doc("Whether the position input shall be ignored")
+
+    input_port('poses', '/std/vector<base/Pose>').
+        doc 'Poses relative to the parent link'
+	port_driven
+
+    needs_configuration
+
+end
+
+task_context "PoseUpdateTask" do
+    # Repositions the named entities of the given scene in the current mars scene
+      subclasses "Plugin"
+  
+      input_port('single_pose_update', '/mars/PoseUpdate')
+      input_port('multi_pose_updates', '/mars/PoseUpdates')
+
+      #input_port('single_relative_pose_update', '/mars/PoseUpdate')
+      #input_port('multi_relative_pose_updates', '/mars/PoseUpdates')
+      port_driven
+  
+      needs_configuration
+  
+  end
 
 task_context "ObjectHighlighter" do
     subclasses "Plugin"
