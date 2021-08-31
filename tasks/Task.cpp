@@ -601,7 +601,18 @@ void Task::receiveData(
         const data_broker::DataPackage& package,
         int id)
 {
-    _simulated_time.write(base::Time::fromMilliseconds(simulatorInterface->getTime()));
+    base::Time simtime = base::Time::fromMilliseconds(simulatorInterface->getTime());
+    base::Time systemtime = base::Time::now();
+    _simulated_time.write(simtime);
+    _system_time.write(systemtime);
+    double realdiff = (systemtime - lastSimUpdateSystemTime).toSeconds();
+    double simdiff = (simtime - lastSimUpdateSimTime).toSeconds();
+    _loop_time_real.write(realdiff);
+    _loop_time_sim.write(simdiff);
+    _realtime_factor.write(simdiff/realdiff);
+
+    lastSimUpdateSimTime = simtime;
+    lastSimUpdateSystemTime = systemtime;
 }
 
 bool Task::setGravity_internal(::base::Vector3d const & value){
