@@ -112,6 +112,10 @@ task_context "Task" do
 
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
+        output_port('system_time', '/base/Time')
+        output_port('loop_time_real', 'double')
+        output_port('loop_time_sim', 'double')
+        output_port('realtime_factor', 'double')
 
         port_driven 'control_action'
 

@@ -78,6 +78,9 @@ namespace mars {
 	pthread_t thread_info; 
 	static lib_manager::LibManager* libManager;
 
+    base::Time lastSimUpdateSimTime;
+    base::Time lastSimUpdateSystemTime;
+
         mars::interfaces::PluginInterface* multisimPlugin;
 
         int getOptionCount(const std::vector<Option>& options);
