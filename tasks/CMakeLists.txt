@@ -23,7 +23,7 @@ pkg_check_modules(PKGCONFIG
         mars_app
         mars_graphics
         mars_sim
-        scene_loader
+        mars_scene_loader
 )
 include_directories(${PKGCONFIG_INCLUDE_DIRS})
 link_directories(${PKGCONFIG_LIBRARY_DIRS})
