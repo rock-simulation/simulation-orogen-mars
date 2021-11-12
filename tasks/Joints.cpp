@@ -136,9 +136,9 @@ void Joints::update(double delta_t)
 
             status[conv->externalName] = state;
         }else{
-            mars::sim::SimJoint* joint = control->joints->getSimJoint( conv->mars_id );
+            std::shared_ptr<mars::sim::SimJoint> joint = control->joints->getSimJoint( conv->mars_id );
 
-            state.position = conv->fromMars(conv->updateAbsolutePosition( joint->getActualAngle1() ));
+            state.position = conv->fromMars(conv->updateAbsolutePosition( joint->getPosition() ));
             state.speed = joint->getVelocity() * conv->scaling;
             state.effort = 0;
 
