@@ -6,11 +6,11 @@
 #include <mars/data_broker/ReceiverInterface.h>
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
-#include <QMutex>
-#include <QWaitCondition>
 
 class QApplication;
 class QObject;
+class QMutex;
+class QWaitCondition;
 
 /** From MARS */
 //
@@ -71,8 +71,8 @@ namespace mars {
     protected:
 
         QObject* mExecutor = nullptr;
-        QMutex mExecutorLock;
-        QWaitCondition mExecutorSignal;
+        QMutex* mExecutorLock;
+        QWaitCondition* mExecutorSignal;
 
         /** Execute the given function in the Qt main thread, waiting for its
          * execution to finish

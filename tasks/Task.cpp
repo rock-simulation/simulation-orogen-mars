@@ -23,6 +23,8 @@
 #else
 #include <QPlastiqueStyle>
 #endif
+#include <QMutex>
+#include <QWaitCondition>
 
 #include <boost/filesystem.hpp>
 
@@ -95,6 +97,8 @@ Task::Task(std::string const& name)
     setlocale(LC_ALL,"C"); //Make sure english Encodings are used
     setenv("LANG","C",true);
     _gravity.set(Eigen::Vector3d(0,0,-9.81));
+    mExecutorLock = new QMutex();
+    mExecutorSignal = new QWaitCondition();
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -104,25 +108,29 @@ Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     Task::taskInterface = this;
     setlocale(LC_ALL,"C"); //Make sure english Encodings are used
     setenv("LANG","C",true);
+    mExecutorLock = new QMutex();
+    mExecutorSignal = new QWaitCondition();
 }
 
 Task::~Task()
 {
+  delete mExecutorLock;
+  delete mExecutorSignal;
 }
 
 
 void Task::processInQtThread(function<void()> f) {
-    QMutexLocker sync(&mExecutorLock);
+    QMutexLocker sync(mExecutorLock);
 
     bool result = true;
     string message;
     auto* event = new MethodExecutionEvent(
-        mExecutorLock, mExecutorSignal, result, message
+        *mExecutorLock, *mExecutorSignal, result, message
     );
     event->f = f;
     QApplication::instance()->postEvent(mExecutor, event);
 
-    mExecutorSignal.wait(&mExecutorLock);
+    mExecutorSignal->wait(mExecutorLock);
     if (!result) {
         throw MethodInQtThreadFailed(message);
     }
