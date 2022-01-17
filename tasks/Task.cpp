@@ -1,7 +1,6 @@
 #include "Task.hpp"
 #include <mars/app/MARS.h>
 #include <mars/sim/Simulator.h>
-#include <mars/sim/defines.hpp>
 #include <mars/utils/Thread.h>
 #include <mars/utils/mathUtils.h>
 #include <mars/interfaces/sim/SimulatorInterface.h>
@@ -36,12 +35,7 @@
 
 #include <boost/filesystem.hpp>
 
-#undef LOG_DEBUG
-#undef LOG_INFO
-#undef LOG_WARN
-#undef LOG_ERROR
-#undef LOG_FATAL
-#include <base/Logging.hpp>
+#include <base-logging/Logging.hpp>
 
 using namespace mars;
 using mlsPrec = maps::grid::MLSMapPrecalculated;
@@ -365,15 +359,24 @@ int Task::getOptionCount(const std::vector<Option>& options)
 
 bool Task::setShow_coordinate_system(bool value)
 {
-    if(value)
-    {
-        //TODO Add your code here
-        if(!marsGraphics){
+    if(!marsGraphics){
+        if(!_enable_gui.get())
+        {
+            return true;
+        }
+        else
+        {
             LOG_ERROR("Could not change view of coordinate systems without an Graphics interface\n");
             return false;
         }
-        marsGraphics->showCoords();
     }
+
+    //Call the base function, DO-NOT Remove
+    if(value)
+        marsGraphics->hideCoords();
+    else
+        marsGraphics->showCoords();
+
     return(mars::TaskBase::setShow_coordinate_system(value));
 }
 
@@ -434,7 +437,7 @@ bool Task::configureHook()
 
 
     //check if the environemnt was sourced more than once and the path has more than one entry
-    unsigned int pos = _config_dir.get().rfind(":/");
+    int pos = _config_dir.get().rfind(":/");
     if(pos != _config_dir.get().size()-1)
         _config_dir.set(_config_dir.get().substr(pos+1));
 
@@ -508,16 +511,17 @@ bool Task::configureHook()
         LOG_INFO_S << "MultiSimPlugin loaded";
     }
     */
-    if(!_initial_scene.get().empty()){
-        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
-    }
+    // Load scenes before robot to avoid complex robots blocking correct loading of the scene
     std::vector<std::string> sceneNames = _initial_scenes.get();
     if(!sceneNames.empty()){
         for (std::vector< std::string >::iterator scene = sceneNames.begin(); scene != sceneNames.end();scene++){
             simulatorInterface->loadScene(*scene, *scene,true,true);
-
         }
-    } 
+    }
+
+    if(!_initial_scene.get().empty()){
+        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
+    }
 
     std::vector<Positions> positions = _positions.get();
     if(!positions.empty()){
@@ -568,6 +572,7 @@ bool Task::configureHook()
         }
     }
 
+
     {//Setting the Step-with for the mars
     cfg_manager::cfgPropertyStruct c = simulatorInterface->getControlCenter()->cfg->getOrCreateProperty("Simulator", "calc_ms", _sim_step_size.get()*1000.0);
     c.dValue = _sim_step_size.get()*1000.0;
@@ -588,8 +593,6 @@ bool Task::configureHook()
     simulatorInterface->getControlCenter()->cfg->setPropertyValue("Simulator","getTime:useNow","value",_use_now_instead_of_sim_time.get());
 
     setGravity_internal(_gravity.get());
-
-    mlsFrameId = MLS_FRAME_NAME; 
 
     return updateDynamicProperties();
 }

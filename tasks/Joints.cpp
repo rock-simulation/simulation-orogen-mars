@@ -5,18 +5,10 @@
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 #include <mars/interfaces/sim/JointManagerInterface.h>
-#include <mars/interfaces/sim/ControlCenter.h>
-#undef LOG_DEBUG
-#undef LOG_INFO
-#undef LOG_WARN
-#undef LOG_ERROR
-#undef LOG_FATAL
-#include <base-logging/Logging.hpp>
+#include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
+#include <mars/interfaces/sim/ControlCenter.h>
 
-#include <envire_core/items/Item.hpp>
-#include <envire_core/graph/EnvireGraph.hpp>
-//#include <mars/sim/JointRecord.h>
 using namespace mars;
 
 Joints::Joints(std::string const& name)
@@ -48,14 +40,15 @@ void Joints::init()
             mars_ids[i].mars_id = marsMotorId;
             joint_types.push_back(MOTOR);
         }else{
-            int marsJointId = control->joints->getID(name);
+            int marsJointId = control->joints->getID( name );
             if (marsJointId){
                 mars_ids[i].mars_id = marsJointId;
                 joint_types.push_back(PASSIVE);
-            } else {
+            }else{
                 throw std::runtime_error("there is no motor or joint by the name of " + name);
             }
         }
+
     }
 }
 
@@ -190,6 +183,7 @@ void Joints::update(double delta_t)
     for( size_t i=0; i<mars_ids.size(); ++i )
     {
         JointConversion *conv = NULL;
+
         if (parallel_kinematics.empty()){
             conv = &(mars_ids[i]);
         }else{
@@ -203,29 +197,35 @@ void Joints::update(double delta_t)
             }
 
         }
+
         base::JointState state;
+
         if (joint_types[i] == MOTOR){
             mars::sim::SimMotor *motor = control->motors->getSimMotor( conv->mars_id );
-            state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getPosition() ));
+
+            state.position = conv->fromMars(conv->updateAbsolutePosition( motor->getActualPosition() ));
             state.speed = motor->getJoint()->getVelocity() * conv->scaling;
-            state.effort = conv->fromMars( motor->getEffort() );
+            state.effort = conv->fromMars( motor->getTorque() );
+
             currents[conv->externalName] = motor->getCurrent();
+
             status[conv->externalName] = state;
-        }
-        else{
-            // NOTE The joint is passive
+        }else{
             std::shared_ptr<mars::sim::SimJoint> joint = control->joints->getSimJoint( conv->mars_id );
+
             state.position = conv->fromMars(conv->updateAbsolutePosition( joint->getPosition() ));
             state.speed = joint->getVelocity() * conv->scaling;
-            state.effort = joint->getForceVector(1).z();
+            state.effort = 0;
+
             currents[conv->externalName] = 0;
             status[conv->externalName] = state;
+
         }
     }
 
     // and write it to the output port
     status.time = getTime();
-    _joints_status.write( status );
+    _status_samples.write( status );
 
     currents.time = status.time;
     _current_values.write(currents);
