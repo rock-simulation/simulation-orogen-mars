@@ -104,7 +104,10 @@ bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedSce
     }
 
     if (!serializedScene.has_objects){
-        simulatorInterface->updateScenePositions(serializedScene.binary_scene);
+        LOG_ERROR("EnvireMars adaptation missing here");
+        // TODO: Code commented out to build, requires adaptation in the simulator core 
+        // simulatorInterface->updateScenePositions(serializedScene.binary_scene);
+        LOG_ERROR("EnvireMars adaptation missing here");
     }else{
         printf("loading objects unsupported\n");
     }
@@ -132,7 +135,8 @@ bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedSce
 
     serialized_scene.id = serialization_id;
     serialized_scene.has_objects = false;
-    serialized_scene.binary_scene = simulatorInterface->serializeScene(false);
+    LOG_ERROR("EnvireMars adaptation missing here");
+    // TODO: fix the core of Envire Mars so that this functionality can be used again: serialized_scene.binary_scene = simulatorInterface->serializeScene(false);
 
 
     //restart sim
@@ -739,6 +743,8 @@ void Task::receiveData(
     if (_frame_name.get() != "") {
         mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
         if (control && simulatorInterface->isSimRunning()){        
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /* TODO envireMars fix: code commented out for build purposes
             if (control->graph != NULL) {
                 if (control->graph->containsFrame(_frame_name.get()) == true) {
                     std::cout << "GET Transform" << std::endl;
@@ -754,6 +760,8 @@ void Task::receiveData(
                     _frame_pose.write(frame_rbg);
                 }
             }
+            */
+
         }
     }    
 }
@@ -789,6 +797,8 @@ void Task::getMLSMap() {
     std::cout << "Task::getMLSMap()" << std::endl;
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){    
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /*
         envire::core::GraphTraits::vertex_descriptor mls_vertex = control->graph->getVertex(MLS_FRAME_NAME);
         if (control->graph->containsItems<envire::core::Item<mlsPrec>>(mls_vertex)){
             std::cout << "Task::getMLSMap() CONTAINT" << std::endl;
@@ -800,7 +810,7 @@ void Task::getMLSMap() {
             {
                 std::cout << "Task::getMLSMap() MLS" << std::endl;
 
-                envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalman;
+                maps::grid::MLSMapKalman mlsKalman;
                 mlsKalman.time = base::Time::now();
                 mlsKalman.frame_id = MLS_FRAME_NAME;
 
@@ -814,6 +824,7 @@ void Task::getMLSMap() {
                 _mls_map.write(mlsKalman);
             }        
         }
+        */
     }
 }
 
@@ -826,6 +837,8 @@ bool Task::prepareGraphForMLS()
         LOG_DEBUG("[Task::prepareGraphForMLS] Mars control center available");
         // TODO: take it out into the load mls plugin
         // Load the mls in the graph
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /* TODO: Add the code here, so that the functionality is recovered
         envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
         envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
         envire::core::Transform mlsTf;
@@ -844,6 +857,7 @@ bool Task::prepareGraphForMLS()
             control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
             LOG_DEBUG("[Task::prepareGraphForMLS] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
         }
+        */
     }
     else{
         LOG_ERROR("[Task::prepareGraphForMLS] No contol center");
@@ -859,8 +873,12 @@ void Task::loadRobot(const base::samples::RigidBodyState& robotPose)
         // Take the robot root link frame and move it to the target Pose
         envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
         LOG_DEBUG("[Task::loadRobot] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
+
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /* TODO: add code here to recover functionality
         envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
         control->nodes->setTfToCenter(robotRootFrame, robotTf);
+        */
         LOG_DEBUG("[Task::loadRobot] Robot moved");
     }
     else{
@@ -875,11 +893,15 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
         LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
         if(prepareGraphForMLS())
         {
-            envire::core::SpatioTemporal<maps::grid::MLSMapKalman > mlsKalST = mls;
+
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /* TODO: add this code so that functionality is recovered
+            maps::grid::MLSMapKalman mlsKalST = mls;
             // TODO: this is quick fix
             mls_dummy_fix = mlsKalST.getData();
             mlsKal mlsKAux = mlsKalST.getData();
             mlsPrec mlsP = mlsKAux;
+            */
             //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
 
             //control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
@@ -903,10 +925,13 @@ void Task::setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose
     if (control){
         if (prepareGraphForMLS()){
             //envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > spatioTemporal;
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /*
             envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mls.data));
             //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(&mls);
             control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
             LOG_DEBUG("[Task::setupMLSPrecSimulation] MLS added");
+            */
             loadRobot(robotPose);
         }
         else
