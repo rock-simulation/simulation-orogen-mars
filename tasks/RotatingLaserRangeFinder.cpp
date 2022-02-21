@@ -61,23 +61,26 @@ bool RotatingLaserRangeFinder::startHook()
     mSensor->config.minDistance = _min_range.value();
     mSensor->config.maxDistance = _max_range.value();
 
-    switch(output_t){
-        case eBoth:
-            mSensor->config.provide_depthmap = true;
-            mSensor->config.provide_pointcloud = true;
-            break;
-        case eDepthmap: 
-            mSensor->config.provide_depthmap = true;
-            mSensor->config.provide_pointcloud = false;
-            break;
-        case ePointcloud:
-            mSensor->config.provide_depthmap = false;
-            mSensor->config.provide_pointcloud = true;
-            break;
-        case eError:
-            std::cerr  << "The output type in the config wrong." << std::endl;
-            break;
-    }
+
+    LOG_ERROR_S << "EnvireMars adaptation missing here";
+    // TODO envire Mars misses some functionality here that should be added. 
+    // switch(output_t){
+    //     case eBoth:
+    //         mSensor->config.provide_depthmap = true;
+    //         mSensor->config.provide_pointcloud = true;
+    //         break;
+    //     case eDepthmap: 
+    //         mSensor->config.provide_depthmap = true;
+    //         mSensor->config.provide_pointcloud = false;
+    //         break;
+    //     case ePointcloud:
+    //         mSensor->config.provide_depthmap = false;
+    //         mSensor->config.provide_pointcloud = true;
+    //         break;
+    //     case eError:
+    //         std::cerr  << "The output type in the config wrong." << std::endl;
+    //         break;
+    // }
     
     return true;
 }
@@ -139,10 +142,13 @@ output_type RotatingLaserRangeFinder::hashType (std::string const& inString) {
 void RotatingLaserRangeFinder::writeDepthmap()
 {
     base::samples::DepthMap depthMap;
+    LOG_ERROR_S << "EnvireMars adaptation missing here";
+    /*
     if(mSensor->getDepthMap(depthMap)) 
     {
         _laser_scans.write(depthMap);
     }
+    */
 }
 
 void RotatingLaserRangeFinder::writePointcloud()
