@@ -30,6 +30,7 @@
 
 #include <envire_core/items/Transform.hpp>
 #include <envire_core/items/Item.hpp>
+#include <envire_core/items/SpatioTemporal.hpp>
 #include <maps/grid/MLSMap.hpp>
 
 #include <boost/filesystem.hpp>
@@ -886,7 +887,7 @@ void Task::loadRobot(const base::samples::RigidBodyState& robotPose)
     }
 }
 
-void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const maps::grid::MLSMapKalman & mls)
+void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
 {
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){
@@ -919,7 +920,7 @@ void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, co
     return;
 }
 
-void Task::setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const maps::grid::MLSMapPrecalculated & mls)
+void Task::setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > & mls)
 {
     mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
     if (control){

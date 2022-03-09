@@ -8,6 +8,7 @@ using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 using_library "envire_core", :typekit => false
 using_library "maps"
+using_library "envire_maps"
 
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"
@@ -16,7 +17,7 @@ import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
 import_types_from "sceneType.hpp"
 import_types_from "base"
-import_types_from "maps"
+import_types_from "envire_maps"
 
 
 #Disable default deployments, most of the time stand_alone deployments are useless
@@ -44,11 +45,11 @@ task_context "Task" do
 
         operation("setupMLSSimulation").
             argument("robotPose","/base/samples/RigidBodyState").
-            argument("mls", '/maps/grid/MLSMapKalman')
+            argument("mls", spatio_temporal('/maps/grid/MLSMapKalman'))
 
         operation("setupMLSPrecSimulation").
             argument("robotPose","/base/samples/RigidBodyState").
-            argument("mls", '/maps/grid/MLSMapPrecalculated')
+            argument("mls", spatio_temporal('/maps/grid/MLSMapPrecalculated'))
         
         property('add_floor',"/bool",false)
 
@@ -135,7 +136,7 @@ task_context "Task" do
         output_port('frame_pose', "base/samples/RigidBodyState")
 
         operation('getMLSMap')
-        output_port("mls_map", '/maps/grid/MLSMapKalman')
+        output_port("mls_map", spatio_temporal('/maps/grid/MLSMapKalman'))
         
         operation('serializePositions').
             returns('/mars/SerializedScene').
