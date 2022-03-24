@@ -7,6 +7,8 @@
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
+#include <mars/sim/SimNode.h>
+
 namespace mars {
 
     class IMUPlugin;
@@ -30,21 +32,22 @@ namespace mars {
 	friend class IMUBase;
 
     protected:
+        // Use the pointer to the nodeInterface insted of the node_id
+        //long node_id;
+        std::shared_ptr<mars::sim::SimNode> imuNodePtr;
 
-    /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
-     */
-    virtual bool estimate_bias(boost::uint16_t duration){};
+        /* Normally triggers bias estimation on the xsens imu, in simulation this does nothing */
+        virtual bool estimate_bias(boost::uint16_t duration) { return 0; };
 
         long node_id;
         base::samples::RigidBodyState rbs;
         base::samples::IMUSensors imusens;
-	boost::mt19937 rnd_generator;
-	boost::normal_distribution<double> translation_noise;
-	boost::normal_distribution<double> rotation_noise;
-	boost::normal_distribution<double> velocity_noise;
-	boost::normal_distribution<double> angular_velocity_noise;
-        void update( double time );
-
+        boost::mt19937 rnd_generator;
+        boost::normal_distribution<double> translation_noise;
+        boost::normal_distribution<double> rotation_noise;
+        boost::normal_distribution<double> velocity_noise;
+        boost::normal_distribution<double> angular_velocity_noise;
+        void update(double time);
 
     public:
         /** TaskContext constructor for IMU

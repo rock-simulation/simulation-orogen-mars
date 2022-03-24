@@ -28,12 +28,18 @@
 #include <QPlastiqueStyle>
 #endif
 
+#include <envire_core/items/Transform.hpp>
+#include <envire_core/items/Item.hpp>
+#include <envire_core/items/SpatioTemporal.hpp>
+#include <maps/grid/MLSMap.hpp>
+
 #include <boost/filesystem.hpp>
 
 #include <base-logging/Logging.hpp>
 
 using namespace mars;
-using namespace mars;
+using mlsPrec = maps::grid::MLSMapPrecalculated;
+using mlsKal = maps::grid::MLSMapKalman;
 
 mars::interfaces::SimulatorInterface *Task::simulatorInterface = 0;
 mars::Task *Task::taskInterface = 0;
@@ -49,6 +55,8 @@ Task::Task(std::string const& name)
     setenv("LANG","C",true);
     app = 0;
     _gravity.set(Eigen::Vector3d(0,0,-9.81));
+    serialization_id = 0;
+    last_serialization_id = 0;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -59,11 +67,21 @@ Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
     app = 0;
     setlocale(LC_ALL,"C"); //Make sure english Encodings are used
     setenv("LANG","C",true);
+    serialization_id = 0;
+    last_serialization_id = 0;
 }
 
 Task::~Task()
 {
     delete app;
+}
+
+void Task::startSimulation() {
+    simulatorInterface->StartSimulation();
+}
+
+void Task::stopSimulation() {
+    simulatorInterface->StopSimulation();
 }
 
 
@@ -74,6 +92,82 @@ void Task::loadScene(::std::string const & path)
     }else{
         LOG_ERROR_S << "Simulator not yet started cout not load scenefile";
     }
+}
+
+bool Task::loadSerializedPositions(::mars::SerializedScene const & serializedScene)
+{
+
+    //pause sim
+    bool was_running=false;
+    if(simulatorInterface->isSimRunning()){
+        simulatorInterface->StopSimulation();
+        was_running = true;
+    }
+
+    if (!serializedScene.has_objects){
+        LOG_ERROR("EnvireMars adaptation missing here");
+        // TODO: Code commented out to build, requires adaptation in the simulator core 
+        // simulatorInterface->updateScenePositions(serializedScene.binary_scene);
+        LOG_ERROR("EnvireMars adaptation missing here");
+    }else{
+        printf("loading objects unsupported\n");
+    }
+
+    //restart sim
+    if(was_running){
+        simulatorInterface->StartSimulation();
+    }
+
+    return true;
+}
+
+::mars::SerializedScene Task::serializePositions()
+{
+    ++serialization_id;
+
+    //pause sim
+    bool was_running=false;
+    if(simulatorInterface->isSimRunning()){
+        simulatorInterface->StopSimulation();
+        was_running = true;
+    }
+
+    //serialize
+
+    serialized_scene.id = serialization_id;
+    serialized_scene.has_objects = false;
+    LOG_ERROR("EnvireMars adaptation missing here");
+    // TODO: fix the core of Envire Mars so that this functionality can be used again: serialized_scene.binary_scene = simulatorInterface->serializeScene(false);
+
+
+    //restart sim
+    if(was_running){
+        simulatorInterface->StartSimulation();
+    }
+
+    return serialized_scene;
+}
+
+
+bool Task::loadState(boost::int32_t Id){
+    if (savedStates[Id]){
+        loadSerializedPositions(*(savedStates[Id]));
+        return true;
+    }
+    return false;
+}
+
+boost::int32_t Task::saveState(){
+    std::shared_ptr<mars::SerializedScene> scene = std::shared_ptr<mars::SerializedScene>(new mars::SerializedScene(serializePositions()));
+    savedStates[scene->id] = scene;
+    return scene->id;
+}
+
+bool Task::deleteState(boost::int32_t Id){
+    if (savedStates.erase(Id)){
+        return true;
+    }
+    return false;
 }
 
 mars::interfaces::SimulatorInterface* Task::getSimulatorInterface()
@@ -111,10 +205,12 @@ void* Task::startTaskFunc(void* argument)
         Option confDirOption("-C", marsArguments->config_dir);
         rawOptions.push_back(confDirOption);
     }
+    bool enable_gui = true;
     if(!marsArguments->enable_gui)
     {
       Option noGUIOption("--no-gui", "");
       rawOptions.push_back(noGUIOption);
+      enable_gui = false;  
     }
     char** argv = mars->setOptions(rawOptions);
     int argc = mars->getOptionCount(rawOptions);
@@ -133,18 +229,21 @@ void* Task::startTaskFunc(void* argument)
     // for core mars and gui
     if(!Task::getTaskInterface()->app){
         //Initialize Qapplication only once! and keep the instance
-        Task::getTaskInterface()->app = new QApplication(argc, argv);
+        Task::getTaskInterface()->app = new QApplication(argc, argv, enable_gui);
+        if (enable_gui)
+        {        
 #if QT_VERSION >= 0x050000
-        QStyle* style = QStyleFactory::create("plastique");
-        if(style)
-        {
-            Task::getTaskInterface()->app->setStyle(style);
-        } else {
-            LOG_WARN_S << "QStyle 'plastique' is not available";
-        }
+            QStyle* style = QStyleFactory::create("plastique");
+            if(style)
+            {
+                Task::getTaskInterface()->app->setStyle(style);
+            } else {
+                LOG_WARN_S << "QStyle 'plastique' is not available";
+            }
 #else
-        Task::getTaskInterface()->app->setStyle(new QPlastiqueStyle);
+            Task::getTaskInterface()->app->setStyle(new QPlastiqueStyle);
 #endif
+        }
     }
 
     setlocale(LC_ALL,"C");
@@ -219,7 +318,10 @@ void* Task::startTaskFunc(void* argument)
         mars->simulatorInterface->getControlCenter()->cfg->setPropertyValue("Simulator", "realtime calc", "value", marsArguments->realtime_calc);
     }
 
-    mars->marsGraphics = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+    if (enable_gui)
+    {
+        mars->marsGraphics = libManager->getLibraryAs<mars::interfaces::GraphicsManagerInterface>("mars_graphics");
+    }
 
     // Synchronize with configureHook
     marsArguments->initialized = true;
@@ -228,7 +330,10 @@ void* Task::startTaskFunc(void* argument)
 
     libManager->releaseLibrary("mars_sim");
     libManager->releaseLibrary("cfg_manager");
-    libManager->releaseLibrary("mars_graphics");
+    if (enable_gui)
+    {
+       libManager->releaseLibrary("mars_graphics");
+    }
 
     delete simulation;
     //Do not delete the QApplication it does not like it to be restarted
@@ -427,7 +532,30 @@ bool Task::configureHook()
         for (std::vector< Positions >::iterator offset = positions.begin(); offset != positions.end();offset++){
             move_node(*offset);
         }
-    }
+    }    
+
+    std::vector<mars::SceneConfig> scene_configs = _scene_setup.get();
+    if(!scene_configs.empty()){
+        std::cout << "NOT EMPTY" << std::endl;
+        for (std::vector<mars::SceneConfig>::iterator scene = scene_configs.begin(); scene != scene_configs.end(); scene++){
+            utils::Vector pos;
+            pos.x() = scene->posx;
+            pos.y() = scene->posy;
+            pos.z() = scene->posz;
+            
+            utils::Vector rot;
+            rot.x() = scene->rotx;
+            rot.y() = scene->roty;
+            rot.z() = scene->rotz;
+
+            std::cout << "LOAD: " << scene->path << " " << scene->name << std::endl;
+
+            simulatorInterface->loadScene(scene->path, scene->name, pos, rot, true, true);
+        }
+    }    
+
+
+
 
 
     mars::Pose initial_pose = _initial_pose.get();
@@ -524,6 +652,16 @@ void Task::updateHook()
         exception(PHYSICS_ERROR);
  //       QCoreApplication::quit(); //Quitting QApplication too
     }
+
+    if (serialization_id != last_serialization_id){
+        _serialized_scene.write(serialized_scene);
+        last_serialization_id = serialization_id;
+    }
+
+    if (_updatePositions.read(serialized_scene_in) == RTT::NewData){
+        printf("%s update pos\n",__PRETTY_FUNCTION__);
+        loadSerializedPositions(serialized_scene_in);
+    }
 }
 
 void Task::errorHook()
@@ -602,6 +740,31 @@ void Task::receiveData(
         int id)
 {
     _simulated_time.write(base::Time::fromMilliseconds(simulatorInterface->getTime()));
+
+    if (_frame_name.get() != "") {
+        mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+        if (control && simulatorInterface->isSimRunning()){        
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /* TODO envireMars fix: code commented out for build purposes
+            if (control->graph != NULL) {
+                if (control->graph->containsFrame(_frame_name.get()) == true) {
+                    std::cout << "GET Transform" << std::endl;
+                    envire::core::Transform frame_trasf = control->graph->getTransform(SIM_CENTER_FRAME_NAME, _frame_name.get());
+
+                    base::samples::RigidBodyState frame_rbg;
+                    frame_rbg.time = base::Time::now();
+                    frame_rbg.sourceFrame = SIM_CENTER_FRAME_NAME;
+                    frame_rbg.targetFrame = _frame_name.get();
+                    frame_rbg.position = frame_trasf.transform.translation;
+                    frame_rbg.orientation = frame_trasf.transform.orientation;
+
+                    _frame_pose.write(frame_rbg);
+                }
+            }
+            */
+
+        }
+    }    
 }
 
 bool Task::setGravity_internal(::base::Vector3d const & value){
@@ -627,6 +790,158 @@ void Task::setPosition(::mars::Positions const & positions)
         move_node(positions);
     }else{
         LOG_ERROR("setPosition called, but mars::Task is whether configured nor running ");
+    }
+    return;
+}
+
+void Task::getMLSMap() {
+    std::cout << "Task::getMLSMap()" << std::endl;
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){    
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /*
+        envire::core::GraphTraits::vertex_descriptor mls_vertex = control->graph->getVertex(MLS_FRAME_NAME);
+        if (control->graph->containsItems<envire::core::Item<mlsPrec>>(mls_vertex)){
+            std::cout << "Task::getMLSMap() CONTAINT" << std::endl;
+
+            using IteratorMLS = envire::core::EnvireGraph::ItemIterator<envire::core::Item<mlsPrec>>;
+            IteratorMLS begin_sim, end_sim;
+            boost::tie(begin_sim, end_sim) = control->graph->getItems<envire::core::Item<mlsPrec>>(mls_vertex);
+            for (;begin_sim!=end_sim; begin_sim++)
+            {
+                std::cout << "Task::getMLSMap() MLS" << std::endl;
+
+                maps::grid::MLSMapKalman mlsKalman;
+                mlsKalman.time = base::Time::now();
+                mlsKalman.frame_id = MLS_FRAME_NAME;
+
+                //mlsPrec mlsP = begin_sim->getData();
+                //mlsKal mlsKAux = mlsP;
+                //mlsKalman.data = mlsKAux;
+
+                mlsKalman.data = mls_dummy_fix;
+
+                // TODO: this is quick fix
+                _mls_map.write(mlsKalman);
+            }        
+        }
+        */
+    }
+}
+
+bool Task::prepareGraphForMLS()
+{
+    bool ok;
+    ok = true;
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        LOG_DEBUG("[Task::prepareGraphForMLS] Mars control center available");
+        // TODO: take it out into the load mls plugin
+        // Load the mls in the graph
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /* TODO: Add the code here, so that the functionality is recovered
+        envire::core::FrameId mlsFrameId = MLS_FRAME_NAME; 
+        envire::core::FrameId centerFrameId = SIM_CENTER_FRAME_NAME;
+        envire::core::Transform mlsTf;
+        mlsTf.setIdentity();
+        //mlsTf.transform.translation << 3.0, 5.0, 7.0; Different positions of the mls don't affect where it is visualized
+        if (not(control->graph->containsFrame(mlsFrameId))){
+            control->graph->addFrame(mlsFrameId);
+            control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::prepareGraphForMLS] Added MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+        }
+        if (not(control->graph->containsEdge(mlsFrameId, centerFrameId))){
+            control->graph->addTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::prepareGraphForMLS] The frame exists, but not the tf");
+        }
+        else{
+            control->graph->updateTransform(mlsFrameId, centerFrameId, mlsTf);
+            LOG_DEBUG("[Task::prepareGraphForMLS] Updated MLS frame transformation: %g, %g, %g", mlsTf.transform.translation.x(), mlsTf.transform.translation.y(), mlsTf.transform.translation.z());
+        }
+        */
+    }
+    else{
+        LOG_ERROR("[Task::prepareGraphForMLS] No contol center");
+        ok = false;
+    }
+    return ok;
+}
+
+void Task::loadRobot(const base::samples::RigidBodyState& robotPose)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        // Take the robot root link frame and move it to the target Pose
+        envire::core::Transform robotTf(robotPose.position, robotPose.orientation);
+        LOG_DEBUG("[Task::loadRobot] Robot Target Pose: %g, %g, %g", robotTf.transform.translation.x(), robotTf.transform.translation.y(), robotTf.transform.translation.z());
+
+        LOG_ERROR("EnvireMars adaptation missing here");
+        /* TODO: add code here to recover functionality
+        envire::core::FrameId robotRootFrame = ROBOT_ROOT_LINK_NAME;
+        control->nodes->setTfToCenter(robotRootFrame, robotTf);
+        */
+        LOG_DEBUG("[Task::loadRobot] Robot moved");
+    }
+    else{
+        LOG_ERROR("[Task::loadRobot] No contol center");
+    }
+}
+
+void Task::setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        LOG_DEBUG("[Task::setupMLSSimulation] Method called!");
+        if(prepareGraphForMLS())
+        {
+
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /* TODO: add this code so that functionality is recovered
+            maps::grid::MLSMapKalman mlsKalST = mls;
+            // TODO: this is quick fix
+            mls_dummy_fix = mlsKalST.getData();
+            mlsKal mlsKAux = mlsKalST.getData();
+            mlsPrec mlsP = mlsKAux;
+            */
+            //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mlsP));
+
+            //control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+            LOG_DEBUG("[Task::setupMLSSimulation] MLS added");
+            //loadRobot(robotPose);
+        }
+        else
+        {
+            LOG_ERROR("[Task::setupMLSSimulation] MLS Could not be loaded");
+        }
+    }
+    else{
+        LOG_ERROR("[Task::setupMLSSimulation] No contol center");
+    }
+    return;
+}
+
+void Task::setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > & mls)
+{
+    mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
+    if (control){
+        if (prepareGraphForMLS()){
+            //envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > spatioTemporal;
+            LOG_ERROR("EnvireMars adaptation missing here");
+            /*
+            envire::core::Item<mlsPrec>::Ptr mlsItemPtr(new envire::core::Item<mlsPrec>(mls.data));
+            //envire::core::Item<mlsPrec>::Ptr mlsItemPtr(&mls);
+            control->graph->addItemToFrame(mlsFrameId, mlsItemPtr);
+            LOG_DEBUG("[Task::setupMLSPrecSimulation] MLS added");
+            */
+            loadRobot(robotPose);
+        }
+        else
+        {
+            LOG_ERROR("[Task::setupMLSPrecSimulation] MLS Could not be loaded");
+        }
+    }
+    else{
+        LOG_ERROR("[Task::setupMLSSimulation] No contol center");
     }
     return;
 }
@@ -677,6 +992,6 @@ void Task::move_node(::mars::Positions const & arg)
             nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT);
         }
     }else{
-        LOG_ERROR("node '%s' unknown\n", arg.nodename.c_str());
+        LOG_ERROR("[MarsTask::move_node]node '%s' unknown\n", arg.nodename.c_str());
     }
 }

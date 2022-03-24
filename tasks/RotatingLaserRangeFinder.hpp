@@ -13,6 +13,13 @@ namespace mars{
 
 namespace mars {
 
+    enum output_type{
+        eDepthmap,
+        ePointcloud,
+        eBoth,
+        eError
+    };
+
     /*! \class RotatingLaserRangeFinder 
      * \brief Rock module to receive Mars RotatingRaySensor data.
      */
@@ -103,8 +110,17 @@ namespace mars {
          * Overwrites update() of class Plugin to publish the sensor data.  
          */
         void update(double delta_t);
+
+    private:
+
+        output_type hashType(std::string const& inString);
+        output_type output_t;
+        void writeDepthmap();
+        void writePointcloud();
+        
     };
 }
 
 #endif
+
 

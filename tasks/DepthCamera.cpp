@@ -34,9 +34,9 @@ bool DepthCamera::startHook()
         std::cout << "DepthCamera startHook" <<  std::endl;
     if (! DepthCameraBase::startHook())
         return false;
-    image = new base::samples::DistanceImage(width, height);
-    image->setSize(width, height);
-    ro_ptr.reset(image);
+    // FIXME these two lines do the same thing?!
+    image = base::samples::DistanceImage(width, height);
+    image.setSize(width, height);
     return true;
 }
 
@@ -61,23 +61,20 @@ void DepthCamera::cleanupHook()
 }
 
 void DepthCamera::getData()
-{	
-    image = ro_ptr.write_access();
-    camera->getDepthImage(image->data);
+{
+    camera->getDepthImage(image.data);
     
     // get the camera info for the intrinsic parameters of the virtual camera
     mars::interfaces::cameraStruct camInfo;
     camera->getCameraInfo(&camInfo);
-    image->setIntrinsic(camInfo.scale_x, camInfo.scale_y, 
+    image.setIntrinsic( camInfo.scale_x,  camInfo.scale_y,
                         camInfo.center_x, camInfo.center_y );
 
     //TODO camera might be rotated
 
     //set attributes
     //image->time = base::Time::fromSeconds(lastUpdateTime);
-    image->time = getTime();
+    image.time = getTime();
     
-    ro_ptr.reset(image);
-    
-    _distance_image.write(ro_ptr);
+    _distance_image.write(image);
 }

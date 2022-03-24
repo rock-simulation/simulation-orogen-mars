@@ -101,6 +101,20 @@ void IMU::update( double time )
     rbs.time = getTime();
     rbs.sourceFrame = _imu_frame.value();
     rbs.targetFrame = _world_frame.value();
+
+    LOG_ERROR("EnvireMars adaptation missing here");
+    // TODO The center of the simulation has to be standard
+
+    /* The following code has been commented out just to achieve a successful build, but commenting this code obviously removes the functionality 
+    
+    TODO: remove these multi-line comments and adapt the code to be compatible with the current version of envire-Mars and default Mars
+    
+    if (not(control->graph->containsFrame("center")))
+    {
+        LOG_ERROR("IMU Task: The center frame was not found");
+    }
+    envire::core::Transform imuPos = control->graph->getTransform("center", _name.value());
+    imuPos.transform.orientation.normalize();
     if(_provide_orientation.get()){
         rbs.orientation = control->nodes->getRotation( node_id ).normalized();
         rbs.cov_orientation = base::Matrix3d::Identity() * std::max(std::pow(rotation_noise.sigma(), 2), 1e-6);
@@ -154,6 +168,7 @@ void IMU::update( double time )
     imusens.gyro = orientation_con * control->nodes->getAngularVelocity( node_id);
     // TODO add noise?
     _calibrated_sensors.write( imusens );
+    */
 
 }
 

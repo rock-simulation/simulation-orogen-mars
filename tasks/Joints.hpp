@@ -5,6 +5,8 @@
 
 #include "mars/JointsBase.hpp"
 #include <base/commands/Joints.hpp>
+#include <base/Timeout.hpp>
+#include <mars/sim/SimJoint.h>
 
 namespace mars {
 
@@ -49,6 +51,8 @@ namespace mars {
             {
                 return absolutePosition;
             }
+
+
 	    
 	    int mars_id;
             std::string marsName;
@@ -65,6 +69,8 @@ namespace mars {
 	base::samples::Joints status;
 	mars::JointCurrents currents;
 	base::commands::Joints cmd;
+    
+    base::Timeout cmdTimeout;//The robot stops moving if this timeout expires
 
 	std::vector< mars::ParallelKinematic > parallel_kinematics;
 	mars::JointPositionAndSpeedControlMode controlMode;
@@ -72,6 +78,9 @@ namespace mars {
     public:
         virtual void init();
         virtual void update(double delta_t);
+
+
+        void setJoints(base::samples::Joints const & joints_status);
 
         /** TaskContext constructor for Joints
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.

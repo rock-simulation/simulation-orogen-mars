@@ -6,6 +6,10 @@
 #include <mars/data_broker/ReceiverInterface.h>
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
+#include "mars/sceneType.hpp"
+#include <maps/grid/MLSMap.hpp> 
+#include <base/Pose.hpp>
+#include <envire_core/items/Frame.hpp>
 
 class QApplication;
 
@@ -66,6 +70,11 @@ namespace mars {
 
     {
 	friend class TaskBase;
+
+    private:
+        void loadRobot(const base::samples::RigidBodyState& robotPose);
+        bool prepareGraphForMLS();
+
     protected:
         QApplication* app; 
     	static mars::app::GraphicsTimer *graphicsTimer;
@@ -74,6 +83,16 @@ namespace mars {
 	static void* startTaskFunc(void *);
         static std::string configDir;
 	static bool marsRunning;
+	int serialization_id, last_serialization_id;
+	mars::SerializedScene serialized_scene;
+	mars::SerializedScene serialized_scene_in;
+
+	std::map<int , std::shared_ptr<mars::SerializedScene> > savedStates;
+
+    maps::grid::MLSMapKalman mls_dummy_fix;
+
+        envire::core::FrameId mlsFrameId;
+
 
 	pthread_t thread_info; 
 	static lib_manager::LibManager* libManager;
@@ -91,6 +110,29 @@ namespace mars {
         /* Handler for the loadScene operation
          */
         virtual void loadScene(::std::string const & path);
+
+        /* expects previously loaded objects, just updates the positions
+         */
+        virtual bool loadSerializedPositions(::mars::SerializedScene const & serializedScene);
+
+        /* load simulation state by identifier and return whether it was found
+         */
+        virtual bool loadState(boost::int32_t Id);
+
+        /* store current simulation state and returns an identifier
+         */
+        virtual boost::int32_t saveState();
+
+        /* delete simulation state by identifier and return whether it was found
+         */
+        virtual bool deleteState(boost::int32_t Id);
+
+        virtual void startSimulation();
+        virtual void stopSimulation();
+
+        /* serializes the frames and writes them to the serialized_scene output port
+         */
+        virtual ::mars::SerializedScene serializePositions();
 
         std::vector<Plugin*> plugins;
         
@@ -112,6 +154,12 @@ namespace mars {
         virtual bool setGravity(::base::Vector3d const & value);
         virtual bool setGravity_internal(::base::Vector3d const & value);
         virtual void setPosition(::mars::Positions const & positions);
+        virtual void setupMLSSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapKalman > & mls);
+        virtual void setupMLSPrecSimulation(const base::samples::RigidBodyState& robotPose, const envire::core::SpatioTemporal<maps::grid::MLSMapPrecalculated > & mls);
+        virtual void getMLSMap();
+
+
+        //virtual void setupMLSSimulation(base::Pose const &robotPose, maps::grid::MLSMapKalman const & mls); 
 
     public:
 	/** get the singleton instance of the simulator interface

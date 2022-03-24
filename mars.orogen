@@ -6,13 +6,18 @@ using_library "mars_app", :typekit => false
 using_library "mars_sim", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
+using_library "envire_core", :typekit => false
+using_library "maps"
+using_library "envire_maps"
 
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
+import_types_from "sceneType.hpp"
 import_types_from "base"
+import_types_from "envire_maps"
 
 
 #Disable default deployments, most of the time stand_alone deployments are useless
@@ -38,6 +43,14 @@ task_context "Task" do
         operation("setPosition").
             argument("positions", "mars/Positions")
 
+        operation("setupMLSSimulation").
+            argument("robotPose","/base/samples/RigidBodyState").
+            argument("mls", spatio_temporal('/maps/grid/MLSMapKalman'))
+
+        operation("setupMLSPrecSimulation").
+            argument("robotPose","/base/samples/RigidBodyState").
+            argument("mls", spatio_temporal('/maps/grid/MLSMapPrecalculated'))
+        
         property('add_floor',"/bool",false)
 
         property('gravity',"/base/Vector3d").dynamic
@@ -56,6 +69,8 @@ task_context "Task" do
 
 	property('initial_scenes', '/std/vector</std/string>').
 	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
+
+    property("scene_setup", "std::vector</mars/SceneConfig>")
 
         property('positions', 'std/vector<mars/Positions>' ).
 	    doc('override positions in the scene (scn) file, e.g. move the terrain to create different experiment setups without changing the scene file itself')
@@ -113,6 +128,36 @@ task_context "Task" do
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
 
+        output_port('serialized_scene', '/mars/SerializedScene')
+
+        # TODO: probably move it to other task
+        property("frame_name", '/std/string', '').
+         doc('from center to frame name')
+        output_port('frame_pose', "base/samples/RigidBodyState")
+
+        operation('getMLSMap')
+        output_port("mls_map", spatio_temporal('/maps/grid/MLSMapKalman'))
+        
+        operation('serializePositions').
+            returns('/mars/SerializedScene').
+            doc("serializes the frames and writes them to the serialized_scene output port")
+        operation('loadSerializedPositions').
+            returns('bool').
+            argument("serializedScene", "/mars/SerializedScene", "scene containing the frames to be updated in the simulation").
+            doc("expects previously loaded objects, just updates the positions")
+
+        operation('saveState').returns('int').doc('store current simulation state and returns an identifier')
+        
+        operation('loadState').returns('bool').argument('Id','int','the id of a saved state').doc('load simulation state by identifier and return whether it was found')
+        
+        operation('deleteState').returns('bool').argument('Id','int','the id of a saved state').doc('delete simulation state by identifier and return whether it was found')
+
+        operation('startSimulation')
+
+        operation('stopSimulation')
+
+        input_port("updatePositions","/mars/SerializedScene")
+
         port_driven 'control_action'
 
         exception_states :PHYSICS_ERROR
@@ -140,8 +185,9 @@ end
 
 task_context "DepthCamera", subclasses: "CameraPlugin" do
     needs_configuration
-
-    output_port 'distance_image', ro_ptr('base::samples::DistanceImage')
+    
+    # Note: This used to be a ro_ptr('base::samples::DistanceImage'), but for compatibility with the hardware driver was changed
+    output_port 'distance_image', 'base::samples::DistanceImage'
 end
 
 task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
@@ -178,6 +224,9 @@ end
 
 task_context "Joints", subclasses: "Plugin" do
 
+    property("cmd_max_speed", 'bool', true).
+        doc('True: For position the speed will be interpretated as max speed of the joint, otherwise the speed is set as target speed of joint.')
+
     property('names', 'std/vector</std/string>').
         doc('Array of names of the motor in the scene file. The names get mapped to motor ids starting from zero')
     property('name_remap', 'std/vector</std/string>').
@@ -208,6 +257,9 @@ task_context "Joints", subclasses: "Plugin" do
     # are served by this module in order to not miss any transforms
     output_port "transforms", "base/samples/RigidBodyState"
 
+
+    operation("setJoints").
+        argument("joints_status", "/base/samples/Joints", 'Status of joints')
 end
 
 task_context "ForceTorque6DOF", subclasses: "Plugin" do
@@ -280,8 +332,14 @@ task_context "RotatingLaserRangeFinder", subclasses: "Plugin" do
     property('max_range', 'double', 20.0).
         doc("Maximum valid range of the laser range finder")
 
+    property('output_type', '/std/string', "depthmap").
+        doc("Output format. Select: 'depthmap', 'pointcloud' or 'both'")
+
     output_port('pointcloud', '/base/samples/Pointcloud').
         doc 'Received distances converted to a pointcloud'
+
+    output_port("laser_scans", "base::samples::DepthMap").
+        doc 'Received distances converted to DepthMap'
 end
 
 task_context "IMU", subclasses: "Plugin" do
@@ -324,7 +382,7 @@ task_context "IMU", subclasses: "Plugin" do
     operation('estimate_bias').
         argument('duration', '/uint16_t').
         returns('/bool').
-        doc("Normally triggers bias estimation on the xsens imu, in simulation thios does nothing")
+        doc("Normally triggers bias estimation on the xsens imu, in simulation this does nothing")
 
 
 end
