@@ -144,6 +144,12 @@ task_context "DepthCamera", subclasses: "CameraPlugin" do
     output_port 'distance_image', ro_ptr('base::samples::DistanceImage')
 end
 
+task_context "TOFCamera", subclasses: "CameraPlugin" do
+    needs_configuration
+
+    output_port 'pointcloud', 'base::samples::Pointcloud'
+end
+
 task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
     needs_configuration
 
