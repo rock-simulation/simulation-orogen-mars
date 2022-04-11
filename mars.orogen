@@ -4,6 +4,7 @@ using_library "mars_interfaces", :typekit => false
 using_library "mars_gui", :typekit => false
 using_library "mars_app", :typekit => false
 using_library "mars_sim", :typekit => false
+using_library "mars_smurf_loader", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 
