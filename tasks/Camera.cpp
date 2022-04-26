@@ -137,6 +137,11 @@ void Camera::getData()
     image->received_time = image->time;
     image->frame_status = base::samples::frame::STATUS_VALID;
     
+    // add sensor_id as attribute
+    base::samples::frame::frame_attrib_t attr;
+    attr.set("reference_sensor_id", camera->name);
+    image->attributes.push_back(attr);
+
     ro_ptr.reset(image);
     _frame.write(ro_ptr);
 }
