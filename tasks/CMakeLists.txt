@@ -9,6 +9,10 @@ ADD_LIBRARY(${MARS_TASKLIB_NAME} SHARED
 add_dependencies(${MARS_TASKLIB_NAME}
     regen-typekit)
 
+if (${USE_QT5})
+qt5_use_modules(${MARS_TASKLIB_NAME} Xml Widgets)
+endif (${USE_QT5})
+
 TARGET_LINK_LIBRARIES(${MARS_TASKLIB_NAME}
     ${OrocosRTT_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}
