@@ -480,14 +480,15 @@ void Task::configureUI()
       simulatorInterface->StopSimulation();
       startStop = true;
     }
-    if(!_initial_scene.get().empty()){
-      simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),false,true);
-    }
+    // Load scenes before robot to avoid complex robots blocking correct loading of the scene
     std::vector<std::string> sceneNames = _initial_scenes.get();
     if(!sceneNames.empty()){
         for (std::vector< std::string >::iterator scene = sceneNames.begin(); scene != sceneNames.end();scene++){
             simulatorInterface->loadScene(*scene, *scene,false,true);
         }
+    }
+    if(!_initial_scene.get().empty()){
+        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
     }
     if(startStop) {
       simulatorInterface->StartSimulation();

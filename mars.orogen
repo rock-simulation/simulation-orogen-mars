@@ -4,6 +4,7 @@ using_library "mars_interfaces", :typekit => false
 using_library "mars_gui", :typekit => false
 using_library "mars_app", :typekit => false
 using_library "mars_sim", :typekit => false
+using_library "mars_smurf_loader", :typekit => false
 using_library "main_gui", :typekit => false
 using_library "base-types", :typekit => false
 using_library "lib_manager", :typekit => false
@@ -54,10 +55,10 @@ task_context "Task" do
             dynamic
 
         property('initial_scene', '/std/string').
-	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
+	    doc('if syskit is not used the following syntax can be used too: <%= "#{ENV[\'AUTOPROJ_CURRENT_ROOT\']}/models/environments/.." %>; otherwise use the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
 
 	property('initial_scenes', '/std/vector</std/string>').
-	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
+	    doc('if syskit is not used the following syntax can be used too: <%= "#{ENV[\'AUTOPROJ_CURRENT_ROOT\']}/models/environments/.." %>; otherwise use the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
 
         property('positions', 'std/vector<mars/Positions>' ).
 	    doc('override positions in the scene (scn) file, e.g. move the terrain to create different experiment setups without changing the scene file itself')
@@ -127,30 +128,32 @@ task_context "Plugin" do
 end
 
 #Do not use this prugin direct use Camera or DepthCamera instead
-task_context "CameraPlugin" do
-    subclasses "Plugin"
+task_context "CameraPlugin", subclasses: "Plugin" do
     abstract
     property('name', '/std/string').
 	doc('name of the camera in the scene file')
 
 end
 
-task_context "Camera" do
-    subclasses "CameraPlugin"
+task_context "Camera", subclasses: "CameraPlugin" do
     needs_configuration
 
     output_port 'frame', ro_ptr('base::samples::frame::Frame')
 end
 
-task_context "DepthCamera" do
-    subclasses "CameraPlugin"
+task_context "DepthCamera", subclasses: "CameraPlugin" do
     needs_configuration
 
     output_port 'distance_image', ro_ptr('base::samples::DistanceImage')
 end
 
-task_context "HighResRangeFinder" do
-    subclasses "CameraPlugin"
+task_context "TOFCamera", subclasses: "CameraPlugin" do
+    needs_configuration
+
+    output_port 'pointcloud', 'base::samples::Pointcloud'
+end
+
+task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
     needs_configuration
 
     property('left_limit', 'double', -Math::PI/4.0).
@@ -182,8 +185,7 @@ task_context "HighResRangeFinder" do
         doc 'Created by using the distance image of the DepthCamera'
 end
 
-task_context "Joints" do
-    subclasses "Plugin"
+task_context "Joints", subclasses: "Plugin" do
 
     property('names', 'std/vector</std/string>').
         doc('Array of names of the motor in the scene file. The names get mapped to motor ids starting from zero')
@@ -217,9 +219,7 @@ task_context "Joints" do
 
 end
 
-task_context "ForceTorque6DOF" do
-
-	subclasses "Plugin"
+task_context "ForceTorque6DOF", subclasses: "Plugin" do
 
 	output_port("wrenches_deprecated", "std/vector< /base/samples/Wrench >")
 	output_port("wrenches", "/base/samples/Wrenches")
@@ -230,8 +230,7 @@ task_context "ForceTorque6DOF" do
             doc('If this array is set the sensors will be renamed for the external interface')
 end
 
-task_context "ContactForceSensor" do
-    subclasses "Plugin"
+task_context "ContactForceSensor", subclasses: "Plugin" do
 
     property('wrench_mappings', 'std::vector<mars/WrenchMapping>').
         doc('Mapping from raw sensor data to base/samples/Wrenches type')
@@ -242,8 +241,7 @@ end
 # This plugin can be used to "trigger" a simlation cycle,
 # it can be useful for operating mars with more-than-realtime
 # mode and use the task_scheduler for a fixed execution sequence
-task_context "Trigger" do
-    subclasses "Plugin"
+task_context "Trigger", subclasses: "Plugin" do
 
     property "do_step","bool",false
     doc("This components triggeres the mars simulation cycle if the update-hook is called,
@@ -251,8 +249,7 @@ task_context "Trigger" do
         trigger_component")
 end
 
-task_context "LaserRangeFinder" do
-    subclasses "Plugin"
+task_context "LaserRangeFinder", subclasses: "Plugin" do
 
     needs_configuration
 
@@ -279,8 +276,7 @@ end
 
 # Can be used to simulate laser scanners with more than one vertical scan line
 # (e.g. Velodyne).
-task_context "RotatingLaserRangeFinder" do
-    subclasses "Plugin"
+task_context "RotatingLaserRangeFinder", subclasses: "Plugin" do
 
     needs_configuration
 
@@ -297,8 +293,7 @@ task_context "RotatingLaserRangeFinder" do
         doc 'Received distances converted to a pointcloud'
 end
 
-task_context "IMU" do
-    subclasses "Plugin"
+task_context "IMU", subclasses: "Plugin" do
 
     property("provide_position", "/bool",false).
         doc("Set to true is this Sensor should output position readings")
@@ -344,8 +339,7 @@ task_context "IMU" do
 end
 
 
-task_context "EntityFakeDetection" do
-    subclasses "CameraPlugin"
+task_context "EntityFakeDetection", subclasses: "CameraPlugin" do
 
     property("frame_id", "/uint16_t", 1).
         doc("0 for coordinates in world frame. 1 for coordinates in camera frame.")
@@ -361,11 +355,12 @@ task_context "EntityFakeDetection" do
 
 end
 
-task_context "RobotTeleportation" do
-    subclasses "Plugin"
+task_context "RobotTeleportation", subclasses: "Plugin" do
 
     property("robot_name", "/std/string").
         doc("Name of the robot.")
+    property("scene_path", "/std/string").
+        doc("Path to smurfs")
     property("reset_node_name", "/std/string").
         doc("Name of the node that has to be resetted additionally.")
     property("position_mode", "/uint16_t", 1).
@@ -387,9 +382,26 @@ task_context "RobotTeleportation" do
 
 end
 
+task_context "RepositionTask", subclasses: "Plugin" do
+  # Repositions the named entities of the given scene in the current mars scene
 
-task_context "ObjectHighlighter" do
-    subclasses "Plugin"
+    property("entity_names", "/std/vector<std/string>").
+        doc("Name of parts to move.")
+    property("scene_path", "/std/string").
+        doc("Path to smurf(a/s)")
+    property("ignore_position", "bool", false).
+        doc("Whether the position input shall be ignored")
+
+    input_port('poses', '/std/vector<base/Pose>').
+        doc 'Poses relative to the parent link'
+	port_driven
+
+    needs_configuration
+
+end
+
+
+task_context "ObjectHighlighter", subclasses: "Plugin" do
 
     input_port('obj_id', '/uint16_t').
         doc 'Highlights entity with given id'
@@ -399,8 +411,7 @@ task_context "ObjectHighlighter" do
 end
 
 
-task_context "Sonar" do
-    subclasses "Plugin"
+task_context "Sonar", subclasses: "Plugin" do
     needs_configuration
 
     property('node_name', 'std/string').
@@ -423,8 +434,7 @@ task_context "Sonar" do
 end
 
 
-task_context "Altimeter" do
-    subclasses "Plugin"
+task_context "Altimeter", subclasses: "Plugin" do
     property('node_name', 'std/string')
 	doc 'the name of the vehicle in the scene file'
 
@@ -435,8 +445,7 @@ task_context "Altimeter" do
 end
 
 
-task_context "ForceTorqueApplier" do
-    subclasses "Plugin"
+task_context "ForceTorqueApplier", subclasses: "Plugin" do
     needs_configuration
 
     property('entity', 'std/string')
@@ -466,8 +475,7 @@ end
 
 ###Here are comming AUV specific plugins for motion building
 
-task_context "ForceApplier" do
-    subclasses "Plugin"
+task_context "ForceApplier", subclasses: "Plugin" do
     needs_configuration
 
     property('node_name', 'std/string')
@@ -497,8 +505,7 @@ end
 
 # This plugin models a artificial buoancy for AUVs,
 # the auv will stop to "float" at Z-Value 0 (water surface)
-task_context "AuvController" do
-    subclasses "Plugin"
+task_context "AuvController", subclasses: "Plugin" do
     property('node_name', 'std/string')
 	doc 'the name of the vehicle in the scene file'
 
@@ -516,14 +523,12 @@ task_context "AuvController" do
     property('buoyancy_force','double')
 end
 
-task_context "AuvMotion" do
+task_context "AuvMotion", subclasses: "ForceApplier" do
     doc("This task models the dynamics of underwater vehicles, according to the fossen model.
 	  A full 6d dynamic model without couple-effects is used.
 	  Thruster-dynamics are modeld by a voltage-based model.
 	  For basic functions, all properties need to be set.
 	  For more information about the model, see: Fossen, T.I.: Guidance and control of ocean vehicles")
-
-    subclasses "ForceApplier"
 
     property("linear_damp", "/base/Vector6d").
       doc("Linear damping coefficients, in 6 degrees of freedom")
