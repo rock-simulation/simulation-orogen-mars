@@ -403,26 +403,16 @@ bool Task::configureHook() {
 
 void Task::configureUI()
 {
-    if(_config_dir.get().empty())
+    if(!_config_dir.get().empty())
     {
-        LOG_ERROR_S << "Config directory is not set! Cannot start mars.";
-        throw std::runtime_error("Config directory is not set! Can not start mars");
-    }
-
-    //check if the environemnt was sourced more than once and the path has more than one entry
-    int pos = _config_dir.get().rfind(":/");
-    if(pos != _config_dir.get().size()-1)
+      //check if the environemnt was sourced more than once and the path has more than one entry
+      int pos = _config_dir.get().rfind(":/");
+      if(pos != _config_dir.get().size()-1)
         _config_dir.set(_config_dir.get().substr(pos+1));
 
-    LOG_INFO_S << "Calling configure: with " << _config_dir.get();
+      LOG_INFO_S << "Calling configure: with " << _config_dir.get();
+    }
 
-    //mars is not setting the config path properly
-    //therefore we have to go into to the config folder
-    //if(0 != chdir(_config_dir.get().c_str()))
-    //{
-    //    LOG_ERROR_S << "Config directory " << _config_dir.get() << " does not exist. Cannot start mars.";
-    //    throw std::runtime_error(std::string("Config directory ") +_config_dir.get() +" does not exist. Can not start mars.");
-    //}
 
     // Startup of mars
     TaskArguments argument;
@@ -433,6 +423,7 @@ void Task::configureUI()
     else {
         argument.enable_gui = false;
     }
+
     argument.controller_port = _controller_port.get();
     argument.raw_options = _raw_options.get();
     argument.config_dir = _config_dir.get();
@@ -488,7 +479,7 @@ void Task::configureUI()
         }
     }
     if(!_initial_scene.get().empty()){
-        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
+        simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),false,true);
     }
     if(startStop) {
       simulatorInterface->StartSimulation();
