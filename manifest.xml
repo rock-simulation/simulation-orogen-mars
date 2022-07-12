@@ -17,6 +17,7 @@ The mars-core module provides the base for other modules that require the simula
   <depend package="simulation/mars/sim" />
   <depend package="simulation/mars/scene_loader" />
   <depend package="simulation/mars/smurf_loader" />
+  <depend package="simulation/mars_plugin_collection/tether_simulation" />
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />

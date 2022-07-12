@@ -546,3 +546,15 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
       doc("Buoyancy force applied to the vehicle")
 
 end
+
+task_context "TMDS_Simulation", subclasses: "Plugin" do
+    
+    needs_configuration
+
+    # --- Input ports ---
+    input_port "winch_command", "base/samples/Joints"
+
+    # --- Output ports ---
+    output_port "winch_state", "base/samples/Joints"
+    output_port "winch_force", "base/Wrench"
+end
