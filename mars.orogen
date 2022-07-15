@@ -561,3 +561,11 @@ task_context "TMDS" do
     output_port "winch_state", "base/samples/Joints"
     output_port "winch_force", "base/Wrench"
 end
+
+deployment "test_tmds" do
+    mars = task("mars", "mars::Task")
+    tmds = task("tmds", "mars::TMDS")
+
+    add_default_logger
+end
+

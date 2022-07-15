@@ -17,6 +17,7 @@
 
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
+#include <mars/interfaces/sim/MarsPluginTemplate.h>
 
 //#include <mars/multisim-plugin/MultiSimPlugin.h>
 
@@ -39,6 +40,7 @@ mars::interfaces::SimulatorInterface *Task::simulatorInterface = 0;
 mars::Task *Task::taskInterface = 0;
 mars::app::GraphicsTimer *Task::graphicsTimer = 0;
 lib_manager::LibManager* Task::libManager = 0;
+std::vector<std::string>* Task::pluginsToRelease = new std::vector<std::string>();
 
 Task::Task(std::string const& name)
     : TaskBase(name)
@@ -560,6 +562,11 @@ void Task::cleanupHook()
     }
     plugins.clear();
 
+    for(unsigned int i=0;i<pluginsToRelease->size();i++){
+        libManager->releaseLibrary(pluginsToRelease->at(i));
+        LOG_DEBUG("Released plugin %s", pluginsToRelease->at(i).c_str());
+    }
+
     simulatorInterface->exitMars();
     while( simulatorInterface->isSimRunning()) ;
 
@@ -680,3 +687,21 @@ void Task::move_node(::mars::Positions const & arg)
         LOG_ERROR("node '%s' unknown\n", arg.nodename.c_str());
     }
 }
+
+bool Task::getPlugin(const std::string pluginName, mars::interfaces::MarsPluginTemplate * plugin)
+{
+    bool pluginFound = false;
+    plugin = libManager->getLibraryAs<mars::interfaces::MarsPluginTemplate>(pluginName);   
+    if (plugin)
+    {
+        LOG_DEBUG("plugin %s found, the interface will be forwarded", pluginName.c_str());
+        pluginFound = true;
+        pluginsToRelease->push_back(pluginName);
+    }
+    else
+    {
+        LOG_DEBUG("plugin %s not found", pluginName.c_str());
+    }
+    return pluginFound;
+}
+

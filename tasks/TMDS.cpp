@@ -4,6 +4,7 @@
 #include <lib_manager/LibManager.hpp>
 #include <mars/plugins/tether_simulation/TetherSimulation.h>
 
+#include <base-logging/Logging.hpp>
 using namespace mars;
 
 TMDS::TMDS(std::string const& name)
@@ -32,23 +33,37 @@ bool TMDS::startHook()
     if (! TMDSBase::startHook())
         return false;
     
-    mars::interfaces::SimulatorInterface *simulation = Task::getSimulatorInterface();
-        if( !simulation ){
-            std::cerr << "Plugin: could not get singleton instance of simulator interface." << std::endl;
-            RTT::log(RTT::Error) << "Plugin: could not get singleton instance of simulator interface." << std::endl;
-            return false;
-        }
 
-    mars::interfaces::ControlCenter *control = simulation->getControlCenter();
-
-    lib_manager::LibManager *libManager = control->getLibManager();
-    mars::interfaces::MarsPluginTemplate *tetherInterface = libManager.getLibraryAs<mars::interfaces::MarsPluginTemplate>("tether_simulation"); 
-    if (tetherInterface) 
+    mars::interfaces::MarsPluginTemplate *tetherPluginInterface;
+    if (Task::getPlugin("tether_simulation", tetherPluginInterface))
     {
-    // tetherPlugin= dynamic_cast<tether_simulation::TetherSimulation*>(tetherInterface);
-    std::cout << "Plugin found!" << std::endl;
-  
+        LOG_DEBUG("The tether management plugin from the simulation has been obtained");
     }
+    else
+    {
+        LOG_DEBUG("Failed to obtain the tether management plugin");
+    }
+
+
+    // mars::interfaces::SimulatorInterface *simulation = Task::getSimulatorInterface();
+    //     if( !simulation ){
+    //         LOG_ERROR("TMDS: could not get singleton instance of simulator interface.");
+    //         RTT::log(RTT::Error) << "Plugin: could not get singleton instance of simulator interface." << std::endl;
+    //         return false;
+    //     }
+
+    // From the controlCenter we can access the simulatorInterface (we already have it )
+    //and the LoadCenter none of them give access to the libraries
+    //mars::interfaces::ControlCenter *control = simulation->getControlCenter();
+    //Tasks::libManager ->
+    //lib_manager::LibManager *libManager = control->getLibManager();
+    //mars::interfaces::MarsPluginTemplate *tetherInterface = libManager.getLibraryAs<mars::interfaces::MarsPluginTemplate>("tether_simulation"); 
+    //if (tetherInterface) 
+    //{
+    //// tetherPlugin= dynamic_cast<tether_simulation::TetherSimulation*>(tetherInterface);
+    //std::cout << "Plugin found!" << std::endl;
+  
+    //}
 
     return true;
 }

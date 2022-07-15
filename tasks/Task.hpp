@@ -20,6 +20,8 @@ namespace mars{
         class SimulatorInterface;
         class PluginInterface;
         class GraphicsManagerInterface;
+        class LibInterface;
+        class MarsPluginTemplate;
     };
     namespace app{
         class GraphicsTimer;
@@ -80,6 +82,8 @@ namespace mars {
 
         mars::interfaces::PluginInterface* multisimPlugin;
 
+        static std::vector<std::string> * pluginsToRelease;
+
         int getOptionCount(const std::vector<Option>& options);
         
         /* This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
@@ -118,6 +122,8 @@ namespace mars {
 	 */
 	static mars::interfaces::SimulatorInterface* getSimulatorInterface();
 	static mars::Task* getTaskInterface();
+
+        static bool getPlugin(const std::string pluginName, mars::interfaces::MarsPluginTemplate * plugin);
 
         Task(std::string const& name = "mars::Task");
         Task(std::string const& name, RTT::ExecutionEngine* engine);
