@@ -4,11 +4,9 @@ include Orocos
 
 Orocos.initialize
 
-#Orocos.run 'mars::Task' => 'mars', 'mars::TMDS' => 'tmds' do
-Orocos.run 'test_tmds' do
+Orocos.run 'mars::Task' => 'mars' do
 
     mars = TaskContext.get 'mars'
-    tmds = TaskContext.get 'tmds'
 #    mars.controller_port = 1600
 #    mars.enable_gui = 1
 
@@ -23,10 +21,8 @@ Orocos.run 'test_tmds' do
 #    mars.raw_options = raw_options
 
     mars.configure
-    tmds.configure
 
     mars.start
-    tmds.start
    
 #    sleep 50
 #
