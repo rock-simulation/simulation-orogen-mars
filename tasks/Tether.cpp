@@ -44,27 +44,6 @@ bool Tether::startHook()
         LOG_DEBUG("Failed to obtain the Tether management plugin");
     }
 
-
-    // mars::interfaces::SimulatorInterface *simulation = Task::getSimulatorInterface();
-    //     if( !simulation ){
-    //         LOG_ERROR("Tether: could not get singleton instance of simulator interface.");
-    //         RTT::log(RTT::Error) << "Plugin: could not get singleton instance of simulator interface." << std::endl;
-    //         return false;
-    //     }
-
-    // From the controlCenter we can access the simulatorInterface (we already have it )
-    //and the LoadCenter none of them give access to the libraries
-    //mars::interfaces::ControlCenter *control = simulation->getControlCenter();
-    //Tasks::libManager ->
-    //lib_manager::LibManager *libManager = control->getLibManager();
-    //mars::interfaces::MarsPluginTemplate *TetherInterface = libManager.getLibraryAs<mars::interfaces::MarsPluginTemplate>("Tether_simulation"); 
-    //if (TetherInterface) 
-    //{
-    //// TetherPlugin= dynamic_cast<Tether_simulation::TetherSimulation*>(TetherInterface);
-    //std::cout << "Plugin found!" << std::endl;
-  
-    //}
-
     return true;
 }
 void Tether::updateHook()
