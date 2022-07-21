@@ -1,14 +1,14 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef MARS_TMDS_SIMULATION_TASK_HPP
-#define MARS_TMDS_SIMULATION_TASK_HPP
+#ifndef MARS_TETHER_SIMULATION_TASK_HPP
+#define MARS_TETHER_SIMULATION_TASK_HPP
 
-#include "mars/TMDSBase.hpp"
+#include "mars/TetherBase.hpp"
 #include "Task.hpp"
 
 namespace mars{
 
-    /*! \class TMDS
+    /*! \class Tether
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
@@ -17,28 +17,28 @@ namespace mars{
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','mars::TMDS')
+         task('custom_task_name','mars::Tether')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument.
      */
-    class TMDS : public TMDSBase
+    class Tether : public TetherBase
     {
-	friend class TMDSBase;
+	friend class TetherBase;
     protected:
 
 
 
     public:
-        /** TaskContext constructor for TMDS
+        /** TaskContext constructor for Tether
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        TMDS(std::string const& name = "mars::TMDS");
+        Tether(std::string const& name = "mars::Tether");
 
-        /** Default deconstructor of TMDS
+        /** Default deconstructor of Tether
          */
-	~TMDS();
+	~Tether();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

@@ -547,7 +547,7 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
 
 end
 
-task_context "TMDS" do
+task_context "Tether" do
     
     needs_configuration
 

@@ -1,53 +1,53 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
-#include "TMDS.hpp"
+#include "Tether.hpp"
 #include <lib_manager/LibManager.hpp>
 #include <mars/plugins/tether_simulation/TetherSimulation.h>
 
 #include <base-logging/Logging.hpp>
 using namespace mars;
 
-TMDS::TMDS(std::string const& name)
-    : TMDSBase(name)
+Tether::Tether(std::string const& name)
+    : TetherBase(name)
 {
 }
 
-TMDS::~TMDS()
+Tether::~Tether()
 {
 }
 
 
 
 /// The following lines are template definitions for the various state machine
-// hooks defined by Orocos::RTT. See TMDS.hpp for more detailed
+// hooks defined by Orocos::RTT. See Tether.hpp for more detailed
 // documentation about them.
 
-bool TMDS::configureHook()
+bool Tether::configureHook()
 {
-    if (! TMDSBase::configureHook())
+    if (! TetherBase::configureHook())
         return false;
     return true;
 }
-bool TMDS::startHook()
+bool Tether::startHook()
 {
-    if (! TMDSBase::startHook())
+    if (! TetherBase::startHook())
         return false;
     
 
-    mars::interfaces::MarsPluginTemplate *tetherPluginInterface;
-    if (Task::getPlugin("tether_simulation", tetherPluginInterface))
+    mars::interfaces::MarsPluginTemplate *TetherPluginInterface;
+    if (Task::getPlugin("tether_simulation", TetherPluginInterface))
     {
-        LOG_DEBUG("The tether management plugin from the simulation has been obtained");
+        LOG_DEBUG("The Tether management plugin from the simulation has been obtained");
     }
     else
     {
-        LOG_DEBUG("Failed to obtain the tether management plugin");
+        LOG_DEBUG("Failed to obtain the Tether management plugin");
     }
 
 
     // mars::interfaces::SimulatorInterface *simulation = Task::getSimulatorInterface();
     //     if( !simulation ){
-    //         LOG_ERROR("TMDS: could not get singleton instance of simulator interface.");
+    //         LOG_ERROR("Tether: could not get singleton instance of simulator interface.");
     //         RTT::log(RTT::Error) << "Plugin: could not get singleton instance of simulator interface." << std::endl;
     //         return false;
     //     }
@@ -57,29 +57,29 @@ bool TMDS::startHook()
     //mars::interfaces::ControlCenter *control = simulation->getControlCenter();
     //Tasks::libManager ->
     //lib_manager::LibManager *libManager = control->getLibManager();
-    //mars::interfaces::MarsPluginTemplate *tetherInterface = libManager.getLibraryAs<mars::interfaces::MarsPluginTemplate>("tether_simulation"); 
-    //if (tetherInterface) 
+    //mars::interfaces::MarsPluginTemplate *TetherInterface = libManager.getLibraryAs<mars::interfaces::MarsPluginTemplate>("Tether_simulation"); 
+    //if (TetherInterface) 
     //{
-    //// tetherPlugin= dynamic_cast<tether_simulation::TetherSimulation*>(tetherInterface);
+    //// TetherPlugin= dynamic_cast<Tether_simulation::TetherSimulation*>(TetherInterface);
     //std::cout << "Plugin found!" << std::endl;
   
     //}
 
     return true;
 }
-void TMDS::updateHook()
+void Tether::updateHook()
 {
-    TMDSBase::updateHook();
+    TetherBase::updateHook();
 }
-void TMDS::errorHook()
+void Tether::errorHook()
 {
-    TMDSBase::errorHook();
+    TetherBase::errorHook();
 }
-void TMDS::stopHook()
+void Tether::stopHook()
 {
-    TMDSBase::stopHook();
+    TetherBase::stopHook();
 }
-void TMDS::cleanupHook()
+void Tether::cleanupHook()
 {
-    TMDSBase::cleanupHook();
+    TetherBase::cleanupHook();
 }
