@@ -546,18 +546,3 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
       doc("Buoyancy force applied to the vehicle")
 
 end
-
-task_context "Tether" do
-    
-    needs_configuration
-
-    # --- States ---
-    #runtime_states 'RELEASING', 'RETRIEVING'
-
-    # --- Input ports ---
-    input_port "winch_command", "base/samples/Joints"
-
-    # --- Output ports ---
-    output_port "winch_state", "base/samples/Joints"
-    output_port "winch_force", "base/Wrench"
-end
