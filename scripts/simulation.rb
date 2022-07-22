@@ -21,6 +21,7 @@ Orocos.run 'mars::Task' => 'mars', "valgrind" => false do
 #    mars.raw_options = raw_options
 
     mars.configure
+
     mars.start
    
 #    sleep 50
