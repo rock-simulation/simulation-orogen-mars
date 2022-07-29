@@ -3,8 +3,11 @@
 #ifndef MARS_TETHER_SIMULATION_TASK_HPP
 #define MARS_TETHER_SIMULATION_TASK_HPP
 
-#include "mars/TetherBase.hpp"
 #include "Task.hpp"
+#include "mars/TetherBase.hpp"
+#include <lib_manager/LibManager.hpp>
+#include <mars/plugins/tether_simulation/TetherSimulation.h>
+#include <mars/interfaces/sim/NodeManagerInterface.h>
 
 namespace mars{
 
@@ -38,7 +41,15 @@ namespace mars{
 
         /** Default deconstructor of Tether
          */
-	~Tether();
+    	~Tether();
+
+        /** Implementation of dock operation */
+        void dock();
+
+        /** Implementation of undock operation */
+        void undock();
+
+        mars::interfaces::NodeId getNodeID(const std::string & link);
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

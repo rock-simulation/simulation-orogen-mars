@@ -547,7 +547,7 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
 
 end
 
-task_context "Tether" do
+task_context "Tether", subclasses: "Plugin" do
     
     needs_configuration
 
@@ -560,4 +560,16 @@ task_context "Tether" do
     # --- Output ports ---
     output_port "winch_state", "base/samples/Joints"
     output_port "winch_force", "base/Wrench"
+
+    
+    # --- Operations & Properties --- #
+    operation("dock")
+    operation("undock")
+
+    property("robot_link", "std/string", "").
+      doc("robot link that is supposed to be docked")
+
+    property("tether_link", "std/string", "").
+      doc("link to attach the robot to")
+
 end
