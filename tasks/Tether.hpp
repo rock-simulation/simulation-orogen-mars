@@ -108,6 +108,8 @@ namespace mars{
          * before calling start() again.
          */
         void cleanupHook();
+
+        mars::plugins::tether_simulation::TetherSimulation* tether_plugin;
     };
 }
 

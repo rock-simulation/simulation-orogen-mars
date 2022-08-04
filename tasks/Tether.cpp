@@ -1,8 +1,9 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Tether.hpp"
-
 #include <base-logging/Logging.hpp>
+#include <mars/plugins/tether_simulation/TetherSimulation.h>
+
 using namespace mars;
 
 Tether::Tether(std::string const& name)
@@ -76,7 +77,8 @@ bool Tether::startHook()
     mars::interfaces::MarsPluginTemplate *TetherPluginInterface;
     if (Task::getPlugin("tether_simulation", TetherPluginInterface))
     {
-        LOG_DEBUG("The Tether management plugin from the simulation has been obtained");
+        tether_plugin = dynamic_cast<mars::plugins::tether_simulation::TetherSimulation*>(TetherPluginInterface);
+        LOG_DEBUG("Plugin name : %s",tether_plugin->getLibName().c_str());
     }
     else
     {
