@@ -30,7 +30,7 @@ namespace mars{
 	friend class TetherBase;
     protected:
 
-
+    float targetSpeed;
 
     public:
         /** TaskContext constructor for Tether

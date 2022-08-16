@@ -557,10 +557,13 @@ task_context "Tether", subclasses: "Plugin" do
 
     # --- Input ports ---
     input_port "winch_command", "base/samples/Joints"
+    input_port "winch_speed", "float"
 
     # --- Output ports ---
     output_port "winch_state", "base/samples/Joints"
     output_port "winch_force", "base/Wrench"
+
+    output_port "rope_length", "float"
 
     
     # --- Operations & Properties --- #
@@ -572,5 +575,7 @@ task_context "Tether", subclasses: "Plugin" do
 
     property("tether_link", "std/string", "").
       doc("link to attach the robot to")
+
+    periodic 0.1
 
 end

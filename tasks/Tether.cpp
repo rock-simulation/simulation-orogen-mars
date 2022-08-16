@@ -9,6 +9,7 @@ using namespace mars;
 Tether::Tether(std::string const& name)
     : TetherBase(name)
 {
+    targetSpeed = 0;
 }
 
 Tether::~Tether()
@@ -24,7 +25,9 @@ void Tether::dock()
          robot_node_id  != 0 )
     {
         control->sim->connectNodes(robot_node_id, tether_node_id);
-        LOG_INFO_S << "Successfully docked";
+        std::cerr << "Successfully docked" << std::endl;
+    } else {
+        std::cerr << "Docking failed" << std::endl;
     }
 }
 
@@ -36,7 +39,9 @@ void Tether::undock()
          robot_node_id  != 0 )
     {
         control->sim->disconnectNodes(robot_node_id, tether_node_id);
-        LOG_INFO_S << "Successfully undocked";
+        std::cerr << "Successfully undocked" << std::endl;
+    } else {
+        std::cerr << "Undocking failed" << std::endl;
     }
 }
 
@@ -44,14 +49,14 @@ mars::interfaces::NodeId Tether::getNodeID(const std::string & link)
 {
     if (link == "")
     {
-        LOG_ERROR_S << "Properties robot_link and tether_link must not be empty.";
+        std::cerr << "Properties robot_link and tether_link must not be empty." << std::endl;
         return 0;
     }
 
     mars::interfaces::NodeId nodeID = control->nodes->getID(link);
     if ( nodeID == 0 )
     {
-        LOG_ERROR_S << "Could not determine nodeID for " << link;
+        std::cerr << "Could not determine nodeID for " << link << std::endl;
         return 0;
     } else {
         return nodeID;
@@ -78,11 +83,11 @@ bool Tether::startHook()
     if (Task::getPlugin("tether_simulation", TetherPluginInterface))
     {
         tether_plugin = dynamic_cast<mars::plugins::tether_simulation::TetherSimulation*>(TetherPluginInterface);
-        LOG_DEBUG("Plugin name : %s",tether_plugin->getLibName().c_str());
+        printf("Plugin name : %s \n",tether_plugin->getLibName().c_str());
     }
     else
     {
-        LOG_DEBUG("Failed to obtain the Tether management plugin");
+        printf("Failed to obtain the Tether management plugin\n");
     }
 
     return true;
@@ -90,6 +95,27 @@ bool Tether::startHook()
 void Tether::updateHook()
 {
     TetherBase::updateHook();
+    printf("%s:%i\n", __PRETTY_FUNCTION__, __LINE__);
+
+    base::samples::Joints cmd;
+    while (_winch_command.read(cmd) == RTT::NewData ) {
+        targetSpeed = cmd["winch"].speed;
+    }
+
+    float newspeed = 0;
+    while (_winch_speed.read(newspeed) == RTT::NewData ) {
+        targetSpeed = newspeed;
+    }
+
+    // TODO: calculate speed properly
+    if (targetSpeed > 0) {
+        tether_plugin->extendRope();
+    } else if (targetSpeed < 0) {
+        tether_plugin->retractRope();
+    }
+
+    _rope_length.write(tether_plugin->length());
+
 }
 void Tether::errorHook()
 {
