@@ -9,7 +9,7 @@ using namespace mars;
 Tether::Tether(std::string const& name)
     : TetherBase(name)
 {
-    targetSpeed = 0;
+    targetSpeed.store(0);
 }
 
 Tether::~Tether()
@@ -99,19 +99,12 @@ void Tether::updateHook()
 
     base::samples::Joints cmd;
     while (_winch_command.read(cmd) == RTT::NewData ) {
-        targetSpeed = cmd["winch"].speed;
+        targetSpeed.store(cmd["winch"].speed);
     }
 
     float newspeed = 0;
     while (_winch_speed.read(newspeed) == RTT::NewData ) {
-        targetSpeed = newspeed;
-    }
-
-    // TODO: calculate speed properly
-    if (targetSpeed > 0) {
-        tether_plugin->extendRope();
-    } else if (targetSpeed < 0) {
-        tether_plugin->retractRope();
+        targetSpeed.store(newspeed);
     }
 
     _rope_length.write(tether_plugin->length());
@@ -128,4 +121,17 @@ void Tether::stopHook()
 void Tether::cleanupHook()
 {
     TetherBase::cleanupHook();
+}
+
+void  Tether::update( double time )
+{
+    if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
+    
+    // TODO: calculate speed properly based on time and desired speed
+    float speed = targetSpeed.load();
+    if (speed > 0) {
+        tether_plugin->extendRope();
+    } else if (speed < 0) {
+        tether_plugin->retractRope();
+    }
 }
