@@ -14,7 +14,11 @@ import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
 import_types_from "base"
+import_types_from "mars/plugins/tether_simulation/Settings.h"
 
+
+# make mars/utils/Vector usable in properties
+typekit.opaque_type 'mars/utils/Vector', 'wrappers/Vector3d'
 
 #Disable default deployments, most of the time stand_alone deployments are useless
 #since the simulation needs plugins within the same deployment to work
@@ -575,6 +579,8 @@ task_context "Tether", subclasses: "Plugin" do
 
     property("tether_link", "std/string", "").
       doc("link to attach the robot to")
+
+    property("tether_settings", "mars/plugins/tether_simulation/Params")
 
     periodic 0.1
 

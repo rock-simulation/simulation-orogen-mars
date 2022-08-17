@@ -83,6 +83,8 @@ bool Tether::startHook()
     if (Task::getPlugin("tether_simulation", TetherPluginInterface))
     {
         tether_plugin = dynamic_cast<mars::plugins::tether_simulation::TetherSimulation*>(TetherPluginInterface);
+        tether_plugin->updateSettings(_tether_settings.value());
+        tether_plugin->init();
         printf("Plugin name : %s \n",tether_plugin->getLibName().c_str());
     }
     else
@@ -98,6 +100,7 @@ void Tether::updateHook()
     printf("%s:%i\n", __PRETTY_FUNCTION__, __LINE__);
 
     base::samples::Joints cmd;
+
     while (_winch_command.read(cmd) == RTT::NewData ) {
         targetSpeed.store(cmd["winch"].speed);
     }
