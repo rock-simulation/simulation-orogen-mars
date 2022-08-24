@@ -10,18 +10,16 @@
      * pointer.
      */
 
-
-void orogen_typekits::toIntermediate(::wrappers::Matrix< double, 3, 1 >& intermediate, ::mars::utils::Vector const& real_type)
+void orogen_typekits::toIntermediate(::mars::opaques::Vector3d& intermediate, ::mars::utils::Vector const& real_type)
 {
-    intermediate.data[0] = real_type.x();
-    intermediate.data[1] = real_type.y();
-    intermediate.data[2] = real_type.z();
+    intermediate.x = real_type.x();
+    intermediate.y = real_type.y();
+    intermediate.z = real_type.z();
 }
 
-void orogen_typekits::fromIntermediate(::mars::utils::Vector& real_type, ::wrappers::Matrix< double, 3, 1 > const& intermediate)
+void orogen_typekits::fromIntermediate(::mars::utils::Vector& real_type, ::mars::opaques::Vector3d const& intermediate)
 {
-    real_type.x() = intermediate.data[0];
-    real_type.y() = intermediate.data[1];
-    real_type.z() = intermediate.data[2];
+    real_type.x() = intermediate.x;
+    real_type.y() = intermediate.y;
+    real_type.z() = intermediate.z;
 }
-

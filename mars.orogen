@@ -13,12 +13,13 @@ import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
+import_types_from "opaqueTypes.hpp"
 import_types_from "base"
 import_types_from "mars/plugins/tether_simulation/Settings.h"
 
 
 # make mars/utils/Vector usable in properties
-typekit.opaque_type 'mars/utils/Vector', 'wrappers/Vector3d'
+typekit.opaque_type 'mars/utils/Vector', 'mars/opaques/Vector3d'
 
 #Disable default deployments, most of the time stand_alone deployments are useless
 #since the simulation needs plugins within the same deployment to work

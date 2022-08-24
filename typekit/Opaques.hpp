@@ -8,12 +8,13 @@
 namespace orogen_typekits
 {
     
-    /** Converts \c real_type into \c intermediate */
-    void toIntermediate(::wrappers::Matrix< double, 3, 1 >& intermediate, ::mars::utils::Vector const& real_type);
-    /** Converts \c intermediate into \c real_type */
-    void fromIntermediate(::mars::utils::Vector& real_type, ::wrappers::Matrix< double, 3, 1 > const& intermediate);
-        
     
+    /** Converts \c real_type into \c intermediate */
+    void toIntermediate(::mars::opaques::Vector3d& intermediate, ::mars::utils::Vector const& real_type);
+    /** Converts \c intermediate into \c real_type */
+    void fromIntermediate(::mars::utils::Vector& real_type, ::mars::opaques::Vector3d const& intermediate);
+        
+
 }
 
 #endif
