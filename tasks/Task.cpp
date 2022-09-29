@@ -271,10 +271,10 @@ bool Task::setShow_coordinate_system(bool value)
     }
 
     //Call the base function, DO-NOT Remove
-    if(value)
-        marsGraphics->hideCoords();
-    else
-        marsGraphics->showCoords();
+    // if(value)
+    //     marsGraphics->hideCoords();
+    // else
+    //     marsGraphics->showCoords();
 
     return(mars::TaskBase::setShow_coordinate_system(value));
 }
