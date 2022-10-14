@@ -103,11 +103,13 @@ void Tether::updateHook()
 
     while (_winch_command.read(cmd) == RTT::NewData ) {
         targetSpeed.store(cmd["winch"].speed);
+        tether_plugin->setSpeed((double)targetSpeed.load());
     }
 
     float newspeed = 0;
     while (_winch_speed.read(newspeed) == RTT::NewData ) {
         targetSpeed.store(newspeed);
+        tether_plugin->setSpeed((double)newspeed);
     }
 
     _rope_length.write(tether_plugin->length());
@@ -129,20 +131,11 @@ void Tether::cleanupHook()
 void  Tether::update( double time )
 {
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
-    
+
     if(!pluginInitialized)
     {
         tether_plugin->updateSettings(_tether_settings.value());
         tether_plugin->init();
         pluginInitialized = true;
-    }
-    
-
-    // TODO: calculate speed properly based on time and desired speed
-    float speed = targetSpeed.load();
-    if (speed > 0) {
-        tether_plugin->extendRope();
-    } else if (speed < 0) {
-        tether_plugin->retractRope();
     }
 }
