@@ -113,6 +113,7 @@ void Tether::updateHook()
     }
 
     _rope_length.write(tether_plugin->length());
+    _winch_force.write(tether_plugin->getForces());
 
 }
 void Tether::errorHook()
