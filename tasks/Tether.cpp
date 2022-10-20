@@ -112,7 +112,8 @@ void Tether::updateHook()
         tether_plugin->setSpeed((double)newspeed);
     }
 
-    _rope_length.write(tether_plugin->length());
+    _rope_length.write(tether_plugin->getFixedLength());
+    _winch_force.write(tether_plugin->getForces());
 
 }
 void Tether::errorHook()
