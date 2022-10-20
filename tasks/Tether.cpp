@@ -72,13 +72,18 @@ bool Tether::configureHook()
 {
     if (! TetherBase::configureHook())
         return false;
+
+    launch_tether_plugin = _launch_tether_plugin.get();
+
     return true;
 }
 bool Tether::startHook()
 {
     if (! TetherBase::startHook())
         return false;
-    
+
+    if(launch_tether_plugin)
+    {
     LOG_DEBUG("Beginning of the startHook: About to get the tether plugin from Mars");
     mars::interfaces::MarsPluginTemplate *TetherPluginInterface;
     if (Task::getPlugin("tether_simulation", TetherPluginInterface))
@@ -91,6 +96,7 @@ bool Tether::startHook()
     {
         LOG_DEBUG("Failed to obtain the Tether management plugin\n");
     }
+    }
 
     return true;
 }
@@ -99,6 +105,8 @@ void Tether::updateHook()
     TetherBase::updateHook();
     printf("%s:%i\n", __PRETTY_FUNCTION__, __LINE__);
 
+    if(launch_tether_plugin)
+    {
     base::samples::Joints cmd;
 
     while (_winch_command.read(cmd) == RTT::NewData ) {
@@ -114,8 +122,9 @@ void Tether::updateHook()
 
     _rope_length.write(tether_plugin->getFixedLength());
     _winch_force.write(tether_plugin->getForces());
-
+    }
 }
+
 void Tether::errorHook()
 {
     TetherBase::errorHook();
@@ -131,6 +140,9 @@ void Tether::cleanupHook()
 
 void  Tether::update( double time )
 {
+    if(launch_tether_plugin)
+    {
+
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
 
     if(!pluginInitialized)
@@ -138,5 +150,6 @@ void  Tether::update( double time )
         tether_plugin->updateSettings(_tether_settings.value());
         tether_plugin->init();
         pluginInitialized = true;
+    }
     }
 }

@@ -34,6 +34,9 @@ namespace mars{
     // thread save target speed for handover from task thread to the sim update thread
     std::atomic<float> targetSpeed;
 
+    // Enable/disable launching the tether plugin in the simulator
+    bool launch_tether_plugin = true;
+
     public:
         /** TaskContext constructor for Tether
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.

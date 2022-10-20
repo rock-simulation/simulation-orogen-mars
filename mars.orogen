@@ -583,6 +583,9 @@ task_context "Tether", subclasses: "Plugin" do
 
     property("tether_settings", "mars/plugins/tether_simulation/Params")
 
+    property("launch_tether_plugin", "bool", true)
+      doc("enable/disable launching the tether plugin")
+
     periodic 0.1
 
 end
