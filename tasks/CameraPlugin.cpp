@@ -56,17 +56,24 @@ bool CameraPlugin::configureHook()
 
 bool CameraPlugin::startHook()
 {
-
-
     if (! mars::Plugin::startHook())
         return false;
 
-    sensor_id = control->sensors->getSensorID( _name.value() );
+    std::string robot_name = _robot_name.value();
+    std::string sensor_name = _name.value();
+
+    long sensor_id = 0;
+    if(robot_name != "") {
+        sensor_id = control->entities->getEntitySensor(robot_name, sensor_name);
+    } else {
+        sensor_id = control->sensors->getSensorID(sensor_name);
+    }        
+
     if( !sensor_id ){
-	    LOG_ERROR_S << "CameraPlugin" << "CameraPlugin: There is no camera by the name of " + _name.value() + " in the scene";
+	    LOG_ERROR_S << "CameraPlugin" << "CameraPlugin: There is no camera by the name of " + sensor_name + " in the scene";
         return false;
     }
-    LOG_DEBUG_S << "CameraPlugin" << "Camera '"<< _name.value() <<"' found!";
+    LOG_DEBUG_S << "CameraPlugin" << "Camera '"<< sensor_name <<"' found!";
 
     camera = dynamic_cast<mars::sim::CameraSensor *>(control->sensors->getSimSensor(sensor_id));
     if( !camera){

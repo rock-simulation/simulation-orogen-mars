@@ -128,7 +128,10 @@ end
 task_context "CameraPlugin", subclasses: "Plugin" do
     abstract
     property('name', '/std/string').
-	doc('name of the camera in the scene file')
+	    doc('name of the camera in the scene file')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')
+
 
 end
 
@@ -264,13 +267,15 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
         doc 'how much ranges measurement to merge into one single reported measurement'
 
     property('min_range', 'double', 0.0).
-        doc("Minimum valid range of the laser range finder")
+        doc("Minimum valid range of the laser range finder") 
 
     output_port('scans', 'base/samples/LaserScan').
         max_sizes('remission' => 2000, 'ranges' => 2000).
         doc "the laser scans themselves"
     property('name', '/std/string', 'laser_scanner').
-	doc('name of the sensor in the scene file')
+	    doc('name of the sensor in the scene file')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')           
 end
 
 # Can be used to simulate laser scanners with more than one vertical scan line
@@ -301,10 +306,7 @@ task_context "IMU", subclasses: "Plugin" do
         doc("Set to true is this Sensor should output orientation readings")
 
     property("provide_velocity", "/bool",true).
-        doc("Set to true is this Sensor should output angular/translational velocities")
-
-    property('robot_name', '/std/string', '').
-        doc('Name of the robot')    
+        doc("Set to true is this Sensor should output angular/translational velocities") 
 
     property("imu_frame", "std/string", "imu").
 	doc "The name of the imu frame."
@@ -329,7 +331,9 @@ task_context "IMU", subclasses: "Plugin" do
     needs_configuration
 
     property('name', '/std/string', 'imu').
-	doc('name of the node in the scene file from which to get the imu data')
+	    doc('name of the node in the scene file from which to get the imu data')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')       
 
     operation('estimate_bias').
         argument('duration', '/uint16_t').
