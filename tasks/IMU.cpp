@@ -4,6 +4,7 @@
 #include "Plugin.hpp"
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 #include <mars/interfaces/sim/NodeManagerInterface.h>
+#include <mars/interfaces/sim/EntityManagerInterface.h>
 #include <mars/utils/mathUtils.h>
 #include <mars/interfaces/sim/ControlCenter.h>
 
@@ -40,9 +41,18 @@ bool IMU::startHook()
     if (! IMUBase::startHook())
         return false;
 
-    node_id = control->nodes->getID( _name.value() );
+    std::string robot_name = _robot_name.value();
+    std::string node_name = _name.value();
+
+    if(robot_name != "") {
+        node_id = control->entities->getEntityNode(robot_name, node_name);
+    } else {
+        node_id = control->nodes->getID(node_name);
+    }
+
+    
     if( !node_id ){
-        std::cerr << "There is no node by the name of " << _name .value() << " in the scene" << std::endl;
+        std::cerr << "There is no node by the name of " << node_name << " in the scene" << std::endl;
         return false;
     }
 

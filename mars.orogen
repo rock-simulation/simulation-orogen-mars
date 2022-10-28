@@ -303,6 +303,8 @@ task_context "IMU", subclasses: "Plugin" do
     property("provide_velocity", "/bool",true).
         doc("Set to true is this Sensor should output angular/translational velocities")
 
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')    
 
     property("imu_frame", "std/string", "imu").
 	doc "The name of the imu frame."
