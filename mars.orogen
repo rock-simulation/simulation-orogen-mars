@@ -186,6 +186,8 @@ task_context "Joints", subclasses: "Plugin" do
 
     property('names', 'std/vector</std/string>').
         doc('Array of names of the motor in the scene file. The names get mapped to motor ids starting from zero')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')
     property('name_remap', 'std/vector</std/string>').
         doc('If this array is set the joints will be renamed for the external interface')
     property('parallel_kinematics', 'std/vector<mars/ParallelKinematic>').
