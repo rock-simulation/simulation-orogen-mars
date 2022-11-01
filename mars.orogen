@@ -378,9 +378,9 @@ task_context "RobotTeleportation" do
         doc 'Puts the robot to the given rotation.'
     input_port('position_id', '/uint16_t').
         doc 'Puts the robot to the given preconfigured position.'
-    input_port('anchor', '/bool', false).
+    input_port('anchor', '/bool').
         doc 'Fixes the robot at the given position.'
-    input_port('reset_node', '/bool', false).
+    input_port('reset_node', '/bool').
         doc 'Resets root and the given node (config).'
 	port_driven
 
