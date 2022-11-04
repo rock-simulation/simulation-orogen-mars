@@ -4,6 +4,7 @@ using_library "mars_interfaces", :typekit => false
 using_library "mars_gui", :typekit => false
 using_library "mars_app", :typekit => false
 using_library "mars_sim", :typekit => false
+using_library "mars_smurf_loader", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 using_library "tether_simulation", :typekit => false
@@ -375,9 +376,9 @@ task_context "RobotTeleportation", subclasses: "Plugin" do
         doc 'Puts the robot to the given rotation.'
     input_port('position_id', '/uint16_t').
         doc 'Puts the robot to the given preconfigured position.'
-    input_port('anchor', '/bool', false).
+    input_port('anchor', '/bool').
         doc 'Fixes the robot at the given position.'
-    input_port('reset_node', '/bool', false).
+    input_port('reset_node', '/bool').
         doc 'Resets root and the given node (config).'
 	port_driven
 
