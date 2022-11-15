@@ -7,7 +7,6 @@
 #include "mars/TetherBase.hpp"
 #include <lib_manager/LibManager.hpp>
 #include <mars/plugins/tether_simulation/TetherSimulation.h>
-#include <mars/interfaces/sim/NodeManagerInterface.h>
 #include <atomic>
 
 namespace mars{
@@ -47,14 +46,6 @@ namespace mars{
         /** Default deconstructor of Tether
          */
     	~Tether();
-
-        /** Implementation of dock operation */
-        void dock();
-
-        /** Implementation of undock operation */
-        void undock();
-
-        mars::interfaces::NodeId getNodeID(const std::string & link);
 
         /**
          * @brief mars simulator update function

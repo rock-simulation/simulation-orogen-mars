@@ -4,6 +4,7 @@
 #include "mars/TaskBase.hpp"
 #include <vector>
 #include <mars/data_broker/ReceiverInterface.h>
+#include <mars/interfaces/sim/NodeManagerInterface.h>
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
 
@@ -89,6 +90,10 @@ namespace mars {
         /* This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
          */
         virtual void move_node(::mars::Positions const & arg);
+        virtual bool connect_links(const std::string  & link1, const std::string & link2);
+        virtual bool disconnect_links(const std::string  & link1, const std::string & link2);
+        mars::interfaces::NodeId getNodeID(const std::string & link);
+
 
         char** setOptions(const std::vector<Option>& options);
 

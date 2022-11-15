@@ -328,6 +328,55 @@ char** Task::setOptions(const std::vector<Option>& options)
     return argv;
 }
 
+bool Task::connect_links(const std::string & link1, const std::string & link2)
+{
+    mars::interfaces::NodeId node1 = getNodeID(link1);
+    mars::interfaces::NodeId node2 = getNodeID(link2);
+    if ( node1 != 0 && node2  != 0 )
+    {
+        simulatorInterface->connectNodes(node1, node2);
+        RTT::log(RTT::Info) << "Successfully connected " << link1 << " and " << link2 << std::endl;
+        return true;
+    } else {
+        RTT::log(RTT::Error) << "Could not connect " << link1 << " and " << link2 << std::endl;
+        return false;
+    }
+}
+
+bool Task::disconnect_links(const std::string & link1, const std::string & link2)
+{
+    mars::interfaces::NodeId node1 = getNodeID(link1);
+    mars::interfaces::NodeId node2 = getNodeID(link2);
+    if ( node1 != 0 && node2  != 0 )
+    {
+        simulatorInterface->disconnectNodes(node1, node2);
+        RTT::log(RTT::Info) << "Successfully disconnected " << link1 << " and " << link2 << std::endl;
+        return true;
+    } else {
+        RTT::log(RTT::Error) << "Could not disconnect " << link1 << " and " << link2 << std::endl;
+        return false;
+    }
+}
+
+mars::interfaces::NodeId Task::getNodeID(const std::string & link)
+{
+    if (link == "")
+    {
+        RTT::log(RTT::Error) << "Could not get nodeID. Link name is empty." << std::endl;
+        return 0;
+    }
+
+    mars::interfaces::NodeId nodeID = simulatorInterface->getControlCenter()->nodes->getID(link);
+    if ( nodeID == 0 )
+    {
+        RTT::log(RTT::Error) << "Could not determine nodeID for " << link << std::endl;
+        return 0;
+    } else {
+        return nodeID;
+    }
+}
+
+
 bool Task::configureHook()
 {
     if(_config_dir.get().empty())

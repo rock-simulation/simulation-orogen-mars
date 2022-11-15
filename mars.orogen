@@ -117,6 +117,19 @@ task_context "Task" do
         operation("move_node").
             argument("arg","/mars/Positions")
 
+        operation('connect_links').
+            doc('Defines a fixed joint between the two specified links').
+            returns("bool").
+            argument('link1', 'std::string', "Name of link1").
+            argument('link2', 'std::string', "Name of link2")
+
+        operation('disconnect_links').
+            doc('Resolves a fixed joint between the two specified links').
+            returns("bool").
+            argument('link1', 'std::string', "Name of link1").
+            argument('link2', 'std::string', "Name of link2")
+
+
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
 
@@ -571,11 +584,7 @@ task_context "Tether", subclasses: "Plugin" do
 
     output_port "rope_length", "float"
 
-    
-    # --- Operations & Properties --- #
-    operation("dock")
-    operation("undock")
-
+    # --- Properties --- #
     property("robot_link", "std/string", "").
       doc("robot link that is supposed to be docked")
 

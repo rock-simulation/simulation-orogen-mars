@@ -17,53 +17,6 @@ Tether::~Tether()
 {
 }
 
-// Operations
-void Tether::dock()
-{
-    mars::interfaces::NodeId robot_node_id = getNodeID(_robot_link.get());
-    mars::interfaces::NodeId tether_node_id = getNodeID(_tether_link.get());
-    if ( tether_node_id != 0 &&
-         robot_node_id  != 0 )
-    {
-        control->sim->connectNodes(robot_node_id, tether_node_id);
-        std::cerr << "Successfully docked" << std::endl;
-    } else {
-        std::cerr << "Docking failed" << std::endl;
-    }
-}
-
-void Tether::undock()
-{
-    mars::interfaces::NodeId robot_node_id = getNodeID(_robot_link.get());
-    mars::interfaces::NodeId tether_node_id = getNodeID(_tether_link.get());
-    if ( tether_node_id != 0 &&
-         robot_node_id  != 0 )
-    {
-        control->sim->disconnectNodes(robot_node_id, tether_node_id);
-        std::cerr << "Successfully undocked" << std::endl;
-    } else {
-        std::cerr << "Undocking failed" << std::endl;
-    }
-}
-
-mars::interfaces::NodeId Tether::getNodeID(const std::string & link)
-{
-    if (link == "")
-    {
-        std::cerr << "Properties robot_link and tether_link must not be empty." << std::endl;
-        return 0;
-    }
-
-    mars::interfaces::NodeId nodeID = control->nodes->getID(link);
-    if ( nodeID == 0 )
-    {
-        std::cerr << "Could not determine nodeID for " << link << std::endl;
-        return 0;
-    } else {
-        return nodeID;
-    }
-}
-
 /// The following lines are template definitions for the various state machine
 // hooks defined by Orocos::RTT. See Tether.hpp for more detailed
 // documentation about them.
