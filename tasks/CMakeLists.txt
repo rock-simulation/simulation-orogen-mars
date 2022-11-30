@@ -3,14 +3,6 @@ find_package( Boost COMPONENTS filesystem)
 find_package(lib_manager)
 setup_qt()
 
-pkg_check_modules(PKGCONFIG REQUIRED
-    mars_smurf_loader
-)
-
-include_directories(${PKGCONFIG_INCLUDE_DIRS})
-link_directories(${PKGCONFIG_LIBRARY_DIRS})
-add_definitions(${PKGCONFIG_CFLAGS_OTHER})  #flags excluding the ones with -I
-
 include(marsTaskLib)
 ADD_LIBRARY(${MARS_TASKLIB_NAME} SHARED
     ${MARS_TASKLIB_SOURCES})

@@ -753,4 +753,3 @@ bool Task::getPlugin(const std::string pluginName, mars::interfaces::MarsPluginT
     }
     return pluginFound;
 }
-

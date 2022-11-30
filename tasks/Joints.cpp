@@ -5,6 +5,7 @@
 #include <mars/sim/SimMotor.h>
 #include <mars/interfaces/sim/MotorManagerInterface.h>
 #include <mars/interfaces/sim/JointManagerInterface.h>
+#include <mars/interfaces/sim/EntityManagerInterface.h>
 #include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
 #include <mars/interfaces/sim/ControlCenter.h>
@@ -31,18 +32,37 @@ void Joints::init()
     // for each of the names, get the mars motor id
     for( size_t i=0; i<mars_ids.size(); ++i )
     {
-        std::string &name( mars_ids[i].marsName );
-        int marsMotorId = control->motors->getID( name );
-        if( marsMotorId ){
-            mars_ids[i].mars_id = marsMotorId;
-            joint_types.push_back(MOTOR);
-        }else{
-            int marsJointId = control->joints->getID( name );
-            if (marsJointId){
-                mars_ids[i].mars_id = marsJointId;
-                joint_types.push_back(PASSIVE);
+        if(_robot_name.value() != "") {
+            std::string robot = _robot_name.value();
+            std::string &name( mars_ids[i].marsName );
+            int marsMotorId = control->entities->getEntityMotor(robot, name);
+            if( marsMotorId ){
+                mars_ids[i].mars_id = marsMotorId;
+                joint_types.push_back(MOTOR);
             }else{
-                throw std::runtime_error("there is no motor or joint by the name of " + name);
+                int marsJointId = control->entities->getEntityJoint(robot, name);
+                if (marsJointId){
+                    mars_ids[i].mars_id = marsJointId;
+                    joint_types.push_back(PASSIVE);
+                }else{
+                    throw std::runtime_error("there is no motor or joint by the name of " + name + " for robot " + robot);
+                }
+            }
+        }
+        else {
+            std::string &name( mars_ids[i].marsName );
+            int marsMotorId = control->motors->getID( name );
+            if( marsMotorId ){
+                mars_ids[i].mars_id = marsMotorId;
+                joint_types.push_back(MOTOR);
+            }else{
+                int marsJointId = control->joints->getID( name );
+                if (marsJointId){
+                    mars_ids[i].mars_id = marsJointId;
+                    joint_types.push_back(PASSIVE);
+                }else{
+                    throw std::runtime_error("there is no motor or joint by the name of " + name);
+                }
             }
         }
 
