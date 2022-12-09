@@ -737,10 +737,69 @@ void Task::move_node(::mars::Positions const & arg)
     }
 }
 
+void Task::move_node_relative_to(::mars::Positions const & position, ::std::string const & link)
+{
+    mars::interfaces::NodeManagerInterface* nodes = simulatorInterface->getControlCenter()->nodes;
+
+    // check if base node exists
+    // base node is the node which we will relate node to
+    mars::interfaces::NodeId base_node_id = nodes->getID(link);
+    if (base_node_id == INVALID_ID) {
+        LOG_ERROR("node '%s' unknown\n", link.c_str());
+        return;
+    }
+
+    // check if the node exists
+    // node is the node which position we would like to change
+    mars::interfaces::NodeId node_id = nodes->getID(position.nodename);
+    if (node_id == INVALID_ID) {
+        LOG_ERROR("node '%s' unknown\n", position.nodename.c_str());
+        return;
+    }
+
+    // get pose of base node
+    utils::Vector base_node_pos = nodes->getPosition(base_node_id);
+    utils::Quaternion base_node_rot_q = nodes->getRotation(base_node_id);
+    Eigen::Matrix3d base_node_rot(base_node_rot_q);
+
+    Eigen::Matrix4d base_node_transform;
+    base_node_transform.setIdentity();
+    base_node_transform.block<3,3>(0,0) = base_node_rot;
+    base_node_transform.block<3,1>(0,3) = base_node_pos;
+
+    // get the position of the node relative to base node
+    utils::Vector node_pos(position.posx, position.posy, position.posz);
+    Eigen::Matrix3d node_rot(mars::utils::eulerToQuaternion(mars::utils::Vector(position.rotx, position.roty, position.rotz)));
+    Eigen::Matrix4d node_transform;
+    node_transform.setIdentity();
+    node_transform.block<3,3>(0,0) = node_rot;
+    node_transform.block<3,1>(0,3) = node_pos;
+
+    // calculate the absolute position of the node
+    Eigen::Matrix4d node_absolute_transform = base_node_transform * node_transform;
+    Eigen::Matrix3d new_node_rot = node_absolute_transform.block<3,3>(0,0);
+    utils::Quaternion new_node_rot_q(new_node_rot);
+    utils::Vector new_node_pos = node_absolute_transform.block<3,1>(0,3);
+
+    // set new absolute position
+    mars::interfaces::NodeData nodedata = nodes->getFullNode(node_id);
+    nodedata.pos = new_node_pos;
+    nodedata.rot = new_node_rot_q;
+
+    if (position.edit_all){
+        nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_POS | mars::interfaces::EDIT_NODE_MOVE_ALL);
+        nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT | mars::interfaces::EDIT_NODE_MOVE_ALL);
+    }else{
+        printf("edit node only %s\n",position.nodename.c_str());
+        nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_POS);
+        nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT);
+    }
+}
+
 bool Task::getPlugin(const std::string pluginName, mars::interfaces::MarsPluginTemplate * &plugin)
 {
     bool pluginFound = false;
-    plugin = libManager->getLibraryAs<mars::interfaces::MarsPluginTemplate>(pluginName);   
+    plugin = libManager->getLibraryAs<mars::interfaces::MarsPluginTemplate>(pluginName);
     if (plugin)
     {
         LOG_DEBUG("plugin %s found, the interface will be forwarded", pluginName.c_str());

@@ -117,6 +117,11 @@ task_context "Task" do
         operation("move_node").
             argument("arg","/mars/Positions")
 
+        #This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
+        operation("move_node_relative_to").
+            argument("position","/mars/Positions").
+            argument("link","std::string", "Link to which the current node in position should be placed in the relation")
+
         operation('connect_links').
             doc('Defines a fixed joint between the two specified links').
             returns("bool").
@@ -287,7 +292,7 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
         doc 'how much ranges measurement to merge into one single reported measurement'
 
     property('min_range', 'double', 0.0).
-        doc("Minimum valid range of the laser range finder") 
+        doc("Minimum valid range of the laser range finder")
 
     output_port('scans', 'base/samples/LaserScan').
         max_sizes('remission' => 2000, 'ranges' => 2000).
@@ -295,7 +300,7 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
     property('name', '/std/string', 'laser_scanner').
 	doc('name of the sensor in the scene file')
     property('robot_name', '/std/string', '').
-        doc('Name of the robot')           
+        doc('Name of the robot')
 end
 
 # Can be used to simulate laser scanners with more than one vertical scan line
@@ -326,7 +331,7 @@ task_context "IMU", subclasses: "Plugin" do
         doc("Set to true is this Sensor should output orientation readings")
 
     property("provide_velocity", "/bool",true).
-        doc("Set to true is this Sensor should output angular/translational velocities") 
+        doc("Set to true is this Sensor should output angular/translational velocities")
 
     property("imu_frame", "std/string", "imu").
 	doc "The name of the imu frame."
@@ -353,7 +358,7 @@ task_context "IMU", subclasses: "Plugin" do
     property('name', '/std/string', 'imu').
 	doc('name of the node in the scene file from which to get the imu data')
     property('robot_name', '/std/string', '').
-        doc('Name of the robot')       
+        doc('Name of the robot')
 
     operation('estimate_bias').
         argument('duration', '/uint16_t').
@@ -576,7 +581,7 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
 end
 
 task_context "Tether", subclasses: "Plugin" do
-    
+
     needs_configuration
 
     # --- States ---
