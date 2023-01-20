@@ -96,6 +96,10 @@ namespace mars {
         mars::interfaces::NodeId getNodeID(const std::string & link);
 
 
+        virtual void start_simulation();
+
+        virtual void stop_simulation();
+
         char** setOptions(const std::vector<Option>& options);
 
         /* Handler for the loadScene operation

@@ -547,12 +547,12 @@ void Task::updateHook()
                 LOG_INFO_S << "ControlAction: Start received";
                 if(!simulatorInterface->isSimRunning())
                     simulatorInterface->startStopTrigger();
+
                 break;
             case PAUSE:
                 LOG_INFO_S << "ControlAction: Pause received";
                 if(simulatorInterface->isSimRunning())
                     simulatorInterface->startStopTrigger();
-                break;
             case RESET:
                 LOG_INFO_S << "ControlAction: Reset received";
                 simulatorInterface->resetSim();
@@ -564,6 +564,29 @@ void Task::updateHook()
             default:
                 LOG_WARN_S << "Simulation: Unknown control action " << controlAction << " received";
 
+        }
+    }
+
+    bool run_simulation = false
+    if(_run_simulation.read(run_simulation) == RTT::NewData)
+    {
+        if (run_simulation) {
+            if (!simulatorInterface->isSimRunning()) {
+                simulationInterface->startSimulation();
+            }
+            return true;
+        } else {
+            if (!simulatorInterface->isSimRunning())
+            {
+                simulatorInterface->stopSimulation();
+                // wait until simulation is stopped
+                // since it will go first in stopping state
+                // before it stoped
+                // we hope it will stop anyway :)
+                while(simulatorInterface->isSimRunning())
+                    msleep(10);
+            }
+            return false;
         }
     }
 
@@ -811,4 +834,10 @@ bool Task::getPlugin(const std::string pluginName, mars::interfaces::MarsPluginT
         LOG_DEBUG("plugin %s not found", pluginName.c_str());
     }
     return pluginFound;
+void Task::start_simulation() {
+    simulatorInterface->StartSimulation();
+}
+
+void Task::stop_simulation() {
+    simulatorInterface->StopSimulation();
 }
