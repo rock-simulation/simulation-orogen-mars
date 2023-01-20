@@ -8,12 +8,17 @@ using_library "mars_smurf_loader", :typekit => false
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 
+using_library "envire_core", :typekit => false
+using_library "maps"
+using_library "envire_maps"
+
 import_types_from "tasks/MarsControl.hpp"
 import_types_from "jointTypes.hpp"
 import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
 import_types_from "base"
+import_types_from "maps"
 
 
 #Disable default deployments, most of the time stand_alone deployments are useless
@@ -55,14 +60,14 @@ task_context "Task" do
         property('initial_scene', '/std/string').
 	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
 
-	property('initial_scenes', '/std/vector</std/string>').
-	    doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
+        property('initial_scenes', '/std/vector</std/string>').
+            doc('the full path to the initial scene, this is needed because operations are not accessible during configuration within syskit (deadlock)')
 
         property('positions', 'std/vector<mars/Positions>' ).
 	    doc('override positions in the scene (scn) file, e.g. move the terrain to create different experiment setups without changing the scene file itself')
 
-	property('initial_pose', 'mars/Pose' ).
-	    doc('override initial joint positions in the scene (scn) file, i.e. set an initial pose')
+        property('initial_pose', 'mars/Pose' ).
+            doc('override initial joint positions in the scene (scn) file, i.e. set an initial pose')
 
         property('config_dir', '/std/string', "#{ENV['AUTOPROJ_CURRENT_ROOT']}/install/configuration/mars_default").
 	    doc('the full path to the main configuration folder')
@@ -70,8 +75,8 @@ task_context "Task" do
         property('plugin_dir', '/std/string', "#{ENV['AUTOPROJ_CURRENT_ROOT']}/install/lib").
 	    doc('the full path where the plugins can be found')
 
-	property('plugins', '/std/vector</std/string>').
-	    doc('additional mars plugins to load. This can be a relative path to the plugin_dir, or absolute.')
+        property('plugins', '/std/vector</std/string>').
+            doc('additional mars plugins to load. This can be a relative path to the plugin_dir, or absolute.')
 
         property('simulation_property_list', '/std/vector</mars/SimulationProperty>').
 	    doc('list of attributes containing plugin and property name as well as the desired value')
@@ -92,11 +97,11 @@ task_context "Task" do
         property('raw_options', '/std/vector<mars::Option>').
             doc('forward the original mars arguments, such as -c 1600 for setting the ode port - option consists of name, here: -c and parameter: here 1600')
 
-	property('realtime_calc', 'bool', false).
-	    doc('if true, simulation runs in real time or slower, but not faster')
+        property('realtime_calc', 'bool', false).
+            doc('if true, simulation runs in real time or slower, but not faster')
 
-	property('start_sim', 'bool', false).
-	    doc('starts the simulation after loading the initial scene(s)')
+        property('start_sim', 'bool', false).
+            doc('starts the simulation after loading the initial scene(s)')
 
         # Add a task context
         # operation('addPlugin').
@@ -107,9 +112,17 @@ task_context "Task" do
 
         input_port('control_action', '/mars/Control')
 
+        # start/stop simulation
+        input_port("run_simulation", 'bool')
+        # will give output if mars was started/stoped over control_action
+        output_port("is_running", 'bool')
+
         #This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
         operation("move_node").
             argument("arg","/mars/Positions")
+
+        operation("start_simulation")
+        operation("stop_simulation")
 
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
@@ -268,7 +281,7 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
         doc 'how much ranges measurement to merge into one single reported measurement'
 
     property('min_range', 'double', 0.0).
-        doc("Minimum valid range of the laser range finder") 
+        doc("Minimum valid range of the laser range finder")
 
     output_port('scans', 'base/samples/LaserScan').
         max_sizes('remission' => 2000, 'ranges' => 2000).
@@ -276,7 +289,7 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
     property('name', '/std/string', 'laser_scanner').
 	    doc('name of the sensor in the scene file')
     property('robot_name', '/std/string', '').
-        doc('Name of the robot')           
+        doc('Name of the robot')
 end
 
 # Can be used to simulate laser scanners with more than one vertical scan line
@@ -307,7 +320,7 @@ task_context "IMU", subclasses: "Plugin" do
         doc("Set to true is this Sensor should output orientation readings")
 
     property("provide_velocity", "/bool",true).
-        doc("Set to true is this Sensor should output angular/translational velocities") 
+        doc("Set to true is this Sensor should output angular/translational velocities")
 
     property("imu_frame", "std/string", "imu").
 	doc "The name of the imu frame."
@@ -334,7 +347,7 @@ task_context "IMU", subclasses: "Plugin" do
     property('name', '/std/string', 'imu').
 	    doc('name of the node in the scene file from which to get the imu data')
     property('robot_name', '/std/string', '').
-        doc('Name of the robot')       
+        doc('Name of the robot')
 
     operation('estimate_bias').
         argument('duration', '/uint16_t').
@@ -554,4 +567,33 @@ task_context "AuvMotion", subclasses: "ForceApplier" do
     property("buoyancy_force", "double", 0).
       doc("Buoyancy force applied to the vehicle")
 
+end
+
+task_context "MLS", subclasses: "Plugin" do
+    input_port('mls_prec', '/maps/grid/MLSMap</maps/grid/MLSConfig/PRECALCULATED>')
+    input_port('mls_slope', '/maps/grid/MLSMap</maps/grid/MLSConfig/SLOPE>')
+    output_port("is_mls_set", "bool")
+
+    operation("setupMLSSlopeSimulation").
+        argument("robotPose","/base/samples/RigidBodyState").
+        argument("mls", '/maps/grid/MLSMap</maps/grid/MLSConfig/SLOPE>').
+        returns('bool')
+
+    operation("setupMLSPrecSimulation").
+        argument("robotPose","/base/samples/RigidBodyState").
+        argument("mls", '/maps/grid/MLSMap</maps/grid/MLSConfig/PRECALCULATED>').
+        returns('bool')
+
+    port_driven
+end
+
+task_context "PoseEditorTask", subclasses: "Plugin" do
+    input_port("pose", "/base/samples/RigidBodyState")
+    output_port("is_pose_set", "bool")
+
+    operation("set_pose").
+        argument("pose", "/base/samples/RigidBodyState").
+        returns('bool')
+
+    port_driven
 end

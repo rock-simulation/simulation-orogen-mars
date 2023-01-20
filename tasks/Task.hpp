@@ -31,7 +31,7 @@ namespace mars {
 
     class Task;
 
-    // Argument to pass to startTaskFunc 
+    // Argument to pass to startTaskFunc
     struct TaskArguments
     {
         Task* mars;
@@ -55,7 +55,7 @@ namespace mars {
     * makes it accessible as a orogen module
     *
     * use subclassing to derive robot specific modules, e.g.
-    * 
+    *
     * task_context 'RobotSimulation' do
     *         subclasses 'mars::Task'
     * ..
@@ -67,7 +67,7 @@ namespace mars {
     {
 	friend class TaskBase;
     protected:
-        QApplication* app; 
+        QApplication* app;
     	static mars::app::GraphicsTimer *graphicsTimer;
 	static mars::interfaces::SimulatorInterface* simulatorInterface;
 	static mars::Task* taskInterface;
@@ -75,16 +75,20 @@ namespace mars {
         static std::string configDir;
 	static bool marsRunning;
 
-	pthread_t thread_info; 
+	pthread_t thread_info;
 	static lib_manager::LibManager* libManager;
 
         mars::interfaces::PluginInterface* multisimPlugin;
 
         int getOptionCount(const std::vector<Option>& options);
-        
+
         /* This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
          */
         virtual void move_node(::mars::Positions const & arg);
+
+        virtual void start_simulation();
+
+        virtual void stop_simulation();
 
         char** setOptions(const std::vector<Option>& options);
 
@@ -93,21 +97,21 @@ namespace mars {
         virtual void loadScene(::std::string const & path);
 
         std::vector<Plugin*> plugins;
-        
+
         /* Dynamic Property setter of show_coordinate_system
          */
         virtual bool setShow_coordinate_system(bool value);
-        
+
         /* Dynamic Property setter of reaction_to_physics_error
          */
         virtual bool setReaction_to_physics_error(::std::string const & value);
 
-        
+
 
         // GraphicsTimer will be later called with the marsGraphics reference
         // which can be also NULL for a disabled gui
         mars::interfaces::GraphicsManagerInterface* marsGraphics;
-        
+
         virtual bool setSim_step_size(double value);
         virtual bool setGravity(::base::Vector3d const & value);
         virtual bool setGravity_internal(::base::Vector3d const & value);
@@ -156,7 +160,7 @@ namespace mars {
          *
          * The warning(), error() and fatal() calls, when called in this hook,
          * allow to get into the associated RunTimeWarning, RunTimeError and
-         * FatalError states. 
+         * FatalError states.
          *
          * In the first case, updateHook() is still called, and recovered()
          * allows you to go back into the Running state.  In the second case,
@@ -166,7 +170,7 @@ namespace mars {
          *
          */
          void updateHook();
-        
+
 
         /** This hook is called by Orocos when the component is in the
          * RunTimeError state, at each activity step. See the discussion in
@@ -186,9 +190,9 @@ namespace mars {
          * before calling start() again.
          */
          void cleanupHook();
-    
+
          void receiveData(const mars::data_broker::DataInfo& info,const mars::data_broker::DataPackage& package,int id);
-        
+
     };
 }
 
