@@ -567,14 +567,13 @@ void Task::updateHook()
         }
     }
 
-    bool run_simulation = false
+    bool run_simulation = false;
     if(_run_simulation.read(run_simulation) == RTT::NewData)
     {
         if (run_simulation) {
             if (!simulatorInterface->isSimRunning()) {
-                simulationInterface->startSimulation();
+                simulatorInterface->startSimulation();
             }
-            return true;
         } else {
             if (!simulatorInterface->isSimRunning())
             {
@@ -586,7 +585,6 @@ void Task::updateHook()
                 while(simulatorInterface->isSimRunning())
                     msleep(10);
             }
-            return false;
         }
     }
 
@@ -834,6 +832,8 @@ bool Task::getPlugin(const std::string pluginName, mars::interfaces::MarsPluginT
         LOG_DEBUG("plugin %s not found", pluginName.c_str());
     }
     return pluginFound;
+}
+
 void Task::start_simulation() {
     simulatorInterface->StartSimulation();
 }

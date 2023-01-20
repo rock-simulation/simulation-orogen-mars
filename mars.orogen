@@ -120,8 +120,6 @@ task_context "Task" do
 
         # start/stop simulation
         input_port("run_simulation", 'bool')
-        # will give output if mars was started/stoped over control_action
-        output_port("is_running", 'bool')
 
         #This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
         operation("move_node").
