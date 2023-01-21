@@ -1,15 +1,15 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef MARS_POSEEDITORTASK_TASK_HPP
-#define MARS_POSEEDITORTASK_TASK_HPP
+#ifndef MARS_COROBXTASK_TASK_HPP
+#define MARS_COROBXTASK_TASK_HPP
 
-#include "mars/PoseEditorTaskBase.hpp"
+#include "mars/CorobxTaskBase.hpp"
 
 #include <base/samples/RigidBodyState.hpp>
 
 namespace mars{
 
-    /*! \class PoseEditorTask
+    /*! \class CorobxTask
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
@@ -18,28 +18,28 @@ namespace mars{
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','mars::PoseEditorTask')
+         task('custom_task_name','mars::CorobxTask')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument.
      */
-    class PoseEditorTask : public PoseEditorTaskBase
+    class CorobxTask : public CorobxTaskBase
     {
-	friend class PoseEditorTaskBase;
+	friend class CorobxTaskBase;
     protected:
 
         virtual bool set_pose(::base::samples::RigidBodyState const & pose);
 
     public:
-        /** TaskContext constructor for PoseEditorTask
+        /** TaskContext constructor for CorobxTask
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        PoseEditorTask(std::string const& name = "mars::PoseEditorTask");
+        CorobxTask(std::string const& name = "mars::CorobxTask");
 
-        /** Default deconstructor of PoseEditorTask
+        /** Default deconstructor of CorobxTask
          */
-	~PoseEditorTask();
+	~CorobxTask();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

@@ -118,9 +118,6 @@ task_context "Task" do
 
         input_port('control_action', '/mars/Control')
 
-        # start/stop simulation
-        input_port("run_simulation", 'bool')
-
         #This operation moves a node to a specific position, simpliar to the positions property but can be used during runtime
         operation("move_node").
             argument("arg","/mars/Positions")
@@ -640,9 +637,16 @@ task_context "MLS", subclasses: "Plugin" do
     port_driven
 end
 
-task_context "PoseEditorTask", subclasses: "Plugin" do
+task_context "CorobxTask", subclasses: "Plugin" do
+    needs_configuration
+    property("frame_for_current_pose", "/std/string")
+    # start/stop simulation
+    input_port("run_simulation", 'bool')
+
     input_port("pose", "/base/samples/RigidBodyState")
     output_port("is_pose_set", "bool")
+
+    output_port("current_pose", "/base/samples/RigidBodyState")
 
     operation("set_pose").
         argument("pose", "/base/samples/RigidBodyState").

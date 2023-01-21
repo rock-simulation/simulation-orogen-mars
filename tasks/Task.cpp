@@ -567,27 +567,6 @@ void Task::updateHook()
         }
     }
 
-    bool run_simulation = false;
-    if(_run_simulation.read(run_simulation) == RTT::NewData)
-    {
-        if (run_simulation) {
-            if (!simulatorInterface->isSimRunning()) {
-                simulatorInterface->startSimulation();
-            }
-        } else {
-            if (!simulatorInterface->isSimRunning())
-            {
-                simulatorInterface->stopSimulation();
-                // wait until simulation is stopped
-                // since it will go first in stopping state
-                // before it stoped
-                // we hope it will stop anyway :)
-                while(simulatorInterface->isSimRunning())
-                    msleep(10);
-            }
-        }
-    }
-
     if(simulatorInterface->hasSimFault()){
         LOG_INFO_S << "Simulation detected a Physics error, stopping all plugins and go to Exception state";
         for(unsigned int i=0;i<plugins.size();i++){
