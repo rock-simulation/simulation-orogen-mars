@@ -12,6 +12,9 @@ using namespace mars;
 // TODO: we should get it from simulator
 #define SIM_CENTER_FRAME_NAME "world"
 
+// TODO: add passive joint, without motors
+// TODO: check effort, it seems to be always zero
+
 Joints::Joints(std::string const& name)
     : JointsBase(name)
 {
@@ -27,9 +30,11 @@ Joints::~Joints()
 {
 }
 
-void Joints::findMotors(const std::string &prefix, const VertexDesc &vertex)
+void Joints::findJoints(const VertexDesc &vertex)
 {
-    std::cout << "main vertex: " << control->envireGraph->getFrameId(vertex) << std::endl;
+    std::cout << "FRAME: " << control->envireGraph->getFrameId(vertex) << std::endl;
+
+    // parse the sub graph to find all required joints and their corresponding motors
     if(control->graphTreeView->tree.find(vertex) != control->graphTreeView->tree.end())
     {
         const std::unordered_set<VertexDesc>& children = control->graphTreeView->tree[vertex].children;
@@ -37,43 +42,59 @@ void Joints::findMotors(const std::string &prefix, const VertexDesc &vertex)
         if (!children.empty()) {
             for(const VertexDesc child : children)
             {
-                std::cout << "child vertex: " << control->envireGraph->getFrameId(child) << std::endl;
-                using SimMotorItem = envire::core::Item<std::shared_ptr<core::SimMotor>>;
-                using SimMotorItemItr = envire::core::EnvireGraph::ItemIterator<SimMotorItem>;
-                SimMotorItemItr begin_motor, end_motor;
-                boost::tie(begin_motor, end_motor) = control->envireGraph->getItems<SimMotorItem>(child);
-
-                // look for corresponding joint interface
+                std::cout << "- child: " << control->envireGraph->getFrameId(child) << std::endl;
                 using JointItem = envire::core::Item<interfaces::JointInterfaceItem>;
                 using JointItemItr = envire::core::EnvireGraph::ItemIterator<JointItem>;
                 JointItemItr begin_joint, end_joint, cur_joint;
                 boost::tie(begin_joint, end_joint) = control->envireGraph->getItems<JointItem>(child);
 
-                for (;begin_motor!=end_motor; begin_motor++)
-                {
-                    std::shared_ptr<core::SimMotor> simMotor = begin_motor->getData();
-                    std::cout << "--- SimMotor: " << simMotor->getName() << std::endl;
+                using SimMotorItem = envire::core::Item<std::shared_ptr<core::SimMotor>>;
+                using SimMotorItemItr = envire::core::EnvireGraph::ItemIterator<SimMotorItem>;
+                SimMotorItemItr begin_motor, end_motor, cur_motor;
+                boost::tie(begin_motor, end_motor) = control->envireGraph->getItems<SimMotorItem>(child);
 
-                    for(cur_joint = begin_joint; cur_joint!=end_joint; cur_joint++)
+                // parse the joints of the frame to find the joints required by config
+                for(cur_joint = begin_joint; cur_joint!=end_joint; cur_joint++)
+                {
+                    // all joint names saved with the prefix (robot name) inside the mars
+                    std::shared_ptr<interfaces::JointInterface> jointInterface = cur_joint->getData().jointInterface;
+                    std::string jointName;
+                    jointInterface->getName(&jointName);
+
+                    std::cout << "--- Joint: " << jointName << std::endl;
+
+                    // check if the joint is required by config
+                    if (std::find(jointNames.begin(), jointNames.end(), jointName) != std::end(jointNames))
                     {
-                        std::shared_ptr<interfaces::JointInterface> jointInterface = cur_joint->getData().jointInterface;
-                        std::string jointName;
-                        jointInterface->getName(&jointName);
-                        std::cout << "    joint: " << jointName << std::endl;
-                        // TODO: this is a temporary fix to match names of joints and joint names in the simMotor
-                        // since later joint and motor are stored in their own frame
-                        if (std::string(prefix + simMotor->getJointName()) == jointName)
-                        {
-                            std::cout << "FOUND INTERFACE FOR MOTOR" << std::endl;
-                            std::cout << "simJoint: " << simMotor->getJointName() << std::endl;
-                            std::cout << "jointName: " << jointName << std::endl;
-                            std::cout << "STORE AS " << simMotor->getName() << std::endl;
-                            motorJoints[simMotor->getName()] = std::make_pair(simMotor, jointInterface);
+                        std::cout << "------ found joint name" << std::endl;
+                        // check if there is a motor for joint, than store the motor joint relation
+                        // if not, store joint as passive
+                        bool hasMotor = false;
+                        cur_motor = begin_motor;
+                        while (cur_motor != end_motor && hasMotor == false) {
+
+                            std::shared_ptr<core::SimMotor> simMotor = cur_motor->getData();
+                            std::cout << "simMotor: " << simMotor->getName() << " " << simMotor->getJointName() << std::endl;
+                            // TODO: this is a temporary fix to match names of joints and joint names in the simMotor
+                            // since later joint and motor are stored in their own frame
+                            if (std::string(prefix + simMotor->getJointName()) == jointName)
+                            {
+                                std::cout << "motor: " << simMotor->getName() << std::endl;
+                                motorJoints[simMotor->getName()] = std::make_pair(simMotor, jointInterface);
+                                hasMotor = true;
+                            }
+                            cur_motor++;
                         }
-                        // TODO: do smth if motor interface is not found
+
+                        if (hasMotor == false)
+                        {
+                            std::cout << "joint: passive" << std::endl;
+                            passiveJoint.push_back(jointInterface);
+                        }
                     }
                 }
-                findMotors(prefix, child);
+                std::cout << "call findjoints" << std::endl;
+                findJoints(child);
             }
         }
     } else {
@@ -83,82 +104,68 @@ void Joints::findMotors(const std::string &prefix, const VertexDesc &vertex)
 
 void Joints::init()
 {
-    std::string prefix;
-    if (_robot_name.value() != "")
-        prefix = _robot_name;
-
-    // TODO: for now we get SubWorld frame by its frame name, it can be changed later
-    const VertexDesc subWorldVertex = control->envireGraph->vertex("SubWorld::" + prefix);
-    findMotors(prefix, subWorldVertex);
-
-    /*// for each of the names, get the mars motor id
-    for( size_t i=0; i<mars_ids.size(); ++i )
-    {
-        if(_robot_name.value() != "") {
-            std::string robot = _robot_name.value();
-            std::string &name( mars_ids[i].marsName );
-            int marsMotorId = control->entities->getEntityMotor(robot, name);
-            if( marsMotorId ){
-                mars_ids[i].mars_id = marsMotorId;
-                joint_types.push_back(MOTOR);
-            }else{
-                int marsJointId = control->entities->getEntityJoint(robot, name);
-                if (marsJointId){
-                    mars_ids[i].mars_id = marsJointId;
-                    joint_types.push_back(PASSIVE);
-                }else{
-                    throw std::runtime_error("there is no motor or joint by the name of " + name + " for robot " + robot);
-                }
-            }
-        }
-        else {
-            std::string &name( mars_ids[i].marsName );
-            int marsMotorId = control->motors->getID( name );
-            if( marsMotorId ){
-                mars_ids[i].mars_id = marsMotorId;
-                joint_types.push_back(MOTOR);
-            }else{
-                int marsJointId = control->joints->getID( name );
-                if (marsJointId){
-                    mars_ids[i].mars_id = marsJointId;
-                    joint_types.push_back(PASSIVE);
-                }else{
-                    throw std::runtime_error("there is no motor or joint by the name of " + name);
-                }
-            }
-        }
-
-    }*/
 }
 
 void Joints::update(double delta_t)
 {
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
 
-    std::string prefix;
-    if (_robot_name.value() != "")
-        prefix = _robot_name;
-
-    // send the current state of the motors
-    // TODO: do we send out the status name with prefix or without?
-    for (auto &motorName : status.names)
+    while (_command.read(jointCommand) == RTT::NewData)
     {
-        std::cout << "motorName: " << motorName << std::endl;
-        base::JointState state;
-        if (motorJoints.count(prefix + motorName)) {
-            std::cout << "find motorjoint" << std::endl;
-            MJPair &mj = motorJoints[prefix + motorName];
-            std::cout << "test: " << mj.first->getName() << std::endl;
-            state.position = mj.first->getActualPosition();
-            state.speed = mj.second->getVelocity();
-            state.effort = mj.first->getTorque();
+        for (auto &jointName : jointCommand.names)
+        {
+            if (motorJoints.count(jointName)) {
+                base::JointState state = jointCommand.getElementByName(jointName);
 
-            status[motorName] = state;
+                if( state.hasPosition() )
+                {
+                    motorJoints[jointName].first->setValue(state.position);
+                }
+                else
+                {
+                    if( state.hasSpeed() )
+                        motorJoints[jointName].first->setVelocity(state.speed);
+                }
+                if( state.hasEffort() )
+                {
+                    LOG_WARN_S << "Effort command ignored for the joint '" << jointName << "'";
+                }
+                if( state.hasRaw() )
+                {
+                    LOG_WARN_S << "Raw command ignored for the joint '" << jointName << "'";
+                }
+            } else {
+                LOG_ERROR_S << "There is no joint with the name '" << jointName << "' or this joint is passive";
+            }
+
         }
     }
-    // and write it to the output port
-    status.time = getTime();
-    _status_samples.write(status);
+
+    // send the current state of the joints
+    for (auto &jointName : jointStatus.names)
+    {
+        base::JointState state;
+        // check if the joint has motor or passive
+        // get the data from mars
+        if (motorJoints.count(jointName)) {
+            MJPair &mj = motorJoints[jointName];
+            state.position = mj.first->getActualPosition();
+            state.speed = mj.second->getVelocity();
+            // TODO: should we use getMotorTorque?
+            //state.effort = mj.first->getTorque();
+            state.effort = mj.second->getMotorTorque();
+
+            jointStatus[jointName] = state;
+        }
+        else {
+            // TODO add passive joint
+        }
+    }
+    jointStatus.time = getTime();
+    _status.write(jointStatus);
+
+
+
 
     /*if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
     // if there was a command, write it to the mars
@@ -281,9 +288,33 @@ void Joints::update(double delta_t)
 
 bool Joints::configureHook()
 {
-    size_t num_joints = _names.value().size();
-    status.resize(num_joints);
-    status.names = _names.value();
+    // set robot name as prefix
+    if (_robot_name.value() != "")
+        prefix = _robot_name;
+
+    // add prefix to the joint names from config to be able to find the joints inside the mars
+    // since all mars elements contains prefix in their names
+    jointNames.clear();
+    jointNames = _names.value();
+    std::for_each(jointNames.begin(), jointNames.end(),
+        [&](std::string &jointName)
+        { jointName = prefix + jointName; });
+
+    std::cout << "PRINT JOINT NAMES" << std::endl;
+    for (auto &jointName : jointNames)
+    {
+        std::cout << jointName << std::endl;
+    }
+
+    // TODO: for now we get SubWorld frame by its frame name, it can be changed later
+    // find all joints that required by config
+    const VertexDesc subWorldVertex = control->envireGraph->vertex("SubWorld::" + prefix);
+    findJoints(subWorldVertex);
+
+    // initialise jointStatus vector with the name of required joints
+    size_t num_joints = jointNames.size();
+    jointStatus.resize(num_joints);
+    jointStatus.names = jointNames;
 
     /*size_t num_joints = _names.value().size();
 

@@ -39,54 +39,58 @@ namespace mars {
 	friend class JointsBase;
     protected:
 
-        void findMotors(const std::string &prefix, const VertexDesc &vertex);
+        void findJoints(const VertexDesc &vertex);
 
         std::map<std::string, MJPair> motorJoints;
+        std::vector<std::shared_ptr<interfaces::JointInterface>> passiveJoint;
+        std::string prefix;
+        std::vector<std::string> jointNames;
 
-	struct JointConversion
-	{
-	    JointConversion()
-		: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0) {}
+        base::commands::Joints jointCommand;
+        base::samples::Joints jointStatus;
 
-	    double fromMars( double v )
-	    {
-		return v * scaling + offset;
-	    }
-	    double toMars( double v )
-	    {
-		return (v - offset) / scaling;
-	    }
+	// struct JointConversion
+	// {
+	//     JointConversion()
+	// 	: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0) {}
 
-            double updateAbsolutePosition( double v )
-            {
-                absolutePosition = v;
-                return absolutePosition;
-            }
-            double getAbsolutePosition()
-            {
-                return absolutePosition;
-            }
+	//     double fromMars( double v )
+	//     {
+	// 	return v * scaling + offset;
+	//     }
+	//     double toMars( double v )
+	//     {
+	// 	return (v - offset) / scaling;
+	//     }
 
-	    int mars_id;
-            std::string marsName;
-            std::string externalName;
-        /// Scale factor from Mars to Module
-	    double scaling;
-	    double offset;
-            double absolutePosition;
-	};
-    std::vector<unsigned int> motorIds;
+    //         double updateAbsolutePosition( double v )
+    //         {
+    //             absolutePosition = v;
+    //             return absolutePosition;
+    //         }
+    //         double getAbsolutePosition()
+    //         {
+    //             return absolutePosition;
+    //         }
 
-	std::vector<JointConversion> mars_ids;
-	enum JointTypes{MOTOR,PASSIVE};
-	std::vector<JointTypes> joint_types;
+	//     int mars_id;
+    //         std::string marsName;
+    //         std::string externalName;
+    //     /// Scale factor from Mars to Module
+	//     double scaling;
+	//     double offset;
+    //         double absolutePosition;
+	// };
+    //std::vector<unsigned int> motorIds;
 
-	base::samples::Joints status;
-	mars::JointCurrents currents;
-	base::commands::Joints cmd;
+	//std::vector<JointConversion> mars_ids;
+	//enum JointTypes{MOTOR,PASSIVE};
+	//std::vector<JointTypes> joint_types;
 
-	std::vector< mars::ParallelKinematic > parallel_kinematics;
-	mars::JointPositionAndSpeedControlMode controlMode;
+	//mars::JointCurrents currents;
+
+	//std::vector< mars::ParallelKinematic > parallel_kinematics;
+	//mars::JointPositionAndSpeedControlMode controlMode;
 
     public:
         virtual void init();
@@ -107,7 +111,7 @@ namespace mars {
 
         /** Default deconstructor of Joints
          */
-	~Joints();
+	    ~Joints();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
