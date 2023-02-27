@@ -6,13 +6,21 @@
 #include "mars/JointsBase.hpp"
 #include <base/commands/Joints.hpp>
 
+#include <mars_interfaces/sim/JointInterface.h>
+
+#include <envire_core/graph/EnvireGraph.hpp>
+#include <envire_core/items/Item.hpp>
+
+#include <mars_core/SimMotor.hpp>
+
+
 namespace mars {
 
-    /*! \class Joints 
+    /*! \class Joints
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
-     * 
+     *
      * \details
      * The name of a TaskContext is primarily defined via:
      \verbatim
@@ -20,12 +28,21 @@ namespace mars {
          task('custom_task_name','mars::Joints')
      end
      \endverbatim
-     *  It can be dynamically adapted when the deployment is called with a prefix argument. 
+     *  It can be dynamically adapted when the deployment is called with a prefix argument.
      */
+
+    typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
+    typedef std::pair<std::shared_ptr<core::SimMotor>, std::shared_ptr<interfaces::JointInterface>> MJPair;
+
     class Joints : public JointsBase
     {
 	friend class JointsBase;
     protected:
+
+        void findMotors(const std::string &prefix, const VertexDesc &vertex);
+
+        std::map<std::string, MJPair> motorJoints;
+
 	struct JointConversion
 	{
 	    JointConversion()
@@ -49,7 +66,7 @@ namespace mars {
             {
                 return absolutePosition;
             }
-	    
+
 	    int mars_id;
             std::string marsName;
             std::string externalName;
@@ -58,6 +75,8 @@ namespace mars {
 	    double offset;
             double absolutePosition;
 	};
+    std::vector<unsigned int> motorIds;
+
 	std::vector<JointConversion> mars_ids;
 	enum JointTypes{MOTOR,PASSIVE};
 	std::vector<JointTypes> joint_types;
@@ -79,10 +98,10 @@ namespace mars {
          */
         Joints(std::string const& name = "mars::Joints");
 
-        /** TaskContext constructor for Joints 
-         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
-         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task. 
-         * 
+        /** TaskContext constructor for Joints
+         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
+         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
+         *
          */
         Joints(std::string const& name, RTT::ExecutionEngine* engine);
 
@@ -119,7 +138,7 @@ namespace mars {
          *
          * The error(), exception() and fatal() calls, when called in this hook,
          * allow to get into the associated RunTimeError, Exception and
-         * FatalError states. 
+         * FatalError states.
          *
          * In the first case, updateHook() is still called, and recover() allows
          * you to go back into the Running state.  In the second case, the

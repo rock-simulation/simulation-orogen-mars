@@ -30,7 +30,7 @@ bool Plugin::configureHook()
         RTT::log(RTT::Warning) << "Plugin: configure failed." << RTT::endlog();
         return false;
     }
-    
+
     if(!connect())
     {
         RTT::log(RTT::Warning) << "Plugin: establishing connection with Mars failed. Configure hook returning false." << RTT::endlog();
@@ -68,11 +68,11 @@ void Plugin::cleanupHook()
 {
     RTT::TaskContext::cleanupHook();
 }
-        
+
 void Plugin::update(double delta_t)
 {
 }
-    
+
 void Plugin::init()
 {
 }
@@ -128,7 +128,7 @@ void Plugin::reset() {};
 void Plugin::receiveData(
         const mars::data_broker::DataInfo& info,
         const mars::data_broker::DataPackage& package,
-        int id) 
+        int id)
 {
 }
 

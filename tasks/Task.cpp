@@ -1,22 +1,22 @@
 #include "Task.hpp"
-#include <mars/app/MARS.h>
-#include <mars/sim/Simulator.h>
+#include <mars/app/MARS.hpp>
+#include <mars_core/Simulator.hpp>
 #include <mars/utils/Thread.h>
 #include <mars/utils/mathUtils.h>
-#include <mars/interfaces/sim/SimulatorInterface.h>
+#include <mars_interfaces/sim/SimulatorInterface.h>
 
 #include <mars/tasks/MarsControl.hpp>
 #include <mars/gui/MarsGui.h>
 #include <mars/main_gui/MainGUI.h>
 #include <mars/main_gui/GuiInterface.h>
 #include <mars/cfg_manager/CFGManagerInterface.h>
-#include <mars/interfaces/graphics/GraphicsManagerInterface.h>
+#include <mars_interfaces/graphics/GraphicsManagerInterface.h>
 //#include <mars/graphics/GraphicsManager.h>
-#include <mars/app/GraphicsTimer.h>
-#include <mars/interfaces/sim/NodeManagerInterface.h>
+#include <mars/app/GraphicsTimer.hpp>
+#include <mars_interfaces/sim/NodeManagerInterface.h>
 
-#include <mars/sim/SimMotor.h>
-#include <mars/interfaces/sim/MotorManagerInterface.h>
+#include <mars_core/SimMotor.hpp>
+#include <mars_interfaces/sim/MotorManagerInterface.h>
 
 //#include <mars/multisim-plugin/MultiSimPlugin.h>
 
@@ -97,7 +97,6 @@ void* Task::startTaskFunc(void* argument)
     // arguments to mars interface
     // set the option to "" if it does not require further args
     std::vector<Option> rawOptions = marsArguments->raw_options;
-
     if(marsArguments->controller_port > 0)
     {
         char buffer[10];
@@ -105,7 +104,6 @@ void* Task::startTaskFunc(void* argument)
         Option controllerPortOption("-c", std::string(buffer));
         rawOptions.push_back(controllerPortOption);
     }
-
     if(!marsArguments->config_dir.empty())
     {
         Option confDirOption("-C", marsArguments->config_dir);
@@ -125,10 +123,8 @@ void* Task::startTaskFunc(void* argument)
     {
         LOG_INFO_S << "Simulator: argument #" << i << " " << argv[i];
     }
-
     mars::app::MARS *simulation = new mars::app::MARS();
     simulation->readArguments(argc, argv);
-
     // Prepare Qt Application Thread which is required
     // for core mars and gui
     if(!Task::getTaskInterface()->app){
@@ -146,19 +142,16 @@ void* Task::startTaskFunc(void* argument)
         Task::getTaskInterface()->app->setStyle(new QPlastiqueStyle);
 #endif
     }
-
     setlocale(LC_ALL,"C");
     setenv("LANG","C",true);
     struct lconv* locale = localeconv();
     LOG_INFO_S << "Active locale (LC_ALL): ";
-
     if( *(locale->decimal_point) != '.')
     {
         LOG_ERROR_S << "Current locale conflicts with mars";
         marsArguments->failed_to_init = true;
         return 0;
     }
-
     std::string cmd;
     for(int i = 0; i < argc;++i)
     {
@@ -178,7 +171,7 @@ void* Task::startTaskFunc(void* argument)
         libManager->loadLibrary( *it );
     }
 
-    mars->simulatorInterface = libManager->getLibraryAs<sim::Simulator>("mars_sim");
+    mars->simulatorInterface = libManager->getLibraryAs<core::Simulator>("mars_core");
     if(!mars->simulatorInterface)
     {
         LOG_ERROR_S << "CRITICAL (cause abort) Simulation could not be retrieved via lib_manager";
@@ -206,11 +199,11 @@ void* Task::startTaskFunc(void* argument)
         }
     }
 
-
-    if(marsArguments->add_floor){
-        mars->simulatorInterface->getControlCenter()->nodes->createPrimitiveNode("Boden",mars::interfaces::NODE_TYPE_PLANE,false,mars::utils::Vector(0,0,0.0),mars::utils::Vector(600,600,0));
-    }
-    int result = mars->simulatorInterface->getControlCenter()->dataBroker->registerTriggeredReceiver(mars,"mars_sim", "simTime","mars_sim/postPhysicsUpdate",1);
+    // TODO: CODE FROM MARS1
+    //if(marsArguments->add_floor){
+    //    mars->simulatorInterface->getControlCenter()->nodes->createPrimitiveNode("Boden",mars::interfaces::NODE_TYPE_PLANE,false,mars::utils::Vector(0,0,0.0),mars::utils::Vector(600,600,0));
+    //}
+    int result = mars->simulatorInterface->getControlCenter()->dataBroker->registerTriggeredReceiver(mars,"mars_core", "simTime","mars_core/postPhysicsUpdate",1);
     (void)result;
     assert(result);
 
@@ -225,11 +218,9 @@ void* Task::startTaskFunc(void* argument)
     marsArguments->initialized = true;
     Task::getTaskInterface()->app->exec();
 
-
-    libManager->releaseLibrary("mars_sim");
+    libManager->releaseLibrary("mars_core");
     libManager->releaseLibrary("cfg_manager");
     libManager->releaseLibrary("mars_graphics");
-
     delete simulation;
     //Do not delete the QApplication it does not like it to be restarted
     LOG_DEBUG_S << "Qapplication exec ended";
@@ -334,7 +325,6 @@ bool Task::configureHook()
         throw std::runtime_error("Config directory is not set! Can not start mars");
     }
 
-
     //check if the environemnt was sourced more than once and the path has more than one entry
     int pos = _config_dir.get().rfind(":/");
     if(pos != _config_dir.get().size()-1)
@@ -349,7 +339,6 @@ bool Task::configureHook()
     //    LOG_ERROR_S << "Config directory " << _config_dir.get() << " does not exist. Cannot start mars.";
     //    throw std::runtime_error(std::string("Config directory ") +_config_dir.get() +" does not exist. Can not start mars.");
     //}
-
     // Startup of mars
     TaskArguments argument;
     argument.mars = this;
@@ -379,16 +368,15 @@ bool Task::configureHook()
         LOG_ERROR_S << "Failed to create MARS thread: pthread error " << ret;
         throw std::runtime_error("Failed to create MARS thread");
     }
-
     for(int i=0; !argument.initialized && !argument.failed_to_init;++i)
     {
         //give up after 10 sec
-        if(i > 1000)
+        if(i > 2000)
         {
             LOG_ERROR_S << "Cannot start mars thread";
             throw std::runtime_error("Cannot start mars thread!");
         }
-        usleep(10000);
+        usleep(20000);
     }
     if(argument.failed_to_init){
             LOG_ERROR_S << "Task failed to start, see Error above";
@@ -421,7 +409,6 @@ bool Task::configureHook()
     if(!_initial_scene.get().empty()){
         simulatorInterface->loadScene(_initial_scene.get(), std::string("initial"),true,true);
     }
-
     std::vector<Positions> positions = _positions.get();
     if(!positions.empty()){
         for (std::vector< Positions >::iterator offset = positions.begin(); offset != positions.end();offset++){
@@ -429,8 +416,10 @@ bool Task::configureHook()
         }
     }
 
-
-    mars::Pose initial_pose = _initial_pose.get();
+    // TODO: CODE FROM MARS1
+    // we dont set the motor position for now
+    // need to be rewritten later to adapt to the new interfaces
+    /*mars::Pose initial_pose = _initial_pose.get();
     if(!initial_pose.empty()){
         mars::interfaces::ControlCenter* control = simulatorInterface->getControlCenter();
         if (control){
@@ -446,15 +435,13 @@ bool Task::configureHook()
         }else{
             LOG_ERROR("no contol center");
         }
-    }
-
+    }*/
 
     {//Setting the Step-with for the mars
     cfg_manager::cfgPropertyStruct c = simulatorInterface->getControlCenter()->cfg->getOrCreateProperty("Simulator", "calc_ms", _sim_step_size.get()*1000.0);
     c.dValue = _sim_step_size.get()*1000.0;
     simulatorInterface->getControlCenter()->cfg->setProperty(c);
     }
-
 
     {
     std::string value = _reaction_to_physics_error.get();
@@ -465,11 +452,8 @@ bool Task::configureHook()
         return false;
     }
     }
-
     simulatorInterface->getControlCenter()->cfg->setPropertyValue("Simulator","getTime:useNow","value",_use_now_instead_of_sim_time.get());
-
     setGravity_internal(_gravity.get());
-
     return updateDynamicProperties();
 }
 

@@ -2,15 +2,15 @@
 
 #include "Joints.hpp"
 #include <boost/foreach.hpp>
-#include <mars/sim/SimMotor.h>
-#include <mars/interfaces/sim/MotorManagerInterface.h>
-#include <mars/interfaces/sim/JointManagerInterface.h>
-#include <mars/interfaces/sim/EntityManagerInterface.h>
+#include <mars_interfaces/sim/MotorManagerInterface.h>
 #include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
-#include <mars/interfaces/sim/ControlCenter.h>
+#include <mars_interfaces/sim/ControlCenter.h>
 
 using namespace mars;
+
+// TODO: we should get it from simulator
+#define SIM_CENTER_FRAME_NAME "world"
 
 Joints::Joints(std::string const& name)
     : JointsBase(name)
@@ -20,16 +20,78 @@ Joints::Joints(std::string const& name)
 Joints::Joints(std::string const& name, RTT::ExecutionEngine* engine)
     : JointsBase(name, engine)
 {
-    controlMode = mars::IGNORE;
+    //controlMode = mars::IGNORE;
 }
 
 Joints::~Joints()
 {
 }
 
+void Joints::findMotors(const std::string &prefix, const VertexDesc &vertex)
+{
+    std::cout << "main vertex: " << control->envireGraph->getFrameId(vertex) << std::endl;
+    if(control->graphTreeView->tree.find(vertex) != control->graphTreeView->tree.end())
+    {
+        const std::unordered_set<VertexDesc>& children = control->graphTreeView->tree[vertex].children;
+        // TODO: there is some issue if children is empty
+        if (!children.empty()) {
+            for(const VertexDesc child : children)
+            {
+                std::cout << "child vertex: " << control->envireGraph->getFrameId(child) << std::endl;
+                using SimMotorItem = envire::core::Item<std::shared_ptr<core::SimMotor>>;
+                using SimMotorItemItr = envire::core::EnvireGraph::ItemIterator<SimMotorItem>;
+                SimMotorItemItr begin_motor, end_motor;
+                boost::tie(begin_motor, end_motor) = control->envireGraph->getItems<SimMotorItem>(child);
+
+                // look for corresponding joint interface
+                using JointItem = envire::core::Item<interfaces::JointInterfaceItem>;
+                using JointItemItr = envire::core::EnvireGraph::ItemIterator<JointItem>;
+                JointItemItr begin_joint, end_joint, cur_joint;
+                boost::tie(begin_joint, end_joint) = control->envireGraph->getItems<JointItem>(child);
+
+                for (;begin_motor!=end_motor; begin_motor++)
+                {
+                    std::shared_ptr<core::SimMotor> simMotor = begin_motor->getData();
+                    std::cout << "--- SimMotor: " << simMotor->getName() << std::endl;
+
+                    for(cur_joint = begin_joint; cur_joint!=end_joint; cur_joint++)
+                    {
+                        std::shared_ptr<interfaces::JointInterface> jointInterface = cur_joint->getData().jointInterface;
+                        std::string jointName;
+                        jointInterface->getName(&jointName);
+                        std::cout << "    joint: " << jointName << std::endl;
+                        // TODO: this is a temporary fix to match names of joints and joint names in the simMotor
+                        // since later joint and motor are stored in their own frame
+                        if (std::string(prefix + simMotor->getJointName()) == jointName)
+                        {
+                            std::cout << "FOUND INTERFACE FOR MOTOR" << std::endl;
+                            std::cout << "simJoint: " << simMotor->getJointName() << std::endl;
+                            std::cout << "jointName: " << jointName << std::endl;
+                            std::cout << "STORE AS " << simMotor->getName() << std::endl;
+                            motorJoints[simMotor->getName()] = std::make_pair(simMotor, jointInterface);
+                        }
+                        // TODO: do smth if motor interface is not found
+                    }
+                }
+                findMotors(prefix, child);
+            }
+        }
+    } else {
+        LOG_ERROR_S << "SubWorld " << "SubWorld::" << prefix << " can not be found";
+    }
+}
+
 void Joints::init()
 {
-    // for each of the names, get the mars motor id
+    std::string prefix;
+    if (_robot_name.value() != "")
+        prefix = _robot_name;
+
+    // TODO: for now we get SubWorld frame by its frame name, it can be changed later
+    const VertexDesc subWorldVertex = control->envireGraph->vertex("SubWorld::" + prefix);
+    findMotors(prefix, subWorldVertex);
+
+    /*// for each of the names, get the mars motor id
     for( size_t i=0; i<mars_ids.size(); ++i )
     {
         if(_robot_name.value() != "") {
@@ -66,12 +128,39 @@ void Joints::init()
             }
         }
 
-    }
+    }*/
 }
 
 void Joints::update(double delta_t)
 {
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
+
+    std::string prefix;
+    if (_robot_name.value() != "")
+        prefix = _robot_name;
+
+    // send the current state of the motors
+    // TODO: do we send out the status name with prefix or without?
+    for (auto &motorName : status.names)
+    {
+        std::cout << "motorName: " << motorName << std::endl;
+        base::JointState state;
+        if (motorJoints.count(prefix + motorName)) {
+            std::cout << "find motorjoint" << std::endl;
+            MJPair &mj = motorJoints[prefix + motorName];
+            std::cout << "test: " << mj.first->getName() << std::endl;
+            state.position = mj.first->getActualPosition();
+            state.speed = mj.second->getVelocity();
+            state.effort = mj.first->getTorque();
+
+            status[motorName] = state;
+        }
+    }
+    // and write it to the output port
+    status.time = getTime();
+    _status_samples.write(status);
+
+    /*if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
     // if there was a command, write it to the mars
     while( _command.read( cmd ) == RTT::NewData )
     {
@@ -90,7 +179,7 @@ void Joints::update(double delta_t)
             if (it == cmd.names.end()){
                 continue;
             }
-            
+
             base::JointState &curCmd(cmd[*it]);
 
 	    mars::sim::SimMotor *motor = control->motors->getSimMotor( conv.mars_id );
@@ -175,7 +264,7 @@ void Joints::update(double delta_t)
     currents.time = status.time;
     _current_values.write(currents);
 
-    // see if we have configuration for the joint_transforms 
+    // see if we have configuration for the joint_transforms
     // and the output port for it is connected
     std::vector<base::samples::RigidBodyState> rbs;
     if( !_joint_transform.value().empty() && _transforms.connected() )
@@ -183,7 +272,7 @@ void Joints::update(double delta_t)
         _joint_transform.value().setRigidBodyStates( status, rbs );
         for( size_t i=0; i < rbs.size(); ++i )
             _transforms.write( rbs[i] );
-    }
+    }*/
 }
 
 /// The following lines are template definitions for the various state machine
@@ -193,6 +282,10 @@ void Joints::update(double delta_t)
 bool Joints::configureHook()
 {
     size_t num_joints = _names.value().size();
+    status.resize(num_joints);
+    status.names = _names.value();
+
+    /*size_t num_joints = _names.value().size();
 
     // test if scaling is valid
     if( !_scaling.value().empty() && _scaling.value().size() != num_joints )
@@ -210,7 +303,7 @@ bool Joints::configureHook()
 
 
     mars_ids.clear();
-    // fill the joint structure 
+    // fill the joint structure
     mars_ids.resize( num_joints );
     cmd.resize( num_joints);
     status.resize( num_joints - parallel_kinematics.size() );
@@ -259,7 +352,7 @@ bool Joints::configureHook()
     }
 
 
-    std::vector<std::string> rename = _name_remap.get(); 
+    std::vector<std::string> rename = _name_remap.get();
     for( size_t i=0; i<mars_ids.size(); i++ )
     {
 		if( !_scaling.value().empty() ){
@@ -295,7 +388,7 @@ bool Joints::configureHook()
 
     controlMode = _controlMode.value();
 
-
+*/
     //this needs to be called here, or we get a race condition
     //between the init of the plugin and the filling of mars_ids
     return JointsBase::configureHook();
