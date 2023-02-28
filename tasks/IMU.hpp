@@ -4,18 +4,20 @@
 #define SIMULATION_MARSIMU_TASK_HPP
 
 #include "mars/IMUBase.hpp"
+
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 
+#include <mars_interfaces/sim/DynamicObject.hpp>
 namespace mars {
 
     class IMUPlugin;
 
-    /*! \class IMU 
+    /*! \class IMU
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
-     * 
+     *
      * \details
      * The name of a TaskContext is primarily defined via:
      \verbatim
@@ -23,7 +25,7 @@ namespace mars {
          task('custom_task_name','mars::IMU')
      end
      \endverbatim
-     *  It can be dynamically adapted when the deployment is called with a prefix argument. 
+     *  It can be dynamically adapted when the deployment is called with a prefix argument.
      */
     class IMU : public IMUBase
     {
@@ -31,18 +33,20 @@ namespace mars {
 
     protected:
 
-    /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
-     */
-    virtual bool estimate_bias(boost::uint16_t duration){};
+        /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
+        */
+        virtual bool estimate_bias(boost::uint16_t duration){};
 
-        long node_id;
+        std::shared_ptr<mars::interfaces::DynamicObject> imu;
+
+        //long node_id;
         base::samples::RigidBodyState rbs;
         base::samples::IMUSensors imusens;
-	boost::mt19937 rnd_generator;
-	boost::normal_distribution<double> translation_noise;
-	boost::normal_distribution<double> rotation_noise;
-	boost::normal_distribution<double> velocity_noise;
-	boost::normal_distribution<double> angular_velocity_noise;
+	    boost::mt19937 rnd_generator;
+	    boost::normal_distribution<double> translation_noise;
+	    boost::normal_distribution<double> rotation_noise;
+	    boost::normal_distribution<double> velocity_noise;
+	    boost::normal_distribution<double> angular_velocity_noise;
         void update( double time );
 
 
@@ -53,16 +57,16 @@ namespace mars {
          */
         IMU(std::string const& name = "mars::IMU");
 
-        /** TaskContext constructor for IMU 
-         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
-         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task. 
-         * 
+        /** TaskContext constructor for IMU
+         * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices.
+         * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task.
+         *
          */
         IMU(std::string const& name, RTT::ExecutionEngine* engine);
 
         /** Default deconstructor of IMU
          */
-	~IMU();
+	    ~IMU();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
@@ -78,7 +82,7 @@ namespace mars {
          end
          \endverbatim
          */
-        // bool configureHook();
+        bool configureHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Stopped to Running. If it returns false, then the component will
@@ -93,7 +97,7 @@ namespace mars {
          *
          * The error(), exception() and fatal() calls, when called in this hook,
          * allow to get into the associated RunTimeError, Exception and
-         * FatalError states. 
+         * FatalError states.
          *
          * In the first case, updateHook() is still called, and recover() allows
          * you to go back into the Running state.  In the second case, the
@@ -109,7 +113,7 @@ namespace mars {
          *
          * Call recover() to go back in the Runtime state.
          */
-        // void errorHook();
+        void errorHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Running to Stopped after stop() has been called.
@@ -120,7 +124,7 @@ namespace mars {
          * from Stopped to PreOperational, requiring the call to configureHook()
          * before calling start() again.
          */
-        // void cleanupHook();
+        void cleanupHook();
     };
 }
 
