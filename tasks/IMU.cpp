@@ -193,7 +193,7 @@ void IMU::update( double time )
         }
     }
 
-    _orientation_samples.write( rbs );
+    _orientation.write( rbs );
 
     imusens.time = getTime();
     // transform acceleration and rotation to IMU frame:

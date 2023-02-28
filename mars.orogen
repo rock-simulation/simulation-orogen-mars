@@ -307,7 +307,7 @@ task_context "IMU", subclasses: "Plugin" do
     property("angular_velocity_sigma", "double", 0.0).
 	    doc "Standard deviation of the angular velocity, that will be applied to the measurement."
 
-    output_port('orientation_samples', '/base/samples/RigidBodyState').
+    output_port('orientation', '/base/samples/RigidBodyState').
         doc 'provides timestamped IMUReading samples containing the orientation estimate as reported by the IMU.'
     output_port('calibrated_sensors', '/base/samples/IMUSensors').
         doc 'provides timestamped IMUReading samples containing the calibrated sensor readings.'
