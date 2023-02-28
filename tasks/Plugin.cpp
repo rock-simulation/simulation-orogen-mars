@@ -36,7 +36,6 @@ bool Plugin::configureHook()
         RTT::log(RTT::Warning) << "Plugin: establishing connection with Mars failed. Configure hook returning false." << RTT::endlog();
         return false;
     }
-
     return true;
 }
 

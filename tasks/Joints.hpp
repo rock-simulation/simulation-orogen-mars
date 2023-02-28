@@ -39,8 +39,6 @@ namespace mars {
 	friend class JointsBase;
     protected:
 
-        void findJoints(const VertexDesc &vertex);
-
         std::map<std::string, MJPair> motorJoints;
         std::vector<std::shared_ptr<interfaces::JointInterface>> passiveJoint;
         std::string prefix;
@@ -49,53 +47,11 @@ namespace mars {
         base::commands::Joints jointCommand;
         base::samples::Joints jointStatus;
 
-	// struct JointConversion
-	// {
-	//     JointConversion()
-	// 	: mars_id(-1), scaling(1.0), offset(0.0), absolutePosition(0) {}
+        void findJoints(const VertexDesc &vertex);
 
-	//     double fromMars( double v )
-	//     {
-	// 	return v * scaling + offset;
-	//     }
-	//     double toMars( double v )
-	//     {
-	// 	return (v - offset) / scaling;
-	//     }
-
-    //         double updateAbsolutePosition( double v )
-    //         {
-    //             absolutePosition = v;
-    //             return absolutePosition;
-    //         }
-    //         double getAbsolutePosition()
-    //         {
-    //             return absolutePosition;
-    //         }
-
-	//     int mars_id;
-    //         std::string marsName;
-    //         std::string externalName;
-    //     /// Scale factor from Mars to Module
-	//     double scaling;
-	//     double offset;
-    //         double absolutePosition;
-	// };
-    //std::vector<unsigned int> motorIds;
-
-	//std::vector<JointConversion> mars_ids;
-	//enum JointTypes{MOTOR,PASSIVE};
-	//std::vector<JointTypes> joint_types;
-
-	//mars::JointCurrents currents;
-
-	//std::vector< mars::ParallelKinematic > parallel_kinematics;
-	//mars::JointPositionAndSpeedControlMode controlMode;
+        virtual void update(double time);
 
     public:
-        virtual void init();
-        virtual void update(double delta_t);
-
         /** TaskContext constructor for Joints
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.

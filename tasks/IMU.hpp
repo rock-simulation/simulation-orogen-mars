@@ -33,10 +33,6 @@ namespace mars {
 
     protected:
 
-        /* Normally triggers bias estimation on the xsens imu, in simulation thios does nothing
-        */
-        virtual bool estimate_bias(boost::uint16_t duration){};
-
         std::shared_ptr<mars::interfaces::DynamicObject> imu;
 
         //long node_id;
@@ -47,9 +43,8 @@ namespace mars {
 	    boost::normal_distribution<double> rotation_noise;
 	    boost::normal_distribution<double> velocity_noise;
 	    boost::normal_distribution<double> angular_velocity_noise;
+
         void update( double time );
-
-
     public:
         /** TaskContext constructor for IMU
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.

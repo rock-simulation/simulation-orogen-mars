@@ -14,12 +14,14 @@
 using namespace mars;
 
 IMU::IMU(std::string const& name)
-    : IMUBase(name)
+    : IMUBase(name),
+    imu(nullptr)
 {
 }
 
 IMU::IMU(std::string const& name, RTT::ExecutionEngine* engine)
-    : IMUBase(name, engine)
+    : IMUBase(name, engine),
+    imu(nullptr)
 {
 }
 
@@ -33,6 +35,9 @@ IMU::~IMU()
 
 bool IMU::configureHook()
 {
+    if (!IMUBase::configureHook())
+        return false;
+
     // check if the imu frame is in the graph
     std::string prefix = _robot_name.value();
     std::string imuName = prefix + _name.value();
@@ -42,7 +47,7 @@ bool IMU::configureHook()
     std::string imuFrameId = imuName;
     if (!control->envireGraph->containsFrame(imuFrameId))
     {
-        LOG_ERROR_S << "There is no frame '" << imuFrameId << "'";
+        LOG_ERROR_S << "There is no frame '" << imuFrameId << "' in the graph";
         return false;
     }
 
@@ -84,52 +89,13 @@ bool IMU::configureHook()
     velocity_noise = boost::normal_distribution<double>(0.0, _velocity_sigma.get());
     angular_velocity_noise = boost::normal_distribution<double>(0.0, _angular_velocity_sigma.get());
 
-    if (! IMUBase::configureHook())
-        return false;
     return true;
 }
+
 bool IMU::startHook()
 {
     if (! IMUBase::startHook())
         return false;
-
-    // TODO: mars1
-    // std::string robot_name = _robot_name.value();
-    // std::string node_name = _name.value();
-
-    // if(robot_name != "") {
-    //     node_id = control->entities->getEntityNode(robot_name, node_name);
-    // } else {
-    //     node_id = control->nodes->getID(node_name);
-    // }
-
-
-    // if( !node_id ){
-    //     std::cerr << "There is no node by the name of " << node_name << " in the scene" << std::endl;
-    //     return false;
-    // }
-
-
-
-    // TODO: code from MARS1
-    // if (_rotate_node_relative.get().size() == 3){
-
-
-	// 	mars::utils::Vector rotoff;// = _rotate_node_relative.get();
-
-	// 	rotoff.x() =  _rotate_node_relative.get()[0];
-	// 	rotoff.y() =  _rotate_node_relative.get()[1];
-	// 	rotoff.z() =  _rotate_node_relative.get()[2];
-
-
-	// 	mars::interfaces::NodeData nodedata = control->nodes->getFullNode(node_id);
-
-	// 	nodedata.rot = mars::utils::eulerToQuaternion(rotoff) * nodedata.rot;
-
-	// 	control->nodes->editNode(&nodedata, mars::interfaces::EDIT_NODE_ROT);
-
-    // }
-
     return true;
 }
 void IMU::updateHook()
