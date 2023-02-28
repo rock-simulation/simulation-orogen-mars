@@ -48,9 +48,14 @@ void TOFCamera::cleanupHook()
     TOFCameraBase::cleanupHook();
 }
 
-
 void TOFCamera::getData()
-{	
+{
+    if (camera == nullptr)
+    {
+        exception();
+        return;
+    }
+
     base::samples::Pointcloud pcl;
 
     std::vector<mars::utils::Vector> colors;
@@ -64,6 +69,6 @@ void TOFCamera::getData()
     }
 
     pcl.time = getTime();
-    
+
     _pointcloud.write(pcl);
 }
