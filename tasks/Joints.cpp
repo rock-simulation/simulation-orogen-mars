@@ -3,9 +3,10 @@
 #include "Joints.hpp"
 #include <boost/foreach.hpp>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
+#include <mars_interfaces/sim/ControlCenter.h>
 #include <base/Logging.hpp>
 #include <base/samples/RigidBodyState.hpp>
-#include <mars_interfaces/sim/ControlCenter.h>
+
 
 using namespace mars;
 
@@ -111,7 +112,7 @@ void Joints::update(double delta_t)
                     motorJoints[jointName].first->setValue(state.position);
                 }
                 else if( state.hasSpeed() ) {
-                        motorJoints[jointName].first->setVelocity(state.speed);
+                    motorJoints[jointName].first->setVelocity(state.speed);
                 }
                 if( state.hasEffort() )
                 {
@@ -150,9 +151,6 @@ void Joints::update(double delta_t)
     }
     jointStatus.time = getTime();
     _status.write(jointStatus);
-
-
-
 
     /*if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
     // if there was a command, write it to the mars
@@ -286,12 +284,6 @@ bool Joints::configureHook()
     std::for_each(jointNames.begin(), jointNames.end(),
         [&](std::string &jointName)
         { jointName = prefix + jointName; });
-
-    std::cout << "PRINT JOINT NAMES" << std::endl;
-    for (auto &jointName : jointNames)
-    {
-        std::cout << jointName << std::endl;
-    }
 
     // TODO: for now we get SubWorld frame by its frame name, it can be changed later
     // find all joints that required by config
