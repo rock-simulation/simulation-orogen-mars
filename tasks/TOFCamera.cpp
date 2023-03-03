@@ -55,20 +55,22 @@ void TOFCamera::getData()
         exception();
         return;
     }
-
-    base::samples::Pointcloud pcl;
-
-    std::vector<base::Vector4d> colors;
-
-    camera->getColoredPointcloud(&(pcl.points), &(colors));
-
-    pcl.colors.resize(colors.size());
-    for (uint i = 0; i < pcl.colors.size(); ++i)
+    if(camera->haveNewData())
     {
-        pcl.colors.at(i) = colors.at(i);
+        base::samples::Pointcloud pcl;
+
+        std::vector<mars::utils::Vector> colors;
+
+        camera->getColoredPointcloud(&(pcl.points), &(pcl.colors));
+
+        // pcl.colors.resize(colors.size());
+        // for (uint i = 0; i < pcl.colors.size(); ++i)
+        // {
+        //     pcl.colors.at(i) = colors.at(i).homogeneous();
+        // }
+
+        pcl.time = getTime();
+
+        _pointcloud.write(pcl);
     }
-
-    pcl.time = getTime();
-
-    _pointcloud.write(pcl);
 }
