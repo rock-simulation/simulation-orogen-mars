@@ -1,6 +1,7 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "TOFCamera.hpp"
+#include <mars/utils/misc.h>
 
 using namespace mars;
 
@@ -58,9 +59,16 @@ void TOFCamera::getData()
     if(camera->haveNewData())
     {
         base::samples::Pointcloud pcl;
+        base::samples::RigidBodyState rbs;
 
         std::vector<mars::utils::Vector> colors;
 
+        pcl.time = getTime();
+        rbs.time = pcl.time;
+        rbs.sourceFrame = _camera_frame.value();
+        rbs.targetFrame = _world_frame.value();
+        camera->getPose(rbs.position, rbs.orientation);
+        rbs.cov_orientation = base::Matrix3d::Identity();
         camera->getColoredPointcloud(&(pcl.points), &(pcl.colors));
 
         // pcl.colors.resize(colors.size());
@@ -69,8 +77,8 @@ void TOFCamera::getData()
         //     pcl.colors.at(i) = colors.at(i).homogeneous();
         // }
 
-        pcl.time = getTime();
-
+        //utils::msleep(1000);
+        _orientation_samples.write( rbs );
         _pointcloud.write(pcl);
     }
 }

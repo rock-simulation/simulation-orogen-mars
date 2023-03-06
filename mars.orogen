@@ -150,7 +150,14 @@ end
 task_context "TOFCamera", subclasses: "CameraPlugin" do
     needs_configuration
 
+    property("camera_frame", "std/string", "camera").
+	doc "The name of the imu frame."
+    property("world_frame", "std/string", "world").
+	doc "The name of the world frame."
+
     output_port 'pointcloud', 'base::samples::Pointcloud'
+    output_port('orientation_samples', '/base/samples/RigidBodyState').
+        doc 'provides timestamped Pose matching the Pointcloud sample.'
 end
 =begin
 task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
