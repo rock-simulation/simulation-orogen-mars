@@ -134,13 +134,13 @@ task_context "CameraPlugin", subclasses: "Plugin" do
     property('robot_name', '/std/string', '').
         doc('Name of the robot')
 end
-=begin
+
 task_context "Camera", subclasses: "CameraPlugin" do
     needs_configuration
 
     output_port 'frame', ro_ptr('base::samples::frame::Frame')
 end
-
+=begin
 task_context "DepthCamera", subclasses: "CameraPlugin" do
     needs_configuration
 
