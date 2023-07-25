@@ -50,7 +50,7 @@ bool CameraPlugin::configureHook()
     // in the graph frame with prefix + name syntax
     std::cout << "prefix: " << prefix << std::endl;
     std::cout << "sensorName: " << sensorName << std::endl;
-    const VertexDesc subWorldVertex = control->envireGraph->vertex("SubWorld::" + prefix);
+    const VertexDesc subWorldVertex = control->envireGraph->vertex("World::" + prefix);
     camera = nullptr;
     if (findSensors(subWorldVertex, sensorName))
         LOG_ERROR_S << "Camera '" << sensorName << "' is found";

@@ -50,7 +50,7 @@ bool Joints::configureHook()
 
     // TODO: for now we get SubWorld frame by its frame name, it can be changed later
     // find all joints that required by config
-    const VertexDesc subWorldVertex = control->envireGraph->vertex("SubWorld::" + prefix);
+    const VertexDesc subWorldVertex = control->envireGraph->vertex("World::" + prefix);
     findJoints(subWorldVertex);
 
     // initialise jointStatus vector with the name of required joints
@@ -182,9 +182,7 @@ void Joints::findJoints(const VertexDesc &vertex)
                         cur_motor = begin_motor;
                         while (cur_motor != end_motor && hasMotor == false) {
                             std::shared_ptr<core::SimMotor> simMotor = cur_motor->getData();
-                            // TODO: this is a temporary fix to match names of joints and joint names in the simMotor
-                            // since later joint and motor are stored in their own frame
-                            if (std::string(prefix + simMotor->getJointName()) == jointName)
+                            if (std::string(simMotor->getJointName()) == jointName)
                             {
                                 motorJoints[simMotor->getName()] = std::make_pair(simMotor, jointInterface);
                                 hasMotor = true;
