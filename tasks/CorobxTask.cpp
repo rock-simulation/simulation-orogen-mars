@@ -5,6 +5,8 @@
 #include <mars/interfaces/sim/NodeManagerInterface.h>
 #include <mars/interfaces/sim/StorageManagerInterface.h>
 
+#include <base-logging/Logging.hpp>
+
 using namespace mars;
 
 CorobxTask::CorobxTask(std::string const& name)
@@ -18,7 +20,11 @@ CorobxTask::~CorobxTask()
 
 
 bool CorobxTask::set_pose(::base::samples::RigidBodyState const & pose) {
+    LOG_DEBUG_S << "Setting up initial position to " << pose.position[0] << ", " << pose.position[1] << ", " << pose.position[2];
+    LOG_DEBUG_S << "Setting up initial orientation to x: " << pose.orientation.x() << ", y:" << pose.orientation.y() << ", z:" << pose.orientation.z() << ", w:"<<pose.orientation.w();
+    LOG_DEBUG_S << "Setting up target frame to " << pose.targetFrame;
     bool success = control->nodes->setAbsolutePose(pose.targetFrame, pose.position, pose.orientation);
+    LOG_DEBUG("Position given to the node manager");
     return success;
 }
 /// The following lines are template definitions for the various state machine
@@ -74,25 +80,23 @@ void CorobxTask::updateHook()
     if (control->sim->isSimRunning()) {
         mars::utils::Vector position;
         mars::utils::Quaternion orientation;
-        std::cout << "test 1" << std::endl;
+        LOG_DEBUG_S << "Getting absolute pose";
         bool success = control->nodes->getAbsolutePose(_frame_for_current_pose.get(), position, orientation);
-        std::cout << "test 2" << std::endl;
         if (success)
         {
-            std::cout << "test 3" << std::endl;
+            LOG_DEBUG_S << "Absolute pose successfully received";
             base::samples::RigidBodyState current_pose;
             current_pose.time = base::Time::now();
-            std::cout << "test 4" << std::endl;
             current_pose.sourceFrame = control->storage->getRootFrame();
-            std::cout << "test 5" << std::endl;
+            LOG_DEBUG_S << "Current pose root frame" << current_pose.sourceFrame;
             current_pose.targetFrame = _frame_for_current_pose.get();
-            std::cout << "test 6" << std::endl;
+            LOG_DEBUG_S << "Current pose target frame" << current_pose.targetFrame;
             current_pose.position = position;
-            std::cout << "test 7" << std::endl;
+            LOG_DEBUG_S << "Current pose position" << current_pose.position[0] << ", " << current_pose.position[1] << ", " << current_pose.position[2];
             current_pose.orientation = orientation;
-            std::cout << "test 8" << std::endl;
+            LOG_DEBUG_S << "Current pose orientation <x,y,z,w>" << current_pose.orientation.x() << ", " << current_pose.orientation.y() << ", " << current_pose.orientation.z()<< ", " << current_pose.orientation.w();
             _current_pose.write(current_pose);
-            std::cout << "test 9" << std::endl;
+            LOG_DEBUG_S << "Current pose sent out";
         }
     }
 }
