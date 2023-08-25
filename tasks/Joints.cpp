@@ -96,26 +96,27 @@ void Joints::update(double time)
     {
         for (auto &jointName : jointCommand.names)
         {
-            if (motorJoints.count(jointName)) {
+            std::string jointNameFull = prefix + jointName;
+            if (motorJoints.count(jointNameFull)) {
                 base::JointState state = jointCommand.getElementByName(jointName);
 
                 if( state.hasPosition() )
                 {
-                    motorJoints[jointName].first->setValue(state.position);
+                    motorJoints[jointNameFull].first->setValue(state.position);
                 }
                 else if( state.hasSpeed() ) {
-                    motorJoints[jointName].first->setVelocity(state.speed);
+                    motorJoints[jointNameFull].first->setVelocity(state.speed);
                 }
                 if( state.hasEffort() )
                 {
-                    LOG_WARN_S << "Effort command ignored for the joint '" << jointName << "'";
+                    LOG_WARN_S << "Effort command ignored for the joint '" << jointName << "' (full name: '" << jointNameFull << ")'";
                 }
                 if( state.hasRaw() )
                 {
-                    LOG_WARN_S << "Raw command ignored for the joint '" << jointName << "'";
+                    LOG_WARN_S << "Raw command ignored for the joint '" << jointName << "' (full name: '" << jointNameFull << ")'";
                 }
             } else {
-                LOG_ERROR_S << "There is no joint with the name '" << jointName << "' or this joint is passive";
+                LOG_ERROR_S << "There is no joint with the name '" << jointName << "' (full name: '" << jointNameFull << ")' or this joint is passive";
             }
 
         }
