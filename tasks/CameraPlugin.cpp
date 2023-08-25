@@ -48,8 +48,6 @@ bool CameraPlugin::configureHook()
 
     // in mars the imu frame will be stored as DynamicObject
     // in the graph frame with prefix + name syntax
-    std::cout << "prefix: " << prefix << std::endl;
-    std::cout << "sensorName: " << sensorName << std::endl;
     const VertexDesc subWorldVertex = control->envireGraph->vertex("World::" + prefix);
     camera = nullptr;
     if (findSensors(subWorldVertex, sensorName))
@@ -136,21 +134,18 @@ bool CameraPlugin::findSensors(const VertexDesc &vertex, const std::string &sens
         if (!children.empty()) {
             for(const VertexDesc child : children)
             {
-                std::cout << "frame: " << control->envireGraph->getFrameId(child) << std::endl;
                 using BaseSensorItem = envire::core::Item<std::shared_ptr<interfaces::BaseSensor>>;
                 using BaseSensorItemItr = envire::core::EnvireGraph::ItemIterator<BaseSensorItem>;
                 BaseSensorItemItr begin_itr, end_itr;
                 boost::tie(begin_itr, end_itr) = control->envireGraph->getItems<BaseSensorItem>(child);
-                std::cout << "count: " << control->envireGraph->getItemCount<BaseSensorItem>(child) << std::endl;
                 for (; begin_itr != end_itr; begin_itr++)
                 {
                     std::shared_ptr<interfaces::BaseSensor> baseSensor = begin_itr->getData();
-                    std::cout << "BASE SENSOR NAME: " << baseSensor->getName() << std::endl;
                     if (baseSensor->getName() == sensorName)
                     {
                         camera = std::dynamic_pointer_cast<mars::core::CameraSensor>(baseSensor);
                         if( !camera ) {
-                            LOG_ERROR_S << "The found sensor '" << sensorName << "' is not a camera";
+                            LOG_INFO_S << "The found sensor '" << sensorName << "' is not a camera";
                         } else {
                             return true;
                         }
