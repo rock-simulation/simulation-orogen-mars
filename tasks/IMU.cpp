@@ -6,7 +6,7 @@
 #include <base/Logging.hpp>
 
 #include <mars_interfaces/sim/ControlCenter.h>
-#include <mars/utils/mathUtils.h>
+#include <mars_utils/mathUtils.h>
 
 #include <envire_core/graph/EnvireGraph.hpp>
 #include <envire_core/items/Item.hpp>

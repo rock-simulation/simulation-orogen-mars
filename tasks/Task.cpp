@@ -1,20 +1,20 @@
 #include "Task.hpp"
-#include <mars/app/MARS.hpp>
+#include <mars_app/MARS.hpp>
 #include <mars_core/Simulator.hpp>
-#include <mars/utils/Thread.h>
-#include <mars/utils/mathUtils.h>
+#include <mars_utils/Thread.h>
+#include <mars_utils/mathUtils.h>
 #include <mars_interfaces/sim/SimulatorInterface.h>
 
 #include <mars/tasks/MarsControl.hpp>
-#include <mars/gui/MarsGui.h>
+#include <mars_gui/MarsGui.h>
 
-#include <mars/main_gui/MainGUI.h>
-#include <mars/main_gui/GuiInterface.h>
+#include <main_gui/MainGUI.h>
+#include <main_gui/GuiInterface.h>
 
-#include <mars/cfg_manager/CFGManagerInterface.h>
+#include <cfg_manager/CFGManagerInterface.h>
 #include <mars_interfaces/graphics/GraphicsManagerInterface.h>
 //#include <mars/graphics/GraphicsManager.h>
-#include <mars/app/GraphicsTimer.hpp>
+#include <mars_app/GraphicsTimer.hpp>
 #include <mars_interfaces/sim/NodeManagerInterface.h>
 
 #include <mars_core/SimMotor.hpp>

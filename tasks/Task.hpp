@@ -3,7 +3,7 @@
 
 #include "mars/TaskBase.hpp"
 #include <vector>
-#include <mars/data_broker/ReceiverInterface.h>
+#include <data_broker/ReceiverInterface.h>
 #include "Plugin.hpp"
 #include <boost/thread/mutex.hpp>
 
