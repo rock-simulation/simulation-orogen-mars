@@ -193,20 +193,20 @@ task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
         doc('Left limit of the vertical opening angle in radians')
     property('right_limit', 'double', Math::PI/4.0).
         doc('Right limit of the vertical opening angle in radians')
-    property('resolution_vertical', 'double', Math::PI/180.0).
-        doc('Vertical angular resolution in radians')
+    property('resolution_horizontal', 'double', Math::PI/180.0).
+        doc('Horizontal angular resolution in radians')
 
     property('upper_limit', 'double', Math::PI/4.0).
         doc('Upper limit of the horizontal opening angle in radians')
     property('lower_limit', 'double', -Math::PI/4.0).
         doc('Lower limit of the horizontal opening angle in radians')
-    property('resolution_horizontal', 'double', Math::PI/180.0).
+    property('resolution_vertical', 'double', Math::PI/180.0).
         doc('Vertical angular resolution in radians')
 
     property('minimum_distance', 'double', 1.0).
-        doc('Smaller distances (meter) are discarded')
+        doc('Smaller distances from camera plane (meter) are discarded')
     property('maximum_distance', 'double', 80.0).
-        doc('Larger distances (meter) are discarded')
+        doc('Larger distances from camera plane (meter) are discarded')
 
     property('extra_cameras', '/std/vector</mars/HighResRangeFinderCamera>').
         doc('Extra set of cameras, described as pairs of name within scene file and orientation. Note that the camera from the "name" property always goes at orientation 0.0.')
