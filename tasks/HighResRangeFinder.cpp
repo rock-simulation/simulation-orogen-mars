@@ -38,10 +38,17 @@ bool HighResRangeFinder::addCamera(::std::string const & name, double orientatio
         return false;
     }
     
-    Camera* camera = new Camera(sensor_id, cam_sensor, orientation);
-    camera->name = name;
-    calcCamParameters(camera);
-    cameras.push_back(camera);
+    HighResRangeFinderCamera cam = { name, orientation };
+    addedCameras.push_back(cam);
+
+    //using !cameras.empty() as a proxy for the task being started. In a started task,
+    //there will always be at least one camera.
+    if(!cameras.empty()) {
+        Camera* camera = new Camera(sensor_id, cam_sensor, orientation);
+        camera->name = name;
+        calcCamParameters(camera);
+        cameras.push_back(camera);
+    }
     return true;
 }
     
@@ -116,7 +123,41 @@ bool HighResRangeFinder::startHook()
     Camera* camera = new Camera(sensor_id, this->camera, 0.0);
     calcCamParameters(camera);
     cameras.push_back(camera);
-    
+
+    for(auto &c : addedCameras) {
+        long sensor_id = control->sensors->getSensorID( c.name );
+        if( !sensor_id ){
+            RTT::log(RTT::Error) << "There is no camera by the name of " << c.name << " in the scene" << RTT::endlog();
+        }
+
+        mars::sim::CameraSensor* cam_sensor = dynamic_cast<mars::sim::CameraSensor *>(control->sensors->getSimSensor(sensor_id));
+        if( !cam_sensor){
+            RTT::log(RTT::Error) << "CameraPlugin: Given sensor name is not a camera" << RTT::endlog();
+        }
+
+        Camera* camera = new Camera(sensor_id, cam_sensor, c.orientation);
+        camera->name = c.name;
+        calcCamParameters(camera);
+        cameras.push_back(camera);
+    }
+
+    for(auto &c : _extra_cameras.get()) {
+        long sensor_id = control->sensors->getSensorID( c.name );
+        if( !sensor_id ){
+            RTT::log(RTT::Error) << "There is no camera by the name of " << c.name << " in the scene" << RTT::endlog();
+        }
+
+        mars::sim::CameraSensor* cam_sensor = dynamic_cast<mars::sim::CameraSensor *>(control->sensors->getSimSensor(sensor_id));
+        if( !cam_sensor){
+            RTT::log(RTT::Error) << "CameraPlugin: Given sensor name is not a camera" << RTT::endlog();
+        }
+
+        Camera* camera = new Camera(sensor_id, cam_sensor, c.orientation);
+        camera->name = c.name;
+        calcCamParameters(camera);
+        cameras.push_back(camera);
+    }
+
     return true;
 }
 
@@ -131,6 +172,12 @@ void HighResRangeFinder::errorHook()
 void HighResRangeFinder::stopHook()
 {
     HighResRangeFinderBase::stopHook();
+
+    std::vector<Camera*>::iterator it = cameras.begin();
+    for(; it != cameras.end(); ++it) {
+        delete *it;
+    }
+    cameras.clear();
 }
 void HighResRangeFinder::cleanupHook()
 {

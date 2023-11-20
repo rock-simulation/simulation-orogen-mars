@@ -19,6 +19,7 @@ import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
 import_types_from "opaqueTypes.hpp"
+import_types_from "highresrangefinderTypes.hpp"
 import_types_from "base"
 import_types_from "mars/plugins/tether_simulation/Settings.h"
 import_types_from "maps"
@@ -206,6 +207,9 @@ task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
         doc('Smaller distances (meter) are discarded')
     property('maximum_distance', 'double', 80.0).
         doc('Larger distances (meter) are discarded')
+
+    property('extra_cameras', '/std/vector</mars/HighResRangeFinderCamera>').
+        doc('Extra set of cameras, described as pairs of name within scene file and orientation. Note that the camera from the "name" property always goes at orientation 0.0.')
 
     operation('addCamera').
         doc('Adds another camera which will be used for pointcloud creation').

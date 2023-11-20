@@ -84,6 +84,7 @@ namespace mars {
         };
     
         std::vector<Camera*> cameras;
+        std::vector<HighResRangeFinderCamera> addedCameras;
         
         /**
          * Loads another camera from the scene file which will be used for pointcloud creation.
