@@ -30,6 +30,10 @@ namespace mars {
     {
 	friend class HighResRangeFinderBase;
     protected:
+        struct LookupPoint {
+            size_t x;
+            size_t y;
+        };
         struct Camera {
             /**
              * Stores the informations of all cameras which are used to simulate this sensor.
@@ -72,14 +76,7 @@ namespace mars {
             // Rotation of the camera around the y-axis within the camera frame.
             Eigen::Quaternion<double, Eigen::DontAlign> orientation;
             
-            double pixel_per_rad_horizontal;
-            double pixel_per_rad_vertical;
-            double lower_pixel;
-            double upper_pixel;
-            double left_pixel;
-            double right_pixel;
-            double v_steps;
-            double h_steps;
+            std::vector<LookupPoint> points;
             std::string name;
         };
     

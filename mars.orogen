@@ -195,6 +195,8 @@ task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
         doc('Right limit of the vertical opening angle in radians')
     property('resolution_horizontal', 'double', Math::PI/180.0).
         doc('Horizontal angular resolution in radians')
+    property('rotational_horizontal', 'bool', false).
+        doc('Rotate the beams for the horizontal direction instead of tracking a line')
 
     property('upper_limit', 'double', Math::PI/4.0).
         doc('Upper limit of the horizontal opening angle in radians')
