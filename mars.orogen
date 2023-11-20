@@ -19,6 +19,7 @@ import_types_from "poseType.hpp"
 import_types_from "objectDetectionTypes.hpp"
 import_types_from "wrenchTypes.hpp"
 import_types_from "opaqueTypes.hpp"
+import_types_from "highresrangefinderTypes.hpp"
 import_types_from "base"
 import_types_from "mars/plugins/tether_simulation/Settings.h"
 import_types_from "maps"
@@ -192,20 +193,25 @@ task_context "HighResRangeFinder", subclasses: "CameraPlugin" do
         doc('Left limit of the vertical opening angle in radians')
     property('right_limit', 'double', Math::PI/4.0).
         doc('Right limit of the vertical opening angle in radians')
-    property('resolution_vertical', 'double', Math::PI/180.0).
-        doc('Vertical angular resolution in radians')
+    property('resolution_horizontal', 'double', Math::PI/180.0).
+        doc('Horizontal angular resolution in radians')
+    property('rotational_horizontal', 'bool', false).
+        doc('Rotate the beams for the horizontal direction instead of tracking a line')
 
     property('upper_limit', 'double', Math::PI/4.0).
         doc('Upper limit of the horizontal opening angle in radians')
     property('lower_limit', 'double', -Math::PI/4.0).
         doc('Lower limit of the horizontal opening angle in radians')
-    property('resolution_horizontal', 'double', Math::PI/180.0).
+    property('resolution_vertical', 'double', Math::PI/180.0).
         doc('Vertical angular resolution in radians')
 
     property('minimum_distance', 'double', 1.0).
-        doc('Smaller distances (meter) are discarded')
+        doc('Smaller distances from camera plane (meter) are discarded')
     property('maximum_distance', 'double', 80.0).
-        doc('Larger distances (meter) are discarded')
+        doc('Larger distances from camera plane (meter) are discarded')
+
+    property('extra_cameras', '/std/vector</mars/HighResRangeFinderCamera>').
+        doc('Extra set of cameras, described as pairs of name within scene file and orientation. Note that the camera from the "name" property always goes at orientation 0.0.')
 
     operation('addCamera').
         doc('Adds another camera which will be used for pointcloud creation').
