@@ -5,7 +5,7 @@
 #include <mars/sim/RaySensor.h>
 #include <base/Time.hpp>
 #include <mars/interfaces/sim/SensorManagerInterface.h>
-
+#include <mars/interfaces/sim/EntityManagerInterface.h>
 
 using namespace mars;
 
@@ -28,7 +28,16 @@ bool LaserRangeFinder::startHook()
     if (! LaserRangeFinderBase::startHook())
         return false;
 
-    int sensor_id = control->sensors->getSensorID( _name.value() );
+    std::string robot_name = _robot_name.value();
+    std::string sensor_name = _name.value();
+
+    long sensor_id = 0;
+    if(robot_name != "") {
+        sensor_id = control->entities->getEntitySensor(robot_name, sensor_name);
+    } else {
+        sensor_id = control->sensors->getSensorID(sensor_name);
+    }
+
     if( !sensor_id ){
         std::cout <<  "There is no sensor by the name of " << _name.value() << " in the scene" << std::endl;
         return false;
@@ -36,7 +45,7 @@ bool LaserRangeFinder::startHook()
 
     sensor = dynamic_cast<mars::sim::RaySensor*>( control->sensors->getSimSensor( sensor_id ) );
     if( !sensor ){
-        std::cerr  << "The sensor with " <<  _name.value() <<  " is not of the correct type (RaySensor)" << std::endl;
+        std::cerr  << "The sensor with " <<  sensor_name <<  " is not of the correct type (RaySensor)" << std::endl;
         return false;
     }
 

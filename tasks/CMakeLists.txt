@@ -22,6 +22,7 @@ add_dependencies(${MARS_TASKLIB_NAME}
     regen-typekit)
 
 if (${USE_QT5})
+
 qt5_use_modules(${MARS_TASKLIB_NAME} Widgets)
 endif (${USE_QT5})
 

@@ -5,8 +5,10 @@ using_library "mars_gui", :typekit => false
 using_library "mars_app", :typekit => false
 using_library "mars_sim", :typekit => false
 using_library "mars_smurf_loader", :typekit => false
+
 using_library "main_gui", :typekit => false
 using_library "base-types", :typekit => false
+
 using_library "lib_manager", :typekit => false
 using_library "configmaps", :typekit => false
 
@@ -81,8 +83,8 @@ task_context "Task" do
         property('distributed_simulation', 'bool').
 	    doc('switch to active the distributed simulation if needed')
 
-        #property('enable_gui', 'bool').
-	    #doc('start the simulation graphical interface with this module')
+        property('enable_gui', 'bool').
+	      doc('deprecated and not evaluated: start the simulation graphical interface with this module')
 
         property('controller_port', 'int').
             doc('set the controller port, e.g. 1600 for communication with monster')
@@ -131,7 +133,10 @@ end
 task_context "CameraPlugin", subclasses: "Plugin" do
     abstract
     property('name', '/std/string').
-	doc('name of the camera in the scene file')
+	    doc('name of the camera in the scene file')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')
+
 
 end
 
@@ -189,6 +194,8 @@ task_context "Joints", subclasses: "Plugin" do
 
     property('names', 'std/vector</std/string>').
         doc('Array of names of the motor in the scene file. The names get mapped to motor ids starting from zero')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')
     property('name_remap', 'std/vector</std/string>').
         doc('If this array is set the joints will be renamed for the external interface')
     property('parallel_kinematics', 'std/vector<mars/ParallelKinematic>').
@@ -265,13 +272,15 @@ task_context "LaserRangeFinder", subclasses: "Plugin" do
         doc 'how much ranges measurement to merge into one single reported measurement'
 
     property('min_range', 'double', 0.0).
-        doc("Minimum valid range of the laser range finder")
+        doc("Minimum valid range of the laser range finder") 
 
     output_port('scans', 'base/samples/LaserScan').
         max_sizes('remission' => 2000, 'ranges' => 2000).
         doc "the laser scans themselves"
     property('name', '/std/string', 'laser_scanner').
-	doc('name of the sensor in the scene file')
+	    doc('name of the sensor in the scene file')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')           
 end
 
 # Can be used to simulate laser scanners with more than one vertical scan line
@@ -302,8 +311,7 @@ task_context "IMU", subclasses: "Plugin" do
         doc("Set to true is this Sensor should output orientation readings")
 
     property("provide_velocity", "/bool",true).
-        doc("Set to true is this Sensor should output angular/translational velocities")
-
+        doc("Set to true is this Sensor should output angular/translational velocities") 
 
     property("imu_frame", "std/string", "imu").
 	doc "The name of the imu frame."
@@ -328,7 +336,9 @@ task_context "IMU", subclasses: "Plugin" do
     needs_configuration
 
     property('name', '/std/string', 'imu').
-	doc('name of the node in the scene file from which to get the imu data')
+	    doc('name of the node in the scene file from which to get the imu data')
+    property('robot_name', '/std/string', '').
+        doc('Name of the robot')       
 
     operation('estimate_bias').
         argument('duration', '/uint16_t').
@@ -372,9 +382,9 @@ task_context "RobotTeleportation", subclasses: "Plugin" do
         doc 'Puts the robot to the given rotation.'
     input_port('position_id', '/uint16_t').
         doc 'Puts the robot to the given preconfigured position.'
-    input_port('anchor', '/bool', false).
+    input_port('anchor', '/bool').
         doc 'Fixes the robot at the given position.'
-    input_port('reset_node', '/bool', false).
+    input_port('reset_node', '/bool').
         doc 'Resets root and the given node (config).'
 	port_driven
 

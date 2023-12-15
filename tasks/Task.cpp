@@ -180,11 +180,11 @@ void* Task::startTaskFunc(void* argument)
         Option confDirOption("-C", marsArguments->config_dir);
         rawOptions.push_back(confDirOption);
     }
-    if(!marsArguments->enable_gui)
-    {
-        Option noGUIOption("--no-gui", "");
-        rawOptions.push_back(noGUIOption);
-    }
+    // if(!marsArguments->enable_gui)
+    // {
+    //     Option noGUIOption("--no-gui", "");
+    //     rawOptions.push_back(noGUIOption);
+    // }
     char** argv = mars->setOptions(rawOptions);
     int argc = mars->getOptionCount(rawOptions);
     // incrememt arcument counter since setOptions adds mars_core to arguments
@@ -327,10 +327,10 @@ bool Task::setShow_coordinate_system(bool value)
     }
 
     //Call the base function, DO-NOT Remove
-    if(value)
-        marsGraphics->hideCoords();
-    else
-        marsGraphics->showCoords();
+    // if(value)
+    //     marsGraphics->hideCoords();
+    // else
+    //     marsGraphics->showCoords();
 
     return(mars::TaskBase::setShow_coordinate_system(value));
 }

@@ -44,8 +44,9 @@ namespace mars {
       short unsigned int curr_id, old_curr_id;
       utils::Vector pos, old_pos;
       utils::Quaternion rot, old_rot;
-      bool anchor, reset_node, old_anchor;
-      bool reloadScene;
+      bool anchor{false};
+      bool reset_node{false};
+      bool old_anchor,reloadScene;
 
 
       struct Target {
