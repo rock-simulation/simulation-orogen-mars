@@ -111,10 +111,11 @@ void Camera::cleanupHook()
 
 void Camera::getData()
 {	
-    camera->getImage(marsImage);
 
     image = ro_ptr.write_access();
     
+    image->time = base::Time::fromMilliseconds(camera->getImageTime());
+    camera->getImage(marsImage);
     //copy image data
     //data format is ARGB therefore we have to skip every 4th byte
     //to convert it into RGB
@@ -133,7 +134,6 @@ void Camera::getData()
         }
     }
     //set attributes
-    image->time = getTime();
     image->received_time = image->time;
     image->frame_status = base::samples::frame::STATUS_VALID;
     

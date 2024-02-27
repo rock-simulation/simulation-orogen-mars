@@ -63,6 +63,7 @@ void DepthCamera::cleanupHook()
 void DepthCamera::getData()
 {	
     image = ro_ptr.write_access();
+    image->time = base::Time::fromMilliseconds(camera->getImageTime());
     camera->getDepthImage(image->data);
     
     // get the camera info for the intrinsic parameters of the virtual camera
@@ -75,7 +76,6 @@ void DepthCamera::getData()
 
     //set attributes
     //image->time = base::Time::fromSeconds(lastUpdateTime);
-    image->time = getTime();
     
     ro_ptr.reset(image);
     
