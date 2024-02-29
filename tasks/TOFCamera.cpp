@@ -56,6 +56,11 @@ void TOFCamera::getData()
     std::vector<mars::utils::Vector> colors;
 
     pcl.time = base::Time::fromMilliseconds(camera->getImageTime());
+    
+    if(pcl.time == mLastImageTime)
+        return;
+
+    mLastImageTime = pcl.time;    
     camera->getColoredPointcloud(&(pcl.points), &(colors));
 
     pcl.colors.resize(colors.size());

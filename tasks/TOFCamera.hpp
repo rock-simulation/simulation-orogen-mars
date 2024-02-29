@@ -26,7 +26,7 @@ namespace mars{
 	friend class TOFCameraBase;
     protected:
 
-
+        base::Time mLastImageTime;
 
     public:
         /** TaskContext constructor for TOFCamera
