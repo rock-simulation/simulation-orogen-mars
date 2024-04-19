@@ -111,6 +111,18 @@ task_context "Task" do
         operation("move_node").
             argument("arg","/mars/Positions")
 
+        operation('connect_links').
+            doc('Defines a fixed joint between the two specified links').
+            returns("bool").
+            argument('link1', 'std::string', "Name of link1").
+            argument('link2', 'std::string', "Name of link2")
+
+        operation('disconnect_links').
+            doc('Resolves a fixed joint between the two specified links').
+            returns("bool").
+            argument('link1', 'std::string', "Name of link1").
+            argument('link2', 'std::string', "Name of link2")
+
         output_port('time', 'double')
         output_port('simulated_time', '/base/Time')
 
