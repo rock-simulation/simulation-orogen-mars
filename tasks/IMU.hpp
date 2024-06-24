@@ -7,6 +7,7 @@
 
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <boost/optional.hpp>
 
 #include <mars_interfaces/sim/DynamicObject.hpp>
 namespace mars {
@@ -33,7 +34,7 @@ namespace mars {
 
     protected:
 
-        std::shared_ptr<mars::interfaces::DynamicObject> imu;
+        boost::optional<std::weak_ptr<mars::interfaces::DynamicObject>> imu;
 
         //long node_id;
         base::samples::RigidBodyState rbs;

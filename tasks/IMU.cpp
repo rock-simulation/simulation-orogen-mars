@@ -15,13 +15,12 @@ using namespace mars;
 
 IMU::IMU(std::string const& name)
     : IMUBase(name),
-    imu(nullptr)
+    imu{boost::none}
 {
 }
 
 IMU::IMU(std::string const& name, RTT::ExecutionEngine* engine)
-    : IMUBase(name, engine),
-    imu(nullptr)
+    : IMUBase(name, engine), imu{boost::none}
 {
 }
 
@@ -67,11 +66,12 @@ bool IMU::configureHook()
     bool imuFound = false;
     while (begin_itr != end_itr && imuFound == false)
     {
-        std::shared_ptr<interfaces::DynamicObject> dynamicObject = begin_itr->getData().dynamicObject;
+        auto& dynamicObject = begin_itr->getData().dynamicObject;
         if (dynamicObject->getName() == imuName)
         {
             imuFound = true;
             imu = dynamicObject;
+            break;
         }
         begin_itr++;
     }
@@ -121,11 +121,19 @@ void IMU::update( double time )
 {
     if(!isRunning()) return; //Seems Plugin is set up but not active yet, we are not sure that we are initialized correctly so retuning
 
-    if (imu == nullptr)
+    if (!imu.has_value())
     {
         exception();
         return;
     }
+    if (imu->expired())
+    {
+        // This will happen, if the DynamicObject referenced by imu was removed from the envire graph. This occurs especially if the simulation was reset.
+        exception();
+        return;
+    }
+
+    auto validImu = imu->lock();
 
     //First make all invalid
     rbs.invalidate();
@@ -137,7 +145,7 @@ void IMU::update( double time )
         // TODO: mars1
         //rbs.orientation = control->nodes->getRotation( node_id ).normalized();
         utils::Quaternion q;
-        imu->getRotation(&q);
+        validImu->getRotation(&q);
         rbs.orientation = q.normalized();
         rbs.cov_orientation = base::Matrix3d::Identity() * std::max(std::pow(rotation_noise.sigma(), 2), 1e-6);
         if( rotation_noise.sigma() > 0.0 )
@@ -153,7 +161,7 @@ void IMU::update( double time )
             // TODO: mars1
             //rbs.angular_velocity = rbs.orientation.conjugate() * control->nodes->getAngularVelocity( node_id);
             utils::Vector v;
-            imu->getAngularVelocity(&v);
+            validImu->getAngularVelocity(&v);
             rbs.angular_velocity = rbs.orientation.conjugate() * v;
             rbs.cov_angular_velocity = base::Matrix3d::Identity() * std::max(std::pow(angular_velocity_noise.sigma(), 2), 1e-6);
             if( angular_velocity_noise.sigma() > 0.0 )
@@ -169,7 +177,7 @@ void IMU::update( double time )
         // TODO: mars1
         //rbs.position = control->nodes->getPosition( node_id );
         utils::Vector pos;
-        imu->getPosition(&pos);
+        validImu->getPosition(&pos);
         rbs.position = pos;
         rbs.cov_position = base::Matrix3d::Identity() * std::max(std::pow(translation_noise.sigma(), 2), 1e-6);
         if( translation_noise.sigma() > 0.0 )
@@ -182,7 +190,7 @@ void IMU::update( double time )
             // TODO: mars1
             //rbs.velocity = control->nodes->getLinearVelocity( node_id );
             utils::Vector v;
-            imu->getLinearVelocity(&v);
+            validImu->getLinearVelocity(&v);
             rbs.velocity = v;
             rbs.cov_velocity = base::Matrix3d::Identity() * std::max(std::pow(velocity_noise.sigma(), 2), 1e-6);
             if( velocity_noise.sigma() > 0.0 )
@@ -203,11 +211,11 @@ void IMU::update( double time )
     //imusens.gyro = orientation_con * control->nodes->getAngularVelocity( node_id);
     {
         utils::Quaternion q;
-        imu->getRotation(&q);
+        validImu->getRotation(&q);
         base::Orientation orientation_con = q.normalized().conjugate();
         // TODO: add acceleration
         utils::Vector v_a;
-        imu->getAngularVelocity(&v_a);
+        validImu->getAngularVelocity(&v_a);
         imusens.gyro = orientation_con * v_a;
     }
     // TODO add noise?
